@@ -1,0 +1,60 @@
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { Sale } from '../models/sale.model';
+import { BASE_URL } from '../base-url';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class SaleService {
+  private baseUrl = BASE_URL + '/sale/api';
+
+  constructor(private http: HttpClient) { }
+
+  getSalesByDateRange(startDate: string, endDate: string): Observable<any[]> {
+    const url = `${this.baseUrl}/getSalesByDateRange?startDate=${startDate}&endDate=${endDate}`;
+    return this.http.get<any[]>(url);
+  }
+
+  createSale(sale: Sale): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/createSale`, sale);
+  }
+
+  getInvoiceNumber(): Observable<string> {
+    return this.http.get(`${this.baseUrl}/getInvoiceNumber`, { responseType: 'text' });
+  }
+
+  findAllSales(): Observable<any> {
+    const url = `${this.baseUrl}/getAllSale`;
+    return this.http.get<any>(url);
+  }
+
+  findAllDeletedSales(): Observable<any> {
+    const url = `${this.baseUrl}/getAllDeletedSales`;
+    return this.http.get<any>(url);
+  }
+
+  findAllHoldSales(): Observable<any> {
+    const url = `${this.baseUrl}/getAllHoldSales`;
+    return this.http.get<any>(url);
+  }
+
+  findAllPartiallyPaidSales(): Observable<any> {
+    const url = `${this.baseUrl}/getAllPartiallyPaidSales`;
+    return this.http.get<any>(url);
+  }
+
+  deleteSale(sale: Sale): Observable<any> {
+    console.log("eeee" + sale)
+    return this.http.post<any>(`${this.baseUrl}/deleteSale`, sale);
+  }
+
+  updatePaidAMount(sale: Sale): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/updatePaidAMount`, sale);
+  }
+
+  deleteHoldSale(saleId: number): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/deleteHoldSale`, { saleId });
+  }
+}

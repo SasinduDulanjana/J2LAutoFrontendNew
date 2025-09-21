@@ -1,0 +1,138 @@
+<div class="container py-4">
+  <div class="card shadow-sm">
+    <div class="card-header bg-primary text-white d-flex align-items-center">
+      <svg cIcon name="cil-basket" class="me-2"></svg>
+      <h4 class="mb-0">Create Purchase</h4>
+    </div>
+    <div class="card-body">
+      <form (ngSubmit)="createPurchase()" #purchaseForm="ngForm" cForm class="row g-4">
+        <c-row class="g-3">
+          <c-col [md]="3">
+            <label cLabel for="invoiceNumber">Invoice Number</label>
+            <input cFormControl id="invoiceNumber" type="text" [(ngModel)]="purchase.invoiceNumber" name="invoiceNumber" required #invoiceNumber="ngModel" />
+            <div *ngIf="invoiceNumber.invalid && (invoiceNumber.dirty || invoiceNumber.touched)" class="text-danger small">Invoice number is required.</div>
+            <small class="text-muted">If the purchase has been issued outside of XPos, please provide a unique reference.</small>
+          </c-col>
+          <c-col [md]="3">
+            <label cLabel for="deliveryTime">Delivery Time</label>
+            <input cFormControl id="deliveryTime" type="date" [(ngModel)]="purchase.deliveryTime" name="deliveryTime" required #deliveryTime="ngModel" />
+            <div *ngIf="deliveryTime.invalid && (deliveryTime.dirty || deliveryTime.touched)" class="text-danger small">Delivery time is required.</div>
+          </c-col>
+          <c-col [md]="3">
+            <label cLabel for="invoiceDate">Invoice Date</label>
+            <input cFormControl id="invoiceDate" type="text" [value]="purchase.invoiceDate" name="invoiceDate" readonly class="form-control bg-light" />
+            <small class="text-muted">Invoice date is set to current date automatically.</small>
+          </c-col>
+          <c-col [md]="3">
+            <label cLabel for="supplier">Supplier</label>
+            <div class="d-flex align-items-center gap-2">
+              <select cFormControl id="supplier" [(ngModel)]="selectedSupplierId" name="supplier" required class="form-select" #supplierId="ngModel">
+                <option value="" disabled selected hidden>Select supplier</option>
+                <option *ngFor="let supplier of suppliers" [value]="supplier.supId">{{ supplier.name }}</option>
+              </select>
+              <button cButton type="button" color="primary" (click)="openCreateSupplierPopup()">
+                <svg cIcon name="cil-plus" class="me-1"></svg>
+              </button>
+            </div>
+            <div *ngIf="supplierId.invalid && (supplierId.dirty || supplierId.touched)" class="text-danger small">Supplier is required.</div>
+            <small class="text-muted">Determine what is the actual provider of the current purchase.</small>
+          </c-col>
+        </c-row>
+        <c-col [xs]="12" class="mt-4">
+          <div class="d-flex align-items-center mb-3">
+            <input style="background-color: #e5e7eb;" placeholder="SKU, Barcode, Name" id="searchProduct" type="text" [(ngModel)]="productSearchTerm" (input)="searchProduct()" name="searchProduct" class="form-control" />
+          </div>
+          <div *ngIf="searchResults.length > 0">
+            <ul class="list-group mt-2">
+              <li *ngFor="let product of searchResults" (click)="addProductToPurchase(product)" class="list-group-item list-group-item-action">
+                {{ product.productName }}
+              </li>
+            </ul>
+          </div>
+        </c-col>
+        <c-col [xs]="12" style="padding-top: 2%;">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>#</th>
+                  <th>Name</th>
+                  <th>Qty</th>
+                  <th>Unit Cost</th>
+                  <th>Total Cost</th>
+                  <th>Retail Price</th>
+                  <!-- <th>Wholesale Price</th> -->
+                  <th>SKU</th>
+                  <th>Batch No</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let product of purchase.products; let i = index">
+                  <th scope="row">{{ i + 1 }}</th>
+                  <td>{{ product.productName }}</td>
+                  <td>
+                    <input type="number" [(ngModel)]="product.remainingQty" name="qty-{{i}}" class="form-control" min="1" required #qty="ngModel" />
+                    <div *ngIf="qty.invalid && (qty.dirty || qty.touched)" class="text-danger small">Quantity is required and must be at least 1.</div>
+                  </td>
+                  <td>
+                    <input type="number" [(ngModel)]="product.cost" name="cost-{{i}}" class="form-control" [readonly]="isExistingBatch(product.batchNo)" min="0.01" required #cost="ngModel" />
+                    <div *ngIf="cost.invalid && (cost.dirty || cost.touched)" class="text-danger small">Unit cost is required and must be positive.</div>
+                  </td>
+                  <td>
+                    {{ (product.cost || 0) * (product.remainingQty || 0) | number:'1.2-2' }}
+                  </td>
+                  <td>
+                    <input type="number" [(ngModel)]="product.retailPrice" name="retailPrice-{{i}}" class="form-control" min="0" required #retailPrice="ngModel" [readonly]="isExistingBatch(product.batchNo)" />
+                    <div *ngIf="retailPrice.invalid && (retailPrice.dirty || retailPrice.touched)" class="text-danger small">Retail price is required.</div>
+                  </td>
+                        <!--
+                        <td>
+                          <input type="number" [(ngModel)]="product.wholeSalePrice" name="wholesalePrice-{{i}}" class="form-control" min="0" required #wholesalePrice="ngModel" />
+                          <div *ngIf="wholesalePrice.invalid && (wholesalePrice.dirty || wholesalePrice.touched)" class="text-danger small">Wholesale price is required.</div>
+                        </td>
+                        -->
+                  <td>{{ product.sku }}</td>
+                  <td>
+                    <div class="input-group">
+                    <input type="text" [(ngModel)]="product.batchNo" name="batchNo-{{i}}" class="form-control" required #batchNo="ngModel" />
+                    <div *ngIf="batchNo.invalid && (batchNo.dirty || batchNo.touched)" class="text-danger small">Batch number is required.</div>
+                      <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                        Select Batch
+                      </button>
+                      <ul class="dropdown-menu">
+                        <li *ngFor="let batch of getBatchNumbers(product)"><a class="dropdown-item" (click)="selectBatch(product, batch)">{{ batch.batchNumber }}</a></li>
+                        <li><a class="dropdown-item text-primary" (click)="addNewBatch(product)"><strong>+ Add New Batch</strong></a></li>
+                      </ul>
+                    </div>
+                  </td>
+                  <td>
+                    <button type="button" (click)="removeProduct(product)" class="btn btn-danger btn-sm">Remove</button>
+                  </td>
+                </tr>
+              </tbody>
+              <tfoot>
+                <tr>
+                  <th colspan="4" class="text-end">Total Cost</th>
+                  <td>{{ calculateTotalCost() | number:'1.2-2' }}</td>
+                </tr>
+                <tr>
+                  <th colspan="4" class="text-end">Paid Amount</th>
+                  <td>
+                    <input type="text" [(ngModel)]="paidAmount" name="paidAmount" class="form-control" inputmode="decimal" pattern="[0-9]*" style="appearance: textfield;" required #paidAmountField="ngModel" />
+                    <div *ngIf="paidAmountField.invalid && (paidAmountField.dirty || paidAmountField.touched)" class="text-danger small">Paid amount is required.</div>
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </c-col>
+        <c-col [md]="12" class="text-end">
+          <button cButton color="primary" type="submit" [disabled]="!purchaseForm.form.valid || purchase.products.length === 0" style="min-width: 120px; height: 40px; font-size: 1rem;">
+            <svg cIcon name="cil-save" class="me-2"></svg>Save Purchase
+          </button>
+        </c-col>
+      </form>
+    </div>
+  </div>
+</div>

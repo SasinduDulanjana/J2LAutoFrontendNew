@@ -1,0 +1,47 @@
+// Here you can add other styles
+
+.c-sidebar-nav-link.with-bullet::before {
+  content: '\2022'; /* Unicode bullet */
+  color: #0d6efd; /* Bootstrap primary color */
+  font-size: 1.2em;
+  margin-right: 0.7em;
+  vertical-align: middle;
+  display: inline-block;
+}
+
+/* Responsive fixes for CoreUI customizations */
+@media (max-width: 991.98px) {
+  .c-header-nav.d-lg-flex {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.5rem;
+  }
+  .c-header-nav .c-nav-item {
+    margin-bottom: 0.5rem;
+  }
+  .c-header-nav .c-nav-item button {
+    width: 100%;
+    min-width: unset;
+    justify-content: center;
+  }
+  .wrapper {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+  .body.px-3 {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .c-header-nav .c-nav-item span#realtime-clock {
+    font-size: 1rem !important;
+    margin-right: 0.5rem !important;
+  }
+  .c-header-nav .c-nav-item button {
+    font-size: 1rem !important;
+    padding: 0.5rem 0.75rem !important;
+  }
+}
+

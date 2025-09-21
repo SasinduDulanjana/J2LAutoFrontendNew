@@ -1,0 +1,40 @@
+<div class="view-products-dialog">
+  <div class="dialog-header d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0">Products for Purchase</h4>
+    <button type="button" class="close-btn" aria-label="Close" (click)="close()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="dialog-content">
+    <table class="table table-hover table-bordered table-striped mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>Product Name</th>
+          <th>SKU</th>
+          <th>Batch No</th>
+          <th>Sale Price</th>
+          <th>Unit Cost</th>
+          <th>Qty</th>
+          <th>Total Cost</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let product of data.products">
+          <td>{{ product.productName || product.product_name || 'N/A' }}</td>
+          <td>{{ product.sku || product.SKU || 'N/A' }}</td>
+          <td>{{ product.batchNo || product.batch_no || 'N/A' }}</td>
+          <td>{{ product.salePrice || product.sale_price || 'N/A' }}</td>
+          <td>{{ product.unitCost !== undefined ? product.unitCost : (product.cost !== undefined ? product.cost : 'N/A') }}</td>
+          <td>{{ product.purchaseQty || 'N/A' }}</td>
+          <td>{{ product.unitCost * product.purchaseQty || 'N/A' }}</td>
+        </tr>
+        <tr *ngIf="!data.products || data.products.length === 0">
+          <td colspan="7" class="text-center text-muted">No products found for this purchase.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="dialog-actions d-flex justify-content-end mt-3">
+    <button type="button" class="btn btn-primary" (click)="close()">Close</button>
+  </div>
+</div>

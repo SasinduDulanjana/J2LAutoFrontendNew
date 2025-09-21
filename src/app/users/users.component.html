@@ -1,0 +1,126 @@
+
+<div class="container py-4">
+  <div class="card shadow-sm">
+    <div class="card-header bg-primary text-white d-flex align-items-center">
+      <svg cIcon name="cil-user" class="me-2"></svg>
+      <h4 class="mb-0">User Management</h4>
+    </div>
+    <div class="card-body">
+      <form class="row g-4 mb-4" #userForm="ngForm" (ngSubmit)="addUser()">
+        <c-col [md]="6">
+          <label cLabel for="username">Username</label>
+          <input cFormControl id="username" name="username" [(ngModel)]="newUser.username" type="text" placeholder="Enter username" required #username="ngModel" minlength="2" />
+          <div *ngIf="username.invalid && (username.dirty || username.touched || userForm.submitted)" class="text-danger small">
+            <div *ngIf="username.errors?.['required']">Username is required.</div>
+            <div *ngIf="username.errors?.['minlength']">Username must be at least 2 characters.</div>
+          </div>
+        </c-col>
+        <c-col [md]="6">
+          <label cLabel for="email">Email</label>
+          <input cFormControl id="email" name="email" [(ngModel)]="newUser.email" type="email" placeholder="Enter email" required #email="ngModel" email />
+          <div *ngIf="email.invalid && (email.dirty || email.touched || userForm.submitted)" class="text-danger small">
+            <div *ngIf="email.errors?.['required']">Email is required.</div>
+            <div *ngIf="email.errors?.['email']">Invalid email format.</div>
+          </div>
+        </c-col>
+        <c-col [md]="6">
+          <label cLabel for="password">Password</label>
+          <input cFormControl id="password" name="password" [(ngModel)]="newUser.password" type="password" placeholder="Enter password" required #password="ngModel" minlength="6" />
+          <div *ngIf="password.invalid && (password.dirty || password.touched || userForm.submitted)" class="text-danger small">
+            <div *ngIf="password.errors?.['required']">Password is required.</div>
+            <div *ngIf="password.errors?.['minlength']">Password must be at least 6 characters.</div>
+          </div>
+        </c-col>
+        <c-col [md]="6">
+          <label cLabel for="repeatPassword">Repeat Password</label>
+          <input cFormControl id="repeatPassword" name="repeatPassword" [(ngModel)]="repeatPassword" type="password" placeholder="Repeat password" required #repeatPasswordField="ngModel" />
+          <div *ngIf="repeatPasswordField.invalid && (repeatPasswordField.dirty || repeatPasswordField.touched || userForm.submitted)" class="text-danger small">
+            <div *ngIf="repeatPasswordField.errors?.['required']">Repeat password is required.</div>
+          </div>
+          <div *ngIf="newUser.password && repeatPassword && newUser.password !== repeatPassword" class="text-danger mt-1">
+            Passwords do not match.
+          </div>
+        </c-col>
+        <c-col [md]="6">
+          <label cLabel for="roles">Role</label>
+          <c-dropdown class="w-100">
+            <button cButton cDropdownToggle color="light" style="width: 100%; text-align: left;">
+              <span>
+                {{ newUser.roles.length ? newUser.roles.join(', ') : 'Select role(s)' }}
+              </span>
+            </button>
+            <ul cDropdownMenu class="w-100">
+              <li *ngFor="let role of roles">
+                <button type="button" cDropdownItem
+                  [class.active]="newUser.roles.includes(role.name)"
+                  (click)="toggleRole(role.name)">
+                  {{ role.name }}
+                </button>
+              </li>
+            </ul>
+          </c-dropdown>
+          <div *ngIf="userForm.submitted && !newUser.roles.length" class="text-danger mt-1">At least one role is required.</div>
+        </c-col>
+        <c-col [md]="6">
+          <label cLabel for="status">Status</label>
+          <c-dropdown class="w-100">
+            <button cButton cDropdownToggle color="light" style="width: 100%; text-align: left;">
+              <span>{{ newUser.status === 1 ? 'Active' : newUser.status === 0 ? 'Inactive' : 'Select status' }}</span>
+            </button>
+            <ul cDropdownMenu class="w-100">
+              <li><button type="button" cDropdownItem (click)="newUser.status = 1">Active</button></li>
+              <li><button type="button" cDropdownItem (click)="newUser.status = 0">Inactive</button></li>
+            </ul>
+          </c-dropdown>
+          <div *ngIf="userForm.submitted && (newUser.status !== 1 && newUser.status !== 0)" class="text-danger mt-1">Status is required.</div>
+        </c-col>
+        <c-col [md]="12" class="text-end">
+          <button cButton color="primary" type="submit"
+            [disabled]="!newUser.username || !newUser.email || !newUser.password || !repeatPassword || !newUser.roles.length || !newUser.status || newUser.password !== repeatPassword">
+            <svg cIcon name="cil-save" class="me-2"></svg>Save User
+          </button>
+        </c-col>
+      </form>
+    </div>
+  </div>
+
+  <div *ngIf="users.length > 0" class="card mt-4">
+    <div class="card-header bg-light">
+      <h5 class="mb-0">User Records</h5>
+    </div>
+    <div class="card-body p-0">
+      <table class="table table-striped table-hover mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Roles</th>
+            <th>Status</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of users">
+            <td>{{ user.username }}</td>
+            <td>{{ user.email }}</td>
+            <td>
+              {{ getRoleNames(user) }}
+            </td>
+            <td>
+              {{ user.status === 1 ? 'Active' : user.status === 0 ? 'Inactive' : '' }}
+            </td>
+            <td class="text-end">
+              <c-dropdown>
+                <button cButton cDropdownToggle color="secondary" style="min-width: 100px;">Options</button>
+                <ul cDropdownMenu>
+                  <li><button (click)="editUser(user)" cDropdownItem>Edit</button></li>
+                  <li><button (click)="deleteUser(user)" cDropdownItem>Delete</button></li>
+                </ul>
+              </c-dropdown>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

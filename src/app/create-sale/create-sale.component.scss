@@ -1,0 +1,470 @@
+/* Professional style for selectable bill wise discount */
+.discount-label {
+  background: #e3edff;
+  color: #0d47a1;
+  border: 1px solid #b6cdfa;
+  border-radius: 6px;
+  padding: 4px 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  box-shadow: 0 1px 4px rgba(13, 71, 161, 0.07);
+  margin-left: 4px;
+}
+.discount-label:hover {
+  background: #0d47a1;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(13, 71, 161, 0.15);
+}
+/* Professional style for selectable customer */
+.clickable-customer {
+  background: #e3edff;
+  color: #0d47a1;
+  border: 1px solid #b6cdfa;
+  border-radius: 6px;
+  padding: 4px 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  box-shadow: 0 1px 4px rgba(13, 71, 161, 0.07);
+  margin-left: 4px;
+}
+.clickable-customer:hover {
+  background: #0d47a1;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(13, 71, 161, 0.15);
+}
+/* =========================
+   GLOBAL STYLES
+========================= */
+body, html {
+  height: 100%;
+  margin: 0;
+  font-family: "Segoe UI", Roboto, Arial, sans-serif;
+  background-color: #f4f6f9; /* Light gray background */
+  color: #333;
+}
+
+.page-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding: 20px;
+  box-sizing: border-box;
+  gap: 1rem;
+}
+
+/* =========================
+   HEADER BOX
+========================= */
+.common-box {
+  background-color: #ffffff;
+  padding: 10px 15px;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 50, 150, 0.1);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Header buttons */
+.header-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.header-buttons button[cButton] {
+  background: #ffffff;
+  color: #0d47a1;
+  border: 1px solid #0d47a1;
+  border-radius: 8px;
+  padding: 8px 14px;
+  min-width: 120px;
+  font-weight: 500;
+  transition: all 0.25s ease;
+}
+
+.header-buttons button[cButton]:hover {
+  background: #0d47a1;
+  color: #ffffff;
+}
+
+/* Info boxes */
+.info-box {
+  background: #f9fbff;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #dbe3f0;
+  font-size: 14px;
+  color: #444;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  min-width: 240px;
+  justify-content: center;
+  text-align: center;
+}
+
+.info-box label {
+  font-weight: 600;
+  font-size: 13px;
+  color: #0d47a1;
+  margin-bottom: 2px;
+}
+
+.info-value {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+}
+
+/* =========================
+   FLEX BOXES (CONTENT)
+========================= */
+.flex-boxes {
+  display: flex;
+  gap: 1rem;
+  flex-grow: 1;
+}
+
+.box {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 50, 150, 0.08);
+  transition: all 0.3s ease;
+}
+
+.box:hover {
+  box-shadow: 0 4px 18px rgba(0, 50, 150, 0.15);
+}
+
+/* =========================
+   TABLE STYLES
+========================= */
+.table-wrapper {
+  max-height: 400px;
+  overflow-y: auto;
+  margin-top: 10px;
+  border: 1px solid #e0e6f1;
+  border-radius: 8px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.table th {
+  background: #0d47a1;
+  color: #ffffff;
+  font-weight: 600;
+  padding: 10px;
+  text-align: center;
+}
+
+.table td {
+  padding: 10px;
+  border-bottom: 1px solid #e6ecf5;
+  text-align: center;
+}
+
+.table tr:hover {
+  background-color: #f5f9ff;
+}
+
+/* Close button */
+.btn-close-rounded {
+  background: #e53935;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  transition: background 0.2s;
+}
+
+.btn-close-rounded:hover {
+  background: #c62828;
+}
+
+/* =========================
+   FOOTER SUMMARY
+========================= */
+.footer-labels {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.footer-row {
+  background: #f0f5ff;
+  color: #0d47a1;
+  border: 1px solid #c9d8f5;
+  border-radius: 10px;
+  padding: 14px 18px;
+  font-size: 15px;
+  font-weight: 500;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: box-shadow 0.2s ease;
+}
+
+.footer-row:hover {
+  box-shadow: 0 4px 16px rgba(13, 71, 161, 0.15);
+}
+
+/* =========================
+   CATEGORY / PRODUCT BOXES
+========================= */
+.category-list, .product-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 10px;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.category-box, .product-box {
+  background: #e8f0ff;
+  border: 1px solid #c3d3f5;
+  border-radius: 8px;
+  padding: 12px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+  color: #0d47a1;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.category-box:hover, .product-box:hover {
+  background: #0d47a1;
+  color: #ffffff;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+@media (min-width: 1200px) {
+  .box-left { width: 75%; }
+  .box-right { width: 23%; }
+}
+
+@media (max-width: 991px) {
+  .flex-boxes { flex-direction: column; }
+  .box { width: 100%; }
+}
+
+/* =========================
+   BUTTON STYLES
+========================= */
+
+/* Base style */
+button[cButton], 
+.btn-custom {
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  padding: 10px 18px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  min-width: 120px;
+}
+
+/* Success (Create Sale) */
+button[cButton][color="success"],
+.btn-success-custom {
+  background-color: #0d47a1; /* Professional blue */
+  color: #fff;
+}
+
+button[cButton][color="success"]:hover,
+.btn-success-custom:hover {
+  background-color: #09367a; /* Darker blue on hover */
+}
+
+/* Info (View/Print Bill) */
+button[cButton][color="info"],
+.btn-info-custom {
+  background-color: #1976d2;
+  color: #fff;
+}
+
+button[cButton][color="info"]:hover,
+.btn-info-custom:hover {
+  background-color: #125ba0;
+}
+
+/* Secondary (Hold) */
+button[cButton][color="secondary"],
+.btn-secondary-custom {
+  background-color: #607d8b; /* Muted gray-blue */
+  color: #fff;
+}
+
+button[cButton][color="secondary"]:hover,
+.btn-secondary-custom:hover {
+  background-color: #455a64;
+}
+
+/* Danger (Reset) */
+button[cButton][color="danger"],
+.btn-danger-custom {
+  background-color: #e53935;
+  color: #fff;
+}
+
+button[cButton][color="danger"]:hover,
+.btn-danger-custom:hover {
+  background-color: #c62828;
+}
+
+/* Disabled button */
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Uniform sizing */
+.d-grid button {
+  width: 100%;
+  padding: 12px 0;
+}
+
+/* =========================
+   SALES FORM CONTAINER
+========================= */
+.sales-box {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  overflow: hidden;
+  margin: 20px auto;
+  max-width: 1200px; /* Centered wide card */
+  border: 1px solid #e0e0e0;
+}
+
+/* =========================
+   HEADER BAR
+========================= */
+.header-bar {
+  background: linear-gradient(135deg, #0d47a1, #1976d2); /* Corporate gradient */
+  color: #fff;
+  padding: 16px 24px;
+  font-size: 18px;
+  font-weight: 600;
+  border-radius: 12px 12px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+}
+
+.header-bar .title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-bar .title i {
+  font-size: 20px;
+  color: #fff;
+}
+
+.header-bar .actions {
+  display: flex;
+  gap: 10px;
+}
+
+/* =========================
+   CONTENT AREA
+========================= */
+.sales-box .content {
+  padding: 20px;
+  background: #fafafa;
+}
+
+/* Form grid */
+.sales-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* Input fields */
+.sales-form-grid input,
+.sales-form-grid select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border 0.2s ease;
+}
+
+.sales-form-grid input:focus,
+.sales-form-grid select:focus {
+  border-color: #1976d2;
+  outline: none;
+  box-shadow: 0 0 4px rgba(25, 118, 210, 0.3);
+}
+
+/* =========================
+   TABLE STYLING
+========================= */
+.sales-items {
+  margin-top: 20px;
+  border-collapse: collapse;
+  width: 100%;
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.sales-items th {
+  background: #1976d2;
+  color: #fff;
+  padding: 12px;
+  text-align: left;
+}
+
+.sales-items td {
+  padding: 12px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.sales-items tr:hover {
+  background: #f5f9ff;
+}
+
+/* =========================
+   FOOTER (Buttons, Totals)
+========================= */
+.sales-footer {
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sales-footer .totals {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.sales-footer .buttons {
+  display: flex;
+  gap: 10px;
+}
+

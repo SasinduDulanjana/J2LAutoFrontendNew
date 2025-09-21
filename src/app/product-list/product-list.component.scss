@@ -1,0 +1,149 @@
+/* src/app/create-customer/create-customer.component.css */
+
+div {
+    padding: 10px;
+  }
+  
+  h2 {
+    color: #333;
+  }
+  
+ .table{
+  background-color: white;
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid #ccc;
+ }
+
+/* Set border for table header */
+.table th {
+  border: 1px solid #ccc;
+  padding: 10px;
+  text-align: left;
+  background-color: #ebedef;
+  vertical-align: middle;
+  font-size: 16px;
+}
+
+/* Set border for table cells */
+.table td {
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+  text-align: left;
+  vertical-align: middle;
+}
+
+// .large-checkbox {
+//   transform: scale(2);
+//   margin-top: 10px;
+//   margin-left: 10px;
+// }
+
+// .dropdown-menu {
+//   background-color: #f1f5f9; /* Change the background color of the dropdown */
+//   border: 1px solid #ccc; /* Optional: Add border */
+//   width: 100%; /* Adjust width if needed */
+//   font-size: 14px;
+//   list-style: none; /* Remove bullet points */
+//   padding: 0; /* Remove extra padding */
+//   margin: 0; /* Remove extra margin */
+// }
+
+// /* Style the dropdown items */
+// .dropdown-menu li {
+//   padding: 10px; /* Add some padding */
+//   cursor: pointer; /* Show pointer cursor on hover */
+//   transition: background-color 0.3s; /* Smooth transition for hover effect */
+// }
+
+// /* Change the background color of each item */
+// .dropdown-menu li:hover {
+//   background-color: #2563eb; /* Hover color */
+//   color: white; /* Optional: change text color on hover */
+// }
+
+// .dropdown-input:focus,
+// .dropdown-input:active {
+//   background-color: #2563eb;/* Change the selected text color */
+//   color: white;
+// }
+
+// .dropdown-input {
+//   background-color: #ffffff; /* Change this to your desired background color */
+//   border: 1px solid #ccc; /* Optional: Add border */
+//   padding: 10px; /* Add some padding */
+//   width: 100px; /* Full width */
+//   height: 40px;
+//   border-radius: 50px; /* Optional: Add rounded corners */
+//   font-size: 14px;
+// }
+
+// /* Change the background color of each item */
+// .dropdown-input:hover {
+//   background-color: #2563eb; /* Hover color */
+//   color: white;
+// }
+
+.plus-button {
+  background-color: transparent; /* Transparent background */
+  border: 2px solid lightgray; /* Solid border with color of your choice */
+  color: #333; /* Text color for the plus sign */
+  font-size: 24px; /* Font size for the plus sign */
+  border-radius: 50%; /* Rounded button (circular) */
+  width: 45px; /* Width of the button */
+  height: 45px; /* Height of the button */
+  cursor: pointer; /* Pointer cursor on hover */
+  display: inline-flex; /* Center the plus sign */
+  align-items: center; /* Align the plus sign vertically */
+  justify-content: center; /* Align the plus sign horizontally */
+  transition: background-color 0.3s, color 0.3s; /* Smooth transition for hover effects */
+}
+
+/* Add hover effect */
+.plus-button:hover {
+  background-color: #2563eb; /* Background color on hover (optional) */
+  color: white; /* Text color change on hover */
+}
+
+// Modern, professional search bar styling (copied from customer/supplier list)
+.customer-search-bar {
+  display: flex;
+  align-items: center;
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  box-shadow: 0 2px 8px rgba(44, 62, 80, 0.04);
+  margin-bottom: 1.5rem;
+  border: 2px solid #0d6efd;
+  transition: border-color 0.2s;
+}
+
+.customer-search-bar:focus-within {
+  border-color: #2563eb;
+}
+
+.customer-search-bar input[type="text"] {
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 1.1rem;
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  color: #222;
+}
+
+.customer-search-bar input[type="text"]::placeholder {
+  color: #adb5bd;
+  opacity: 1;
+}
+
+.customer-search-bar svg {
+  color: #6c757d;
+  margin-right: 0.5rem;
+  font-size: 1.2rem;
+}
+
+// Remove old .search-container and .search-input styles if not used
+.search-container, .search-input {
+  display: none !important;
+}

@@ -1,0 +1,45 @@
+<div class="container py-4">
+  <div class="card shadow-sm">
+    <div class="card-header bg-primary text-white d-flex align-items-center">
+      <svg cIcon name="cil-layers" class="me-2"></svg>
+      <h4 class="mb-0">Create Category</h4>
+    </div>
+    <div class="card-body">
+      <form (ngSubmit)="createCategory()" #categoryForm="ngForm" cForm class="row g-4">
+        <c-col [md]="12">
+          <label cLabel for="name">Category Name</label>
+          <input cFormControl id="name" type="text" [(ngModel)]="category.name" name="name" required #name="ngModel" minlength="2" (ngModelChange)="onCategoryNameChange($event)" />
+          <div *ngIf="name.invalid && (name.dirty || name.touched)" class="text-danger small">
+            <div *ngIf="name.errors?.['required']">Category name is required.</div>
+            <div *ngIf="name.errors?.['minlength']">Category name must be at least 2 characters.</div>
+          </div>
+          <div *ngIf="categoryNameExists" class="text-danger small">Category name already exists!</div>
+        </c-col>
+        <c-col [md]="6">
+          <label cLabel for="parent">Parent Category</label>
+          <select cFormControl id="parent" [(ngModel)]="selectedParentCategoryId" name="parent" required #parent="ngModel" class="form-select">
+            <option value="">No Parent Category</option>
+            <option *ngFor="let category of categories" [value]="category.catId">{{ category.name }}</option>
+          </select>
+          <div *ngIf="parent.invalid && (parent.dirty || parent.touched)" class="text-danger small">
+            <div *ngIf="parent.errors?.['required']">Parent category is required.</div>
+          </div>
+        </c-col>
+        <c-col [md]="6">
+          <label cLabel for="catDesc">Description</label>
+          <textarea cFormControl id="catDesc" [(ngModel)]="category.catDesc" name="catDesc" rows="4" required #catDesc="ngModel" minlength="3" class="form-control"></textarea>
+          <div *ngIf="catDesc.invalid && (catDesc.dirty || catDesc.touched)" class="text-danger small">
+            <div *ngIf="catDesc.errors?.['required']">Description is required.</div>
+            <div *ngIf="catDesc.errors?.['minlength']">Description must be at least 3 characters.</div>
+          </div>
+        </c-col>
+        <c-col [md]="12" class="text-end">
+          <button cButton color="primary" type="submit" [disabled]="!categoryForm.form.valid || categoryNameExists">
+            <svg cIcon name="cil-save" class="me-2"></svg>Save Category
+          </button>
+        </c-col>
+      </form>
+    </div>
+  </div>
+</div>
+

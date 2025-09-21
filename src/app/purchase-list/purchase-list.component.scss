@@ -1,0 +1,37 @@
+// Modern, professional search bar styling for purchase list (copied from customer list)
+.purchase-search-bar {
+  display: flex;
+  align-items: center;
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  box-shadow: 0 2px 8px rgba(44, 62, 80, 0.04);
+  margin-bottom: 1.5rem;
+  border: 2px solid #0d6efd;
+  transition: border-color 0.2s;
+}
+
+.purchase-search-bar:focus-within {
+  border-color: #2563eb;
+}
+
+.purchase-search-bar input[type="text"] {
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 1.1rem;
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  color: #222;
+}
+
+.purchase-search-bar input[type="text"]::placeholder {
+  color: #adb5bd;
+  opacity: 1;
+}
+
+.purchase-search-bar svg {
+  color: #6c757d;
+  margin-right: 0.5rem;
+  font-size: 1.2rem;
+}

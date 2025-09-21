@@ -1,0 +1,56 @@
+<div class="container py-4">
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+      <h4 class="mb-0">Purchase List</h4>
+      <button cButton color="primary" (click)="navigateToCreatePurchase()" style="min-width: 140px; height: 40px; font-size: 1rem;">
+        <svg cIcon name="cil-basket" class="me-2"></svg> Add Purchase
+      </button>
+    </div>
+    <div class="card-body">
+      <div class="purchase-search-bar mb-3">
+        <svg cIcon name="cil-magnifying-glass"></svg>
+        <input type="text" placeholder="Search purchases by name, invoice, or supplier" [(ngModel)]="searchQuery" (input)="onSearch()" />
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <!-- <th>Purchase Name</th> -->
+              <th>Invoice Number</th>
+              <th>Supplier</th>
+              <th>Invoice Date</th>
+              <th>Total Cost</th>
+              <th>Paid Amount</th>
+              <th>Payment Status</th>
+              <th class="text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let purchase of filteredPurchases">
+              <!-- <td>{{ purchase.purchaseName }}</td> -->
+              <td>{{ purchase.invoiceNumber }}</td>
+              <td>{{ purchase.supplierName }}</td>
+              <td>
+                <ng-container *ngIf="isValidDate(purchase['invoiceDate']); else rawDate">
+                  {{ purchase['invoiceDate'] | date:'yyyy-MM-dd' }}
+                </ng-container>
+                <ng-template #rawDate>{{ purchase['invoiceDate'] }}</ng-template>
+              </td>
+              <td>{{ purchase['totalCost'] | number:'1.2-2' }}</td>
+              <td>{{ purchase['paidAmount'] | number:'1.2-2' }}</td>
+              <td>{{ purchase['paymentStatus'] }}</td>
+              <td class="text-end">
+                <button cButton color="info" (click)="viewProducts(purchase)" style="min-width: 120px;">
+                  <svg cIcon name="cil-list"></svg> View Products
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="filteredPurchases.length === 0">
+              <td colspan="6" class="text-center text-muted">No purchases found.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,39 @@
+
+.sales-return-container {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  padding: 2rem;
+  max-width: 1100px;
+  margin: 2rem auto;
+}
+
+.sales-return-container h2 {
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.sales-return-container form {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.sales-return-container .form-label {
+  font-weight: 500;
+}
+
+.sales-return-container .btn-primary {
+  min-width: 160px;
+}
+
+.sales-return-container table {
+  margin-top: 1.5rem;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.sales-return-container th, .sales-return-container td {
+  vertical-align: middle;
+}

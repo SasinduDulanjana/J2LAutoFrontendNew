@@ -1,0 +1,169 @@
+<div class="page-container">
+  <!-- Common Box at the Top -->
+  <div class="common-box">
+    <div class="header-buttons">
+      <button cButton color="success" variant="outline" size="lg" width="100px"
+        (click)="navigateToDashboard()">Dashboard</button>
+      <button cButton color="primary" variant="outline" size="lg" width="100px"
+        (click)="navigateToOrders()">Sales</button>
+      <!-- <button class="btn btn-primary">Order Type</button> -->
+      <button cButton color="primary" variant="outline" size="lg" width="100px"
+        (click)="openProductListPopup()">Products</button>
+
+
+      <!-- Display selected customer name -->
+      <c-col class="info-box">
+        <label cLabel for="custId">Customer: </label>
+        <label class="info-value">
+          <!-- <div *ngIf="selectedCustomerName" (click)="openCustomerListPopup()">{{ selectedCustomerName }}</div> -->
+          <span *ngIf="selectedCustomerName" class="clickable-customer" (click)="openCustomerListPopup()"
+            style="cursor: pointer;">
+            {{ selectedCustomerName }}
+          </span>
+        </label>
+      </c-col>
+      <!-- User ID -->
+      <c-col class="info-box">
+        <label cLabel for="userId">User: </label>
+        <label class="info-value">
+          <div>{{ loggedUserName }}</div>
+        </label>
+      </c-col>
+      <!-- Order Date -->
+      <c-col class="info-box">
+        <label cLabel for="orderDate">Inv. Date: </label>
+        <label class="info-value">{{ currentDate }}</label>
+      </c-col>
+      <!-- Invoice Number -->
+      <c-col class="info-box">
+        <label cLabel for="invoiceNumber">Inv. Number: </label>
+        <label class="info-value">
+          <div *ngIf="invoiceNumber">{{ invoiceNumber }}</div>
+        </label>
+      </c-col>
+    </div>
+  </div>
+
+
+  <!-- Flex container for side-by-side boxes -->
+  <div class="flex-boxes">
+  <!-- Box 1(left) -->
+  <div class="box box-left" style="position: relative;">
+  <form (ngSubmit)="createSale()" #saleForm="ngForm" cForm class="row g-3">
+        <c-col [xs]="12">
+          <input id="searchProduct" type="text" [(ngModel)]="productSearchTerm" (input)="searchProduct()"
+            (keypress)="handleKeypress($event)" name="searchProduct" class="form-control"
+            placeholder="Search Product (SKU, BarCode)" />
+          <div *ngIf="searchResults.length > 0" class="dropdown-list">
+            <ul class="list-group">
+              <li *ngFor="let product of searchResults" class="list-group-item list-group-item-action"
+                (click)="selectProduct(product)">
+                {{ product.productName }} - (SKU: {{ product.sku }}) - (Barcode: {{ product.barCode }})
+              </li>
+            </ul>
+          </div>
+        </c-col>
+        <c-col [xs]="12">
+          <div class="table-wrapper table-lg">
+            <table class="table table-bordered table-striped">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Name</th>
+                  <th>Batch</th>
+                  <th>Qty</th>
+                  <th>U. Price</th>
+                  <th>Disc. %</th>
+                  <th>Disc.</th>
+                  <th>Total</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of saleItems; let i = index">
+                  <td>{{ i + 1 }}</td>
+                  <td>{{ item.productName }}</td>
+                  <td>{{ item.batchNo }}</td>
+                  <td>{{ item.remainingQty }}</td>
+                  <td>{{ item.retailPrice}}</td>
+                  <td>
+                    <label class="discount-label" (click)="openDiscountModal(item)" style="cursor: pointer;">
+                      <span class="discount-value">{{ item.discountPercentage ?? 0 }}%</span>
+                    </label>
+                  </td>
+                  <td>
+                    <label class="discount-amount">
+                      {{ ((item?.discountPercentage ?? 0) / 100 * (item?.retailPrice ?? 0) * (item?.remainingQty ?? 0))}}
+                    </label>
+                  </td>
+                  <td>{{ ((item?.remainingQty ?? 0) * (item?.retailPrice ?? 0) - ((item?.discountPercentage ?? 0) / 100 * (item?.retailPrice ?? 0) * (item?.remainingQty ?? 0)))}}</td>
+                  <td>
+                    <button (click)="removeSaleItem(item)" class="btn-close-rounded">&times;</button>
+                  </td>
+                </tr>
+                <tr *ngFor="let placeholder of placeholderRows">
+                  <td colspan="10" class="empty-row"> </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </c-col>
+        <c-col [xs]="4">
+          <div class="d-grid gap-2">
+            <button cButton color="success" size="lg" type="submit"
+              [disabled]="!saleForm.form.valid || saleItems.length === 0" style="color: white;">Create Sale</button>
+          </div>
+        </c-col>
+        <c-col [xs]="12" *ngIf="showBillButton">
+          <div class="d-grid gap-2">
+            <button cButton color="info" size="lg" (click)="openBillDialog()" style="color: white;">View/Print Bill</button>
+          </div>
+        </c-col>
+        <c-col [xs]="4">
+          <div class="d-grid gap-2">
+            <button cButton color="secondary" size="lg" (click)="holdSale()" style="color: white;">Hold</button>
+          </div>
+        </c-col>
+        <c-col [xs]="4">
+          <div class="d-grid gap-2">
+            <button cButton color="danger" size="lg" width="100px" (click)="clearForm()" style="color: white;">Reset</button>
+          </div>
+        </c-col>
+      </form>
+    </div>
+    
+
+
+    <!-- Box 2 (Right): Summary Totals -->
+    <div class="box box-right" style="display: flex; flex-direction: column; height: 100%; justify-content: space-between;">
+      <div class="footer-labels">
+        <div class="footer-row">
+          <strong>Subtotal:</strong>
+          <span>{{ getSubtotal() | currency: 'LKR ' }}</span>
+        </div>
+        <div class="footer-row">
+          <strong>Line Wise Discount Total:</strong>
+          <span>{{ getTotalDiscount() | currency: 'LKR ' }}</span>
+        </div>
+        <div class="footer-row">
+          <strong>Bill Wise Discount: (%)</strong>
+          <span class="discount-label" (click)="openBillWiseDiscountModal()" style="cursor: pointer;">
+            {{ billWiseDiscountPercentage }}%
+          </span>
+        </div>
+        <div class="footer-row">
+          <strong>Bill Wise Discount Total:</strong>
+          <span>{{ getTotalBillWiseDiscount() | currency: 'LKR ' }}</span>
+        </div>
+        <div class="footer-row">
+          <strong>Net Total:</strong>
+          <span>{{ getTotal() | currency: 'LKR ' }}</span>
+        </div>
+        <div style="margin-top: 32px; display: flex; justify-content: flex-end; align-items: flex-end; min-height: 60px;">
+          <img src="assets/img/logo.png" alt="Logo" style="height: 140px; width: 350px; opacity: 0.98;" />
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

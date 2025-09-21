@@ -1,0 +1,50 @@
+<div class="container py-4">
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+      <h4 class="mb-0">Supplier Report</h4>
+      <div class="sale-header-actions d-flex gap-2">
+        <button class="custom-outline-btn export-btn" (click)="exportToPDF()">
+          <mat-icon class="me-1">picture_as_pdf</mat-icon>
+          <span>Export PDF</span>
+        </button>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="customer-search-bar mb-3">
+        <svg cIcon name="cil-magnifying-glass"></svg>
+        <input type="text" placeholder="Search by supplier name or phone" [(ngModel)]="searchQuery" (input)="onSearch()" />
+      </div>
+      <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+      <div *ngIf="loading" class="text-center my-4">
+        <span class="spinner-border spinner-border-sm"></span> Loading...
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Name</th>
+              <th>Phone</th>
+              <th>Email</th>
+              <th>Address</th>
+              <th>Total Purchases</th>
+              <th>Outstanding</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let supplier of filteredSuppliers">
+              <td>{{ supplier.name }}</td>
+              <td>{{ supplier.phone }}</td>
+              <td>{{ supplier.email }}</td>
+              <td>{{ supplier.address }}</td>
+              <td>{{ supplier.totalPurchases | number:'1.2-2' }}</td>
+              <td>{{ supplier.outstanding | number:'1.2-2' }}</td>
+            </tr>
+            <tr *ngIf="filteredSuppliers.length === 0">
+              <td colspan="6" class="text-center text-muted">No suppliers found.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

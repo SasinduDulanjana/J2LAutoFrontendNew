@@ -1,0 +1,66 @@
+<div style="background-color: white;">
+
+  <div class="search-container">
+    <button class="plus-button" (click)="navigateToCreateSupplier()">+</button>
+    <input type="text" placeholder="Search Suppliers" [(ngModel)]="searchQuery" (input)="onSearch()"
+      class="form-control search-input" />
+  </div>
+
+  <div class="container py-4">
+    <div class="card shadow-sm mb-4">
+      <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">Supplier List</h4>
+        <button cButton color="primary" (click)="navigateToCreateSupplier()"
+          style="min-width: 140px; height: 40px; font-size: 1rem;">
+          <svg cIcon name="cil-truck" class="me-2"></svg> Add Supplier
+        </button>
+      </div>
+      <div class="card-body">
+        <div class="customer-search-bar mb-3">
+          <svg cIcon name="cil-magnifying-glass"></svg>
+          <input type="text" placeholder="Search suppliers by name or phone" [(ngModel)]="searchQuery"
+            (input)="onSearch()" />
+        </div>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Address</th>
+                <th class="text-end">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let supplier of filteredSuppliers">
+                <td>{{ supplier.name }}</td>
+                <td>{{ supplier.email }}</td>
+                <td>{{ supplier.phone }}</td>
+                <td>{{ supplier.address }}</td>
+                <td class="text-end">
+                  <c-dropdown>
+                    <button cButton cDropdownToggle color="secondary" style="min-width: 100px;">Options</button>
+                    <ul cDropdownMenu>
+                      <li><button (click)="editSupplier(supplier)" cDropdownItem>Edit</button></li>
+                      <li><button (click)="deleteSupplier(supplier)" cDropdownItem>Delete</button></li>
+                    </ul>
+                  </c-dropdown>
+                </td>
+              </tr>
+              <tr *ngIf="filteredSuppliers.length === 0">
+                <td colspan="5" class="text-center text-muted">No suppliers found.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- <div class="mb-3">
+    <button class="btn btn-danger" (click)="deleteSelected()" [disabled]="!selectedSuppliers.length">
+      Delete Selected
+    </button>
+  </div> -->
+</div>

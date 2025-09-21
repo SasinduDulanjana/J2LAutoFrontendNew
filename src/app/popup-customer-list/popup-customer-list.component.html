@@ -1,0 +1,23 @@
+<div style="background-color: white;">
+
+    <div class="search-container">
+      <input type="text" placeholder="Search Customers" [(ngModel)]="searchQuery" (input)="onSearch()"
+        class="form-control search-input" />
+    </div>
+  
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Name</th>
+          <th scope="col">Phone</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let customer of filteredCustomers" (click)="selectCustomer(customer)">
+          <td>{{ customer.name }}</td>
+          <td>{{ customer.phone }}</td>
+        </tr>
+      </tbody>
+    </table>
+  
+  </div>

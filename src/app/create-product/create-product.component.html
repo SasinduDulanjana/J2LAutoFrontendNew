@@ -1,0 +1,101 @@
+<div class="container py-4">
+  <div class="card shadow-sm">
+    <div class="card-header bg-primary text-white d-flex align-items-center">
+      <svg cIcon name="cil-plus" class="me-2"></svg>
+      <h4 class="mb-0">Create Product</h4>
+    </div>
+    <div class="card-body">
+      <form (ngSubmit)="createProduct()" #productForm="ngForm" cForm class="row g-4">
+        <!-- Product Name -->
+        <c-col [md]="12">
+          <label cLabel for="productName">Product Name</label>
+          <input cFormControl id="productName" type="text" [(ngModel)]="product.productName" name="productName" required #productName="ngModel" minlength="2" />
+          <div *ngIf="productName.invalid && (productName.dirty || productName.touched)" class="text-danger small">
+            <div *ngIf="productName.errors?.['required']">Product name is required.</div>
+            <div *ngIf="productName.errors?.['minlength']">Product name must be at least 2 characters.</div>
+          </div>
+        </c-col>
+        <!-- Category -->
+        <c-col [md]="6">
+          <label cLabel for="category">Category</label>
+          <select cFormControl id="category" [(ngModel)]="selectedParentCategoryId" name="category" required #category="ngModel" class="form-select">
+            <option value="" disabled selected>Select Category</option>
+            <option *ngFor="let category of categories" [value]="category.catId">{{ category.name }}</option>
+          </select>
+          <div *ngIf="category.invalid && (category.dirty || category.touched)" class="text-danger small">
+            <div *ngIf="category.errors?.['required']">Category is required.</div>
+          </div>
+        </c-col>
+        <!-- Barcode -->
+        <c-col [md]="6">
+          <label cLabel for="barCode">Barcode</label>
+          <input cFormControl id="barCode" type="text" [(ngModel)]="product.barCode" name="barCode" required #barCode="ngModel" minlength="3" (ngModelChange)="onBarcodeChange($event)" />
+          <div *ngIf="barCode.invalid && (barCode.dirty || barCode.touched)" class="text-danger small">
+            <div *ngIf="barCode.errors?.['required']">Barcode is required.</div>
+            <div *ngIf="barCode.errors?.['minlength']">Barcode must be at least 3 characters.</div>
+          </div>
+          <div *ngIf="barcodeExists" class="text-danger small">Barcode already exists. Please enter a unique Barcode.</div>
+        </c-col>
+        <!-- SKU -->
+        <c-col [md]="6">
+          <label cLabel for="sku">SKU</label>
+          <input cFormControl id="sku" [(ngModel)]="product.sku" name="sku" required #sku="ngModel" minlength="2" (ngModelChange)="onSkuChange($event)" />
+          <div *ngIf="sku.invalid && (sku.dirty || sku.touched)" class="text-danger small">
+            <div *ngIf="sku.errors?.['required']">SKU is required.</div>
+            <div *ngIf="sku.errors?.['minlength']">SKU must be at least 2 characters.</div>
+          </div>
+          <div *ngIf="skuExists" class="text-danger small">SKU already exists. Please enter a unique SKU.</div>
+        </c-col>
+        <!-- Product Type -->
+        <c-col [md]="6">
+          <label cLabel for="productType">Product Type</label>
+          <select cFormControl id="productType" [(ngModel)]="product.productType" name="productType" required #productType="ngModel" class="form-select">
+            <option value="" disabled selected>Select Product Type</option>
+            <option value="Standard Product">Standard Product</option>
+            <option value="Variable Product">Variable Product</option>
+            <option value="Service Product">Service Product</option>
+          </select>
+          <div *ngIf="productType.invalid && (productType.dirty || productType.touched)" class="text-danger small">
+            <div *ngIf="productType.errors?.['required']">Product type is required.</div>
+          </div>
+        </c-col>
+        <!-- Description -->
+        <c-col [md]="12">
+          <label cLabel for="description">Description</label>
+          <textarea cFormControl id="description" [(ngModel)]="product.description" name="description" rows="2"></textarea>
+        </c-col>
+        <!-- Low Qty -->
+        <c-col [md]="4">
+          <label cLabel for="lowQty">Low Qty</label>
+          <input cFormControl id="lowQty" [(ngModel)]="product.lowQty" name="lowQty" required #lowQty="ngModel" pattern="^[0-9]+$" />
+          <div *ngIf="lowQty.invalid && (lowQty.dirty || lowQty.touched)" class="text-danger small">
+            <div *ngIf="lowQty.errors?.['required']">Low Qty is required.</div>
+            <div *ngIf="lowQty.errors?.['pattern']">Low Qty must be a number.</div>
+          </div>
+        </c-col>
+        <!-- Tax Group -->
+        <c-col [md]="4">
+          <label cLabel for="taxGroup">Tax Group</label>
+          <input cFormControl id="taxGroup" [(ngModel)]="product.taxGroup" name="taxGroup" />
+        </c-col>
+        <!-- Tax Type -->
+        <c-col [md]="4">
+          <label cLabel for="taxType">Tax Type</label>
+          <input cFormControl id="taxType" [(ngModel)]="product.taxType" name="taxType" />
+        </c-col>
+        <!-- Image URL -->
+        <c-col [md]="12">
+          <label cLabel for="imgUrl">Image URL</label>
+          <input cFormControl id="imgUrl" [(ngModel)]="product.imgUrl" name="imgUrl" />
+        </c-col>
+        <!-- Save Button -->
+        <c-col [md]="12" class="text-end">
+          <button cButton color="primary" type="submit" [disabled]="!productForm.form.valid || skuExists || barcodeExists" style="min-width: 120px; height: 40px; font-size: 1rem;">
+            <svg cIcon name="cil-save" class="me-2"></svg>Save Product
+          </button>
+        </c-col>
+      </form>
+    </div>
+  </div>
+</div>
+

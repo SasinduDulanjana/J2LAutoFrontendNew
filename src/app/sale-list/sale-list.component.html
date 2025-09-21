@@ -1,0 +1,58 @@
+<div class="container py-4">
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+      <h4 class="mb-0">Sale List</h4>
+      <div class="sale-header-actions d-flex gap-2">
+        <button class="header-action-btn" (click)="navigateToDeletedSales()">Deleted</button>
+        <button class="header-action-btn" (click)="navigateToHoldSales()">Draft</button>
+        <button class="header-action-btn" (click)="navigateToUnpaidSales()">Unpaid</button>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="sale-search-bar mb-3">
+        <svg cIcon name="cil-magnifying-glass"></svg>
+        <input type="text" placeholder="Search sales by invoice, user, or customer" [(ngModel)]="searchQuery" (input)="onSearch()" />
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Inv. No</th>
+              <th>User</th>
+              <th>Customer</th>
+              <th>Line Discounts</th>
+              <th>Sub Total</th>
+              <th>Bill Discounts</th>
+              <th>Net Total</th>
+              <th>Created At</th>
+              <th>Products</th>
+              <th class="text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let sale of filteredSales; let i = index">
+              <td>{{ sale.invoiceNumber }}</td>
+              <td>{{ sale.userName || sale.userId }}</td>
+              <td>{{ sale.customerName || sale.custId }}</td>
+              <td>{{ sale.lineWiseDiscountTotalAmount }}</td>
+              <td>{{ sale.subTotal }}</td>
+              <td>{{ sale.billWiseDiscountTotalAmount }}</td>
+              <td>{{ sale.totalAmount}}</td>
+              <td>{{ sale.saleDate }}</td>
+              <td>
+                <button (click)="openProductListPopup(sale.soldProducts)" cButton color="light" style="min-width: 100px;">Products</button>
+              </td>
+              <td class="text-end">
+                <!-- Cancelled icon: red cross -->
+                <svg cIcon name="cil-x-circle" class="text-danger" style="font-size: 1.5rem; cursor: not-allowed;" title="Cancelled (coming soon)"></svg>
+              </td>
+            </tr>
+            <tr *ngIf="filteredSales.length === 0">
+              <td colspan="10" class="text-center text-muted">No sales found.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

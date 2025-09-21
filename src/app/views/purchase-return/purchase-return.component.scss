@@ -1,0 +1,36 @@
+
+.container {
+  max-width: 1100px;
+}
+
+.card {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+}
+
+.card-header {
+  font-weight: 600;
+  font-size: 1.2rem;
+}
+
+form .c-col {
+  margin-bottom: 1rem;
+}
+
+label[cLabel] {
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+button[cButton], .btn {
+  min-width: 160px;
+}
+
+.table {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.table th, .table td {
+  vertical-align: middle;
+}

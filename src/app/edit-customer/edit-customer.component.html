@@ -1,0 +1,35 @@
+<!-- src/app/create-customer/create-customer.component.html -->
+<div class="container py-4">
+  <div class="card shadow-sm" *ngIf="customer">
+    <div class="card-header bg-primary text-white d-flex align-items-center">
+      <svg cIcon name="cil-user" class="me-2"></svg>
+      <h4 class="mb-0">Update Customer</h4>
+    </div>
+    <div class="card-body">
+      <form (ngSubmit)="saveCustomer()" #customerForm="ngForm" cForm class="row g-4">
+        <c-col [md]="12">
+          <label cLabel for="name">Name</label>
+          <input cFormControl id="name" type="text" [(ngModel)]="customer.name" name="name" required />
+        </c-col>
+        <c-col [md]="6">
+          <label cLabel for="email">Email</label>
+          <input cFormControl id="email" type="email" [(ngModel)]="customer.email" name="email" required />
+        </c-col>
+        <c-col [md]="6">
+          <label cLabel for="phone">Phone</label>
+          <input cFormControl id="phone" [(ngModel)]="customer.phone" name="phone" required/>
+        </c-col>
+        <c-col [md]="12">
+          <label cLabel for="address">Address</label>
+          <input cFormControl id="address" [(ngModel)]="customer.address" name="address" required/>
+        </c-col>
+        <c-col [md]="12" class="text-end">
+          <button cButton color="primary" type="submit" [disabled]="!customerForm.form.valid" style="min-width: 120px; height: 40px; font-size: 1rem;">
+            <svg cIcon name="cil-save" class="me-2"></svg>Save
+          </button>
+        </c-col>
+      </form>
+    </div>
+  </div>
+</div>
+

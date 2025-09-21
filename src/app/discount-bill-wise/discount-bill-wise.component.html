@@ -1,0 +1,31 @@
+<div class="modal-overlay" (keydown)="onKeyPress($event)" tabindex="0">
+    <div class="modal-content">
+        <h2>Enter Discount (%)</h2>
+        <div class="input-display-container">
+            <input
+                type="text"
+                class="input-display"
+                [(ngModel)]="discount"
+                readonly
+            />
+        </div>
+        <div class="button-grid">
+            <button (click)="addDigit('1')">1</button>
+            <button (click)="addDigit('2')">2</button>
+            <button (click)="addDigit('3')">3</button>
+            <button (click)="addDigit('4')">4</button>
+            <button (click)="addDigit('5')">5</button>
+            <button (click)="addDigit('6')">6</button>
+            <button (click)="addDigit('7')">7</button>
+            <button (click)="addDigit('8')">8</button>
+            <button (click)="addDigit('9')">9</button>
+            <button (click)="removeLastDigit()">&#9003;</button>
+            <button (click)="addDigit('0')">0</button>
+            <button (click)="onConfirm()">OK</button>
+        </div>
+        <div></div>
+        <div>
+            <button class="btn-cancel" (click)="onCancel()">Cancel</button>
+        </div>
+    </div>
+</div>

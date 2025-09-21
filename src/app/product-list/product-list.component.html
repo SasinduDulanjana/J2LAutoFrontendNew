@@ -1,0 +1,68 @@
+<div style="background-color: white;">
+
+  <div class="search-container">
+    <button class="plus-button" (click)="navigateToCreateProduct()">+</button>
+  <input type="text" placeholder="Search Products" [(ngModel)]="searchQuery" (input)="onSearch()"
+    class="form-control search-input" />
+  </div>
+
+  <div class="container py-4">
+    <div class="card shadow-sm mb-4">
+      <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">Product List</h4>
+        <button cButton color="primary" (click)="navigateToCreateProduct()" style="min-width: 140px; height: 40px; font-size: 1rem;">
+          <svg cIcon name="cil-plus" class="me-2"></svg> Add Product
+        </button>
+      </div>
+      <div class="card-body">
+        <div class="customer-search-bar mb-3">
+          <svg cIcon name="cil-magnifying-glass"></svg>
+          <input type="text" placeholder="Search products by name, SKU, or category" [(ngModel)]="searchQuery" (input)="onSearch()" />
+        </div>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Name</th>
+                <th>Product Type</th>
+                <th>SKU</th>
+                <th>Barcode</th>
+                <th>Description</th>
+                <th>Low Qty</th>
+                <th>Category</th>
+                <th>Status</th>
+                <th class="text-end">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let product of filteredProducts">
+                <td>{{ product.productName }}</td>
+                <td>{{ product.productType }}</td>
+                <td>{{ product.sku }}</td>
+                <td>{{ product.barCode }}</td>
+                <td>{{ product.description }}</td>
+                <td>{{ product.lowQty }}</td>
+                <td>{{ getCategoryName(product.catId) }}</td>
+                <td>
+                  {{ product.status === 1 ? 'Active' : (product.status === 0 ? 'Inactive' : (product.productStatus || product.status)) }}
+                </td>
+                <td class="text-end">
+                  <c-dropdown>
+                    <button cButton cDropdownToggle color="secondary" style="min-width: 100px;">Options</button>
+                    <ul cDropdownMenu>
+                      <li><button (click)="editProduct(product)" cDropdownItem>Edit</button></li>
+                      <li><button (click)="deleteProduct(product)" cDropdownItem>Delete</button></li>
+                    </ul>
+                  </c-dropdown>
+                </td>
+              </tr>
+              <tr *ngIf="filteredProducts.length === 0">
+                <td colspan="9" class="text-center text-muted">No products found.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

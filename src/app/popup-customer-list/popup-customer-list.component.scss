@@ -1,0 +1,119 @@
+/* src/app/create-customer/create-customer.component.css */
+
+div {
+    padding: 10px;
+}
+
+h2 {
+    color: #333;
+}
+
+.table {
+    background-color: white;
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid #ccc;
+}
+
+/* Set border for table header */
+.table th {
+    border: 1px solid #ccc;
+    padding: 10px;
+    text-align: left;
+    background-color: #ebedef;
+    vertical-align: middle;
+    font-size: 16px;
+}
+
+/* Set border for table cells */
+.table td {
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+    text-align: left;
+    vertical-align: middle;
+}
+
+.table tbody tr {
+    transition: background-color 0.3s, color 0.3s;
+    /* Smooth transition */
+}
+
+.table tbody tr:hover {
+    background-color: blue;
+    /* Background color on hover */
+    color: white;
+    /* Text color on hover */
+    cursor: pointer;
+    /* Change cursor to pointer */
+}
+
+table tbody tr:hover td {
+    color: white !important;
+    /* Apply the text color to the cells specifically */
+}
+
+.plus-button {
+    background-color: transparent;
+    /* Transparent background */
+    border: 2px solid lightgray;
+    /* Solid border with color of your choice */
+    color: #333;
+    /* Text color for the plus sign */
+    font-size: 24px;
+    /* Font size for the plus sign */
+    border-radius: 50%;
+    /* Rounded button (circular) */
+    width: 45px;
+    /* Width of the button */
+    height: 45px;
+    /* Height of the button */
+    cursor: pointer;
+    /* Pointer cursor on hover */
+    display: inline-flex;
+    /* Center the plus sign */
+    align-items: center;
+    /* Align the plus sign vertically */
+    justify-content: center;
+    /* Align the plus sign horizontally */
+    transition: background-color 0.3s, color 0.3s;
+    /* Smooth transition for hover effects */
+}
+
+/* Add hover effect */
+.plus-button:hover {
+    background-color: #2563eb;
+    /* Background color on hover (optional) */
+    color: white;
+    /* Text color change on hover */
+}
+
+.search-input {
+    flex: 1;
+    /* Make the input take up remaining space */
+    padding: 10px;
+    /* Padding for the input */
+    font-size: 16px;
+    /* Input font size */
+    border: 1px solid #ccc;
+    /* Input border */
+    border-radius: 4px;
+    /* Rounded input corners */
+    height: 40px;
+    /* Ensure input height matches the button's height */
+    width: 40px;
+    box-sizing: border-box;
+    /* Ensure padding doesn't affect input size */
+}
+
+.search-container {
+    display: flex;
+    /* Use flexbox to align items in one row */
+    align-items: center;
+    /* Vertically center the button and input */
+    gap: 10px;
+    /* Add space between the button and input */
+    background-color: white;
+    /* Set the background color */
+    padding: 10px;
+    /* Optional padding around the container */
+}

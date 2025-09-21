@@ -1,0 +1,40 @@
+.view-products-dialog {
+  min-width: 600px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(44, 62, 80, 0.12);
+  padding: 0;
+}
+.dialog-header {
+  border-bottom: 1px solid #e9ecef;
+  padding: 1.25rem 1.5rem 1rem 1.5rem;
+  background: #f8f9fa;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+}
+.dialog-header h4 {
+  font-weight: 600;
+  color: #2c3e50;
+}
+.close-btn {
+  font-size: 1.5rem;
+  color: #6c757d;
+  background: none;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.close-btn:hover {
+  color: #dc3545;
+}
+.dialog-content {
+  padding: 1.5rem;
+}
+.dialog-actions {
+  border-top: 1px solid #e9ecef;
+  padding: 1rem 1.5rem;
+  background: #f8f9fa;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+}

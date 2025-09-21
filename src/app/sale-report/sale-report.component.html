@@ -1,0 +1,61 @@
+  <div class="container py-4">
+    <div class="card shadow-sm mb-4">
+      <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">Sale Report</h4>
+        <div class="sale-header-actions d-flex gap-2">
+          <button class="custom-outline-btn export-btn" (click)="exportToPDF()">
+            <mat-icon class="me-1">picture_as_pdf</mat-icon>
+            <span>Export PDF</span>
+          </button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="date-range-inputs d-flex gap-2 mb-3">
+          <input id="startDate" type="date" [(ngModel)]="startDate" name="startDate" class="form-control custom-date-input" />
+          <input id="endDate" type="date" [(ngModel)]="endDate" name="endDate" class="form-control custom-date-input" />
+            <button class="custom-outline-btn search-btn ms-2" (click)="fetchSalesByDateRange()">
+              <span>Filter</span>
+            </button>
+        </div>
+        <div class="customer-search-bar mb-3">
+          <svg cIcon name="cil-magnifying-glass"></svg>
+          <input type="text" placeholder="Search by invoice or customer" [(ngModel)]="searchQuery" (input)="onSearch()" />
+        </div>
+        <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+        <div *ngIf="loading" class="text-center my-4">
+          <span class="spinner-border spinner-border-sm"></span> Loading...
+        </div>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Date</th>
+                <th>Invoice</th>
+                <th>Customer</th>
+                <th>Total</th>
+                <th>Paid</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let sale of filteredSales">
+                <td>{{ sale.orderDate ? (sale.orderDate | date:'yyyy-MM-dd') : sale.saleDate }}</td>
+                <td>{{ sale.invoiceNumber }}</td>
+                <td>{{ sale.customerName || sale.custId }}</td>
+                <td>{{ sale.totalAmount | number:'1.2-2' }}</td>
+                <td>{{ sale.paidAmount | number:'1.2-2' }}</td>
+                <td>
+                  <span [ngClass]="{'text-success': sale.isFullyPaid, 'text-danger': !sale.isFullyPaid}">
+                    {{ sale.isFullyPaid ? 'Paid' : 'Unpaid' }}
+                  </span>
+                </td>
+              </tr>
+              <tr *ngIf="filteredSales.length === 0">
+                <td colspan="6" class="text-center text-muted">No sales found.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>

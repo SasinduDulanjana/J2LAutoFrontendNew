@@ -1,0 +1,51 @@
+<div class="container py-4">
+  <div class="card shadow-sm">
+    <div class="card-header bg-primary text-white d-flex align-items-center">
+      <svg cIcon name="cil-truck" class="me-2"></svg>
+      <h4 class="mb-0">Create Supplier</h4>
+    </div>
+    <div class="card-body">
+      <form (ngSubmit)="createSupplier()" #supplierForm="ngForm" cForm class="row g-4">
+        <c-col [md]="12">
+          <label cLabel for="name">Supplier Name</label>
+          <input cFormControl id="name" type="text" [(ngModel)]="supplier.name" name="name" required #name="ngModel" minlength="2" />
+          <div *ngIf="name.invalid && (name.dirty || name.touched)" class="text-danger small">
+            <div *ngIf="name.errors?.['required']">Name is required.</div>
+            <div *ngIf="name.errors?.['minlength']">Name must be at least 2 characters.</div>
+          </div>
+        </c-col>
+        <c-col [md]="6">
+          <label cLabel for="email">Email</label>
+          <input cFormControl id="email" type="email" [(ngModel)]="supplier.email" name="email" required #email="ngModel" email />
+          <div *ngIf="email.invalid && (email.dirty || email.touched)" class="text-danger small">
+            <div *ngIf="email.errors?.['required']">Email is required.</div>
+            <div *ngIf="email.errors?.['email']">Invalid email format.</div>
+          </div>
+        </c-col>
+        <c-col [md]="6">
+          <label cLabel for="phone">Phone</label>
+          <input cFormControl id="phone" type="text" [(ngModel)]="supplier.phone" name="phone" required #phone="ngModel" pattern="^[0-9]{10,15}$" (ngModelChange)="onPhoneChange($event)" />
+          <div *ngIf="phone.invalid && (phone.dirty || phone.touched)" class="text-danger small">
+            <div *ngIf="phone.errors?.['required']">Phone number is required.</div>
+            <div *ngIf="phone.errors?.['pattern']">Phone number must be 10-15 digits.</div>
+          </div>
+          <div *ngIf="phoneExists" class="text-danger small">Phone number already exists!</div>
+        </c-col>
+        <c-col [md]="12">
+          <label cLabel for="address">Address</label>
+          <input cFormControl id="address" type="text" [(ngModel)]="supplier.address" name="address" required #address="ngModel" minlength="3" />
+          <div *ngIf="address.invalid && (address.dirty || address.touched)" class="text-danger small">
+            <div *ngIf="address.errors?.['required']">Address is required.</div>
+            <div *ngIf="address.errors?.['minlength']">Address must be at least 3 characters.</div>
+          </div>
+        </c-col>
+        <c-col [md]="12" class="text-end">
+          <button cButton color="primary" type="submit" [disabled]="!supplierForm.form.valid || phoneExists">
+            <svg cIcon name="cil-save" class="me-2"></svg>Create Supplier
+          </button>
+        </c-col>
+      </form>
+    </div>
+  </div>
+</div>
+

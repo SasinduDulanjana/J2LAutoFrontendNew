@@ -1,0 +1,26 @@
+<div class="batch-selection-container">
+    <h2>Select a Batch</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Batch Number</th>
+                <th>Unit Cost</th>
+                <th>Retail Price</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let batch of batchList">
+                <td>{{ batch.batchNumber }}</td>
+                <td>{{ batch.unitCost | currency: 'LKR ' }}</td>
+                <td>{{ batch.retailPrice | currency: 'LKR ' }}</td>
+                <td>
+                    <button (click)="selectBatch(batch)" class="btn btn-select">Select</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="btn-container">
+        <button (click)="onCancel()" class="btn btn-danger btn-cancel">Cancel</button>
+    </div>
+</div>

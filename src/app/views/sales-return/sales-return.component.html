@@ -1,0 +1,79 @@
+
+<div class="container py-4">
+  <div class="card shadow-sm">
+    <div class="card-header bg-primary text-white d-flex align-items-center">
+      <svg cIcon name="cil-loop-circular" class="me-2"></svg>
+      <h4 class="mb-0">Sales Return</h4>
+    </div>
+    <div class="card-body">
+      <form [formGroup]="salesReturnForm" (ngSubmit)="onSubmit()" class="row g-4">
+        <c-col [md]="6">
+          <label cLabel for="invoiceNumber">Invoice Number</label>
+          <input cFormControl id="invoiceNumber" type="text" formControlName="invoiceNumber" placeholder="Enter invoice number" />
+        </c-col>
+        <c-col [md]="6">
+          <label cLabel for="customerName">Customer Name</label>
+          <input cFormControl id="customerName" type="text" formControlName="customerName" placeholder="Enter customer name" />
+        </c-col>
+        <c-col [md]="6">
+          <label cLabel for="returnDate">Return Date</label>
+          <input cFormControl id="returnDate" type="date" formControlName="returnDate" />
+        </c-col>
+        <c-col [md]="6">
+          <label cLabel for="product">Product</label>
+          <input cFormControl id="product" type="text" formControlName="product" placeholder="Product name or code" />
+        </c-col>
+        <c-col [md]="6">
+          <label cLabel for="quantity">Quantity</label>
+          <input cFormControl id="quantity" type="number" formControlName="quantity" min="1" />
+        </c-col>
+        <c-col [md]="6">
+          <label cLabel for="reason">Reason</label>
+          <input cFormControl id="reason" type="text" formControlName="reason" placeholder="Reason for return" />
+        </c-col>
+        <c-col [md]="6">
+          <label cLabel for="refundAmount">Refund Amount</label>
+          <input cFormControl id="refundAmount" type="number" formControlName="refundAmount" min="0" />
+        </c-col>
+        <c-col [md]="12" class="text-end">
+          <button cButton color="primary" type="submit">
+            <svg cIcon name="cil-save" class="me-2"></svg>Submit Return
+          </button>
+          <a class="btn btn-outline-info ms-2" routerLink="/sales-return-list">View Sales Return List</a>
+        </c-col>
+      </form>
+    </div>
+  </div>
+
+  <div *ngIf="salesReturns.length > 0" class="card mt-4">
+    <div class="card-header bg-light">
+      <h5 class="mb-0">Sales Return Records</h5>
+    </div>
+    <div class="card-body p-0">
+      <table class="table table-striped table-hover mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Invoice #</th>
+            <th>Customer</th>
+            <th>Date</th>
+            <th>Product</th>
+            <th>Qty</th>
+            <th>Reason</th>
+            <th>Refund</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let record of salesReturns">
+            <td>{{ record.invoiceNumber }}</td>
+            <td>{{ record.customerName }}</td>
+            <td>{{ record.returnDate }}</td>
+            <td>{{ record.product }}</td>
+            <td>{{ record.quantity }}</td>
+            <td>{{ record.reason }}</td>
+            <td>${{ record.refundAmount | number:'1.2-2' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

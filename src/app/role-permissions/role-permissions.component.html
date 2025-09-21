@@ -1,0 +1,31 @@
+<div class="container py-4">
+  <div class="card shadow-sm">
+    <div class="card-header bg-primary text-white">
+      <h4 class="mb-0">Role Permissions Management</h4>
+    </div>
+    <div class="card-body">
+      <div class="mb-3">
+        <label for="roleSelect">Select Role:</label>
+        <select id="roleSelect" [(ngModel)]="selectedRole" (change)="selectRole(selectedRole)" class="form-select">
+          <option *ngFor="let role of roles" [value]="role">{{ role }}</option>
+        </select>
+      </div>
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Enabled</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let feature of features">
+            <td>{{ feature.description }}</td>
+            <td>
+              <input type="checkbox" [checked]="permissions[feature.featureName]" (change)="toggleFeature(feature.featureName)" />
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,47 @@
+<div class="container py-4">
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+      <h4 class="mb-0">Customer List</h4>
+      <button cButton color="primary" (click)="navigateToCreateCustomer()" style="min-width: 140px; height: 40px; font-size: 1rem;">
+        <svg cIcon name="cil-user-follow" class="me-2"></svg> Add Customer
+      </button>
+    </div>
+    <div class="card-body">
+      <div class="customer-search-bar mb-3">
+        <svg cIcon name="cil-magnifying-glass"></svg>
+        <input type="text" placeholder="Search customers by name or phone" [(ngModel)]="searchQuery" (input)="onSearch()" />
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th class="text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let customer of filteredCustomers">
+              <td>{{ customer.name }}</td>
+              <td>{{ customer.email }}</td>
+              <td>{{ customer.phone }}</td>
+              <td class="text-end">
+                <c-dropdown>
+                  <button cButton cDropdownToggle color="secondary" style="min-width: 100px;">Options</button>
+                  <ul cDropdownMenu>
+                    <li><button (click)="editCustomer(customer)" cDropdownItem>Edit</button></li>
+                    <li><button (click)="deleteCustomer(customer)" cDropdownItem>Delete</button></li>
+                  </ul>
+                </c-dropdown>
+              </td>
+            </tr>
+            <tr *ngIf="filteredCustomers.length === 0">
+              <td colspan="4" class="text-center text-muted">No customers found.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

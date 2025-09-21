@@ -1,0 +1,85 @@
+<div class="container py-4">
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+      <h4 class="mb-0">Inventory Report</h4>
+      <div class="sale-header-actions d-flex gap-2">
+        <button class="custom-outline-btn export-btn" (click)="exportToPDF()">
+          <mat-icon class="me-1">picture_as_pdf</mat-icon>
+          <span>Export PDF</span>
+        </button>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="customer-search-bar mb-3">
+        <svg cIcon name="cil-magnifying-glass"></svg>
+        <input type="text" placeholder="Search inventory by product, SKU, or batch" [(ngModel)]="searchQuery" (input)="onSearch()" />
+      </div>
+      <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+      <div *ngIf="loading" class="text-center my-4">
+        <span class="spinner-border spinner-border-sm"></span> Loading...
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Product</th>
+              <th>SKU</th>
+              <th>Category</th>
+              <th>Batch Details</th>
+              <th>Total Qty</th>
+              <th>Low Stock Alert</th>
+            </tr>
+          </thead>
+          <tbody>
+            <ng-container *ngFor="let item of filteredInventory; let idx = index">
+              <tr>
+                <td>{{ item.productName }}</td>
+                <td>{{ item.sku }}</td>
+                <td>{{ getCategoryName(item.catId) }}</td>
+                <td>
+                  <button class="btn btn-sm btn-outline-primary" (click)="toggleDropdown(idx)">Batch Details</button>
+                </td>
+                <td>{{ getTotalQty(item) }}</td>
+                <td>
+                  <span [ngClass]="{'text-danger': isLowStock(item), 'text-success': !isLowStock(item)}">
+                    {{ isLowStock(item) ? 'Low' : 'OK' }}
+                  </span>
+                </td>
+              </tr>
+              <tr *ngIf="dropdownOpen[idx]">
+                <td colspan="9">
+                  <div class="p-2 bg-light border rounded">
+                    <strong>Batch Details:</strong>
+                    <table class="table table-sm table-bordered mt-2">
+                      <thead>
+                        <tr>
+                          <th>Batch No</th>
+                          <th>Batch Qty</th>
+                          <th>Cost</th>
+                          <th>Retails Price</th>
+                          <!-- <th>Wholesale Price</th> -->
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr *ngFor="let batch of item.batchQuantities">
+                          <td>{{ batch.batchNo }}</td>
+                          <td>{{ batch.qty }}</td>
+                          <td>{{ batch.cost | number:'1.2-2' }}</td>
+                          <td>{{ batch.retailPrice | number:'1.2-2' }}</td>
+                          <!-- <td>{{ batch.wholesalePrice | number:'1.2-2' }}</td> -->
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </td>
+              </tr>
+            </ng-container>
+            <tr *ngIf="filteredInventory.length === 0">
+              <td colspan="9" class="text-center text-muted">No inventory found.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

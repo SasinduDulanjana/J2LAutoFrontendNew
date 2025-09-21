@@ -1,0 +1,62 @@
+
+<div class="container py-4">
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+      <h4 class="mb-0">Purchase Report</h4>
+      <div class="purchase-header-actions d-flex gap-2">
+        <button class="custom-outline-btn export-btn" (click)="exportToPDF()">
+          <mat-icon class="me-1">picture_as_pdf</mat-icon>
+          <span>Export PDF</span>
+        </button>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="date-range-inputs d-flex gap-2 mb-3">
+        <input id="startDate" type="date" [(ngModel)]="startDate" name="startDate" class="form-control custom-date-input" />
+        <input id="endDate" type="date" [(ngModel)]="endDate" name="endDate" class="form-control custom-date-input" />
+        <button class="custom-outline-btn search-btn ms-2" (click)="fetchPurchasesByDateRange()">
+          <span>Filter</span>
+        </button>
+      </div>
+      <div class="purchase-search-bar mb-3">
+        <svg cIcon name="cil-magnifying-glass"></svg>
+        <input type="text" placeholder="Search by invoice or supplier" [(ngModel)]="searchQuery" (input)="onSearch()" />
+      </div>
+      <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+      <div *ngIf="loading" class="text-center my-4">
+        <span class="spinner-border spinner-border-sm"></span> Loading...
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Date</th>
+              <th>Invoice</th>
+              <th>Supplier</th>
+              <th>Total</th>
+              <th>Paid</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let purchase of filteredPurchases">
+              <td>{{ purchase.invoiceDate ? (purchase.invoiceDate | date:'yyyy-MM-dd') : '' }}</td>
+              <td>{{ purchase.invoiceNumber }}</td>
+              <td>{{ purchase.supplierName }}</td>
+              <td>{{ purchase.totalCost | number:'1.2-2' }}</td>
+              <td>{{ purchase.paidAmount | number:'1.2-2' }}</td>
+              <td>
+                <span [ngClass]="{'text-success': purchase.isFullyPaid, 'text-danger': !purchase.isFullyPaid}">
+                  {{ purchase.isFullyPaid ? 'Paid' : 'Unpaid' }}
+                </span>
+              </td>
+            </tr>
+            <tr *ngIf="filteredPurchases.length === 0">
+              <td colspan="6" class="text-center text-muted">No purchases found.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

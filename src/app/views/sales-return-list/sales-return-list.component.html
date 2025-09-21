@@ -1,0 +1,59 @@
+
+<div class="container py-4">
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+      <span class="d-flex align-items-center">
+        <c-icon name="cil-sync" class="me-2"></c-icon>
+        <h4 class="mb-0">Sales Return List</h4>
+      </span>
+      <a cButton color="primary" routerLink="/sales-return" style="min-width: 140px; height: 40px; font-size: 1rem; border: 2px solid #fff;">
+        <c-icon name="cil-sync" class="me-2"></c-icon> New Sales Return
+      </a>
+    </div>
+    <div class="card-body">
+      <div class="customer-search-bar mb-3">
+        <svg cIcon name="cil-magnifying-glass"></svg>
+        <input type="text" placeholder="Search by invoice, customer, or product" [(ngModel)]="searchQuery" (input)="onSearch()" />
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Invoice #</th>
+              <th>Customer</th>
+              <th>Date</th>
+              <th>Product</th>
+              <th>Qty</th>
+              <th>Reason</th>
+              <th>Refund</th>
+              <th class="text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let record of filteredSalesReturns">
+              <td>{{ record.invoiceNumber }}</td>
+              <td>{{ record.customerName }}</td>
+              <td>{{ record.returnDate }}</td>
+              <td>{{ record.product }}</td>
+              <td>{{ record.quantity }}</td>
+              <td>{{ record.reason }}</td>
+              <td>${{ record.refundAmount | number:'1.2-2' }}</td>
+              <td class="text-end">
+                <c-dropdown>
+                  <button cButton cDropdownToggle color="secondary" style="min-width: 100px;">Options</button>
+                  <ul cDropdownMenu>
+                    <li><button (click)="editSalesReturn(record)" cDropdownItem>Edit</button></li>
+                    <li><button (click)="deleteSalesReturn(record)" cDropdownItem>Delete</button></li>
+                  </ul>
+                </c-dropdown>
+              </td>
+            </tr>
+            <tr *ngIf="filteredSalesReturns.length === 0">
+              <td colspan="8" class="text-center text-muted">No sales returns found.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

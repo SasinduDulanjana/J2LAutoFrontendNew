@@ -1,0 +1,828 @@
+import { Component, OnInit } from '@angular/core';
+import { SaleService } from '../services/sale.service';
+import { ProductService } from '../services/product.service';
+import { Product } from '../models/product.model';
+import { Batch } from '../models/batch.model';
+import { Sale } from '../models/sale.model';
+import { SaleProduct } from '../models/sale-product.model';
+import { CustomerService } from '../services/customer.service';
+import { MatDialog } from '@angular/material/dialog';
+import { PopupCustomerListComponent } from '../popup-customer-list/popup-customer-list.component';
+import { SuccessDialogComponent } from '../success-dialog/success-dialog.component';
+import { FailureDialogComponent } from '../failure-dialog/failure-dialog.component';
+import { BillDialogComponent } from '../bill/bill-dialog.component';
+import { Router } from '@angular/router';
+import { QuantityInputComponent } from '../quantity-input/quantity-input.component';
+import { BatchSelectionComponent } from '../batch-selection/batch-selection.component';
+import { DiscountInputComponent } from '../discount-input/discount-input.component';
+import { DiscountBillWiseComponent } from '../discount-bill-wise/discount-bill-wise.component';
+import { CategoryService } from '../services/category.service';
+import { ProductListComponent } from '../product-list/product-list.component';
+import { PaymentDialogComponent } from '../payment-dialog/payment-dialog.component';
+import { AuthService } from '../services/auth.service';
+import { UserService } from '../services/user.service';
+
+@Component({
+  selector: 'app-create-sale',
+  templateUrl: './create-sale.component.html',
+  styleUrls: ['./create-sale.component.scss']
+})
+export class CreateSaleComponent implements OnInit {
+  viewBill(): void {
+    this.dialog.open(BillDialogComponent, {
+      width: '700px',
+      data: {
+        saleItems: this.saleItems,
+        customer: this.selectedCustomerName,
+        invoiceNumber: this.invoiceNumber,
+        date: this.currentDate,
+        netTotal: this.getTotal(),
+        subtotal: this.getSubtotal(),
+        discounts: {
+          lineWise: this.getTotalDiscount(),
+          billWise: this.getTotalBillWiseDiscount(),
+          billWisePercentage: this.billWiseDiscountPercentage
+        }
+      }
+    });
+  }
+  productSearchTerm: string = '';
+  paymentType: string = '';
+  showBillButton: boolean = false;
+  searchResults: Product[] = [];
+  selectedProduct: Product | null = null;
+  selectedBatch: Batch | null = null;
+  saleQty: number = 1;
+  saleItem: Sale;
+  saleItems: Product[] = [];
+  batchList: Batch[] = [];
+  showBatchSelection: boolean = false;
+  currentDate: string = "";
+  items = [
+    { price: 1000, discountPercentage: 0, discountAmount: 0 },
+    // add more items as needed
+  ];
+  invoiceNumber: string = "";
+  customers: any[] = []; // List of all customers
+  filteredCustomers: any[] = []; // Filtered list of customers based on phone number
+  phoneNumber: string = ''; // Input phone number
+  selectedCustomerId: number = 0; // Selected customer ID
+  selectedCustomerName: string = "Select Customer";
+  placeholderRows: number[] = Array.from({ length: 20 }, (_, i) => i);
+  categories: any[] = [];
+  products: any[] = [];
+  showProducts: boolean = false;
+  loggedUserName: string = '';
+
+
+  constructor(
+    private saleService: SaleService,
+    private productService: ProductService,
+    private customerService: CustomerService,
+    private dialog: MatDialog,
+    private router: Router,
+    private categoryService: CategoryService,
+    private authService: AuthService,
+    private userService: UserService
+  ) {
+    this.saleItem = new Sale(0, 0, "", 0, 0, 0, 0, 0, "", [], true, false, 0)
+  }
+
+  ngOnInit(): void {
+    // Check for hold sale data in router state or browser history
+  let holdSale: any = undefined;
+    const nav = this.router.getCurrentNavigation();
+    if (nav && nav.extras && nav.extras.state && nav.extras.state['holdSale']) {
+      holdSale = nav.extras.state['holdSale'];
+    } else if (history.state && history.state.holdSale) {
+      holdSale = history.state.holdSale;
+    }
+    if (holdSale) {
+      // Create a new Sale object, copying only needed fields, and set isHold to false
+      this.saleItem = new Sale(
+        holdSale.custId,
+        holdSale.userId,
+        holdSale.orderDate || new Date().toISOString(),
+        holdSale.totalAmount,
+        holdSale.subTotal,
+        holdSale.billWiseDiscountPercentage,
+        holdSale.billWiseDiscountTotalAmount,
+        holdSale.lineWiseDiscountTotalAmount,
+        '', // invoiceNumber will be fetched
+        [], // soldProducts will be set below
+        holdSale.isFullyPaid,
+        false, // Always set isHold to false
+        holdSale.paidAmount
+      );
+      this.saleItem.saleId = 0; // Ensure saleId is not sent
+      this.saleItems = holdSale.soldProducts ? holdSale.soldProducts.map((sp: any) => ({
+        ...sp.product,
+        batchNo: sp.batchNo,
+        remainingQty: sp.quantity,
+        retailPrice: sp.discountedTotal / sp.quantity // fallback, adjust as needed
+      })) : [];
+      this.selectedCustomerId = holdSale.custId;
+      this.currentDate = holdSale.saleDate;
+      this.getInvoiceNumber(); // Always fetch a new invoice number
+
+      // Fetch and map customer name
+      this.customerService.findAllCustomers().subscribe(customers => {
+        const found = customers.find((c: any) => c.custId === holdSale.custId);
+        this.selectedCustomerName = found ? found.name : 'Select Customer';
+      });
+      // Fetch and map user name
+      this.userService.getUsers().subscribe(users => {
+        const found = users.find((u: any) => u.id === holdSale.userId);
+        this.loggedUserName = found ? found.username : '';
+      });
+    } else {
+      // Get the current date and format it
+      const now = new Date();
+      const formattedDate = now.toISOString().slice(0, 10); // Format as YYYY-MM-DD for display
+      // Store it in a variable
+      this.currentDate = formattedDate;
+      this.getInvoiceNumber();
+      this.fetchCategories();
+      this.loggedUserName = this.getLoggedUserName();
+      // Load all products for search bar
+      this.productService.getAllProducts().subscribe((data: Product[]) => {
+        this.products = data;
+      });
+    }
+  }
+
+  getLoggedUserName(): string {
+    const token = localStorage.getItem('token');
+    if (!token) return '';
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload.name || payload.username || payload.sub || '';
+    } catch {
+      return '';
+    }
+  }
+
+  searchProduct(): void {
+    if (!this.productSearchTerm || !this.products || this.products.length === 0) {
+      this.searchResults = [];
+      return;
+    }
+
+    const term = this.productSearchTerm.toLowerCase();
+    this.searchResults = this.products.filter(product =>
+      (product.productName && product.productName.toLowerCase().includes(term)) ||
+      (product.sku && product.sku.toLowerCase().includes(term)) ||
+      (product.barCode && product.barCode.toLowerCase().includes(term))
+    );
+  }
+
+  handleKeypress(event: KeyboardEvent): void {
+    if (event.key === 'Enter' && this.searchResults.length > 0) {
+      event.preventDefault(); // Prevent form submission
+      this.selectProduct(this.searchResults[0]);
+    }
+  }
+
+  // handleKeypressQty(event: KeyboardEvent): void {
+  //   if (event.key === 'Enter') {
+  //     this.addSaleItem();
+  //   }
+  // }
+
+  selectBatch(batch: any): void {
+    this.selectedBatch = batch; // Set the selected batch
+  }
+
+  selectProduct(product: Product): void {
+    this.selectedProduct = product;
+    this.productService.getBatchNumbersForProduct(product.sku).subscribe(
+      (batches: Batch[]) => {
+        this.batchList = batches;
+        if (this.batchList.length === 1) {
+          // Automatically add to sale items if only one batch
+          // this.selectedBatch = this.batchList[0];
+          this.showBatchSelection = true;
+
+          const quantityDialogRef = this.dialog.open(QuantityInputComponent, {
+            width: '400px',
+            // data: { selectedBatch }
+          });
+
+          // After the quantity input dialog closes
+          quantityDialogRef.afterClosed().subscribe((quantity: number) => {
+            if (quantity && quantity > 0) {
+              this.addSaleItem(this.batchList[0], quantity);
+            } else {
+              console.warn('No valid quantity entered.');
+            }
+          });
+
+        } else {
+          // Otherwise, show the modal or batch selection section
+          // Open the BatchSelectionComponent as a dialog and pass the batches
+          const dialogRef = this.dialog.open(BatchSelectionComponent, {
+            width: '1000px', // Set the width of the dialog
+            data: { batchList: batches } // Pass the batch list as data
+          });
+
+          dialogRef.afterClosed().subscribe((selectedBatch: Batch) => {
+            if (selectedBatch) {
+              // If a batch was selected in the dialog
+              // this.selectedBatch = selectedBatch; // Assign the selected batch
+              // this.showBatchSelection = false; // You may not need this anymore if using the popup
+              // Open the QuantityInputComponent dialog after batch is selected
+              const quantityDialogRef = this.dialog.open(QuantityInputComponent, {
+                width: '400px',
+                data: { selectedBatch }
+              });
+
+              // After the quantity input dialog closes
+              quantityDialogRef.afterClosed().subscribe((quantity: number) => {
+                if (quantity && quantity > 0) {
+                  this.addSaleItem(selectedBatch, quantity);
+                } else {
+                  console.warn('No valid quantity entered.');
+                }
+              });
+            }
+          });
+
+        }
+      },
+      error => {
+        console.error('Error fetching batches:', error);
+      }
+    );
+
+    // Clear the search term
+    this.productSearchTerm = '';
+
+    // Clear the search results
+    this.searchResults = [];
+  }
+
+  addSaleItem(selectedBatch: Batch, saleQty: number): void {
+    // Check available quantity from the database
+    this.productService.getAvailableQuantity(this.selectedProduct!.sku, selectedBatch.batchNumber).subscribe(
+      availableQty => {
+        console.log("eeeeeeeeee", availableQty);
+        // Check if requested quantity is available
+        if (saleQty <= 0 || saleQty > availableQty) {
+          this.openFailureDialog('Requested quantity exceeds available stock.'); // Show error dialog
+          return; // Exit the method if quantity is invalid
+        }
+
+        if (this.selectedProduct && selectedBatch && saleQty > 0) {
+          const existingItem = this.saleItems.find(product =>
+            product.productId === this.selectedProduct!.productId &&
+            product.batchNo === selectedBatch!.batchNumber
+          );
+          if (existingItem) {
+            // If the item already exists, update the quantity
+            existingItem.remainingQty += saleQty;
+          } else {
+            // If the item doesn't exist, add a new entry to the sale array
+            const newProduct = {
+              ...this.selectedProduct,
+              batchNo: selectedBatch.batchNumber,
+              remainingQty: saleQty,
+              retailPrice: selectedBatch.retailPrice
+            };
+
+            this.saleItems.push(newProduct);
+          }
+          this.resetSelection();
+        }
+      },
+      error => {
+        console.error('Error fetching available quantity:', error);
+        this.openFailureDialog('Unable to check available quantity.'); // Handle error in fetching available quantity
+      }
+    );
+  }
+
+  resetSelection(): void {
+    this.selectedProduct = null;
+    this.selectedBatch = null;
+    this.saleQty = 1;
+    this.batchList = [];
+    this.productSearchTerm = '';
+  }
+
+  removeSaleItem(productToRemove: Product): void {
+    this.saleItems = this.saleItems.filter(product =>
+      product.productId !== productToRemove.productId ||
+      product.batchNo !== productToRemove.batchNo
+    );
+  }
+
+
+  holdSale(): void {
+    this.saleItem.isHold = true; // Set the isHold field to true
+    // Assign logged-in user ID before saving
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        const username = payload.sub;
+        this.userService.getUserDetailsByUsername(username).subscribe(user => {
+          this.saleItem.userId = user.id ?? 0;
+          this.createSale(true, () => {
+            this.dialog.open(SuccessDialogComponent, {
+              width: '300px',
+              data: { message: 'Sale saved as hold successfully!' }
+            });
+          });
+        });
+      } catch {
+        this.saleItem.userId = 0;
+        this.createSale(true, () => {
+          this.dialog.open(SuccessDialogComponent, {
+            width: '300px',
+            data: { message: 'Sale saved as hold successfully!' }
+          });
+        });
+      }
+    } else {
+      this.saleItem.userId = 0;
+      this.createSale(true, () => {
+        this.dialog.open(SuccessDialogComponent, {
+          width: '300px',
+          data: { message: 'Sale saved as hold successfully!' }
+        });
+      });
+    }
+  }
+
+  createSale(isHold: boolean = false, onHoldSaved?: () => void): void {
+    if (this.saleItem == null) {
+      console.error('No items in the sale.');
+      return;
+    }
+    // Validate customer selection
+    if (!this.saleItem.custId || this.saleItem.custId === 0) {
+      this.openFailureDialog('Please select a customer before creating the sale.');
+      return;
+    }
+
+    // Assign logged-in user ID before saving
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        const username = payload.sub;
+        this.userService.getUserDetailsByUsername(username).subscribe(user => {
+          this.saleItem.userId = user.id ?? 0;
+        });
+      } catch {
+        this.saleItem.userId = 0;
+      }
+    }
+
+    // Map saleItems (which are Products) into SaleProduct model
+    const soldProducts: SaleProduct[] = this.saleItems.map(product => {
+      const discountAmount = (product.discountPercentage || 0) / 100 * product.retailPrice * product.remainingQty;
+      const discountedTotal = (product.retailPrice * product.remainingQty) - discountAmount;
+      const saleProduct = new SaleProduct(
+        product,
+        product.remainingQty,
+        discountedTotal,
+        product.discountPercentage || 0,
+        discountAmount,
+        product.retailPrice
+      );
+      return saleProduct;
+    });
+    this.saleItem.soldProducts = soldProducts;
+    this.saleItem.totalAmount = this.getTotal();
+    this.saleItem.subTotal = this.getSubtotal();
+    this.saleItem.billWiseDiscountPercentage = this.billWiseDiscountPercentage;
+
+    // Remove saleId before sending to backend
+    if ('saleId' in this.saleItem) {
+      delete (this.saleItem as any).saleId;
+    }
+
+    if (isHold) {
+      // Save as hold sale directly, skip payment dialog
+      this.saleItem.paidAmount = 0;
+      this.saleItem.isFullyPaid = false;
+      this.saleItem.paymentType = 'Hold';
+      this.saleItem.isHold = true;
+      this.saleService.createSale(this.saleItem).subscribe(response => {
+        if (response.statusCode == 201) {
+          this.invoiceNumber = response.invoiceNumber;
+          this.clearForm();
+          this.getInvoiceNumber();
+          if (onHoldSaved) onHoldSaved();
+        } else {
+          this.openFailureDialog(response.message);
+        }
+      }, error => {
+        const errorMessage = error.error || 'Unknown error occurred';
+        this.openFailureDialog(errorMessage);
+      });
+      return;
+    } else {
+      // Creating as a new sale, ensure isHold is false
+      this.saleItem.isHold = false;
+
+      // Open the payment dialog
+      const dialogRef = this.dialog.open(PaymentDialogComponent, {
+        width: '300px',
+        data: { maxAmount: this.saleItem.totalAmount } // Pass total amount as max limit
+      });
+
+      dialogRef.afterClosed().subscribe(result => {
+        if (result !== undefined) {
+          // Update the saleItem with payment details
+          this.saleItem.paidAmount = result.paymentAmount;
+          this.saleItem.isFullyPaid = result.paymentAmount >= this.saleItem.totalAmount;
+          this.saleItem.paymentType = result.paymentType;
+
+          // Here you can call a service to update the sale with payment information if needed
+          console.log('Payment Amount:', result.paymentAmount);
+          console.log('Payment Type:', result.paymentType);
+          console.log('Is Fully Paid:', this.saleItem.isFullyPaid);
+
+          this.saleService.createSale(this.saleItem).subscribe(response => {
+            console.log('ssss', response);
+            if (response.statusCode == 201) {
+              this.invoiceNumber = response.invoiceNumber;
+              console.log('Sale created with Invoice Number:', this.invoiceNumber);
+              console.log('Sale created successfully:', response);
+              // Prepare invoice data for navigation
+              const invoiceData = {
+                invoiceNumber: this.invoiceNumber,
+                currentDate: this.currentDate,
+                selectedCustomerName: this.selectedCustomerName,
+                loggedUserName: this.loggedUserName,
+                saleItems: this.saleItems,
+                billWiseDiscountPercentage: this.billWiseDiscountPercentage,
+                saleItem: this.saleItem,
+                subtotal: this.getSubtotal(),
+                totalDiscount: this.getTotalDiscount(),
+                billWiseDiscountTotal: this.getTotalBillWiseDiscount(),
+                netTotal: this.getTotal()
+              };
+              this.router.navigate(['/invoice'], { state: { invoiceData } });
+            } else {
+              console.error('Error creating sale:', response.message);
+              this.openFailureDialog(response.message);
+            }
+            this.clearForm();
+            this.getInvoiceNumber();
+          }, error => {
+            const errorMessage = error.error || 'Unknown error occurred';
+            this.openFailureDialog(errorMessage);
+          });
+
+        } else {
+          console.log('Payment dialog closed without payment confirmation.');
+        }
+      });
+    }
+
+  }
+
+  billWiseDiscountPercentage: number = 0; // Discount value (editable)
+  lineWiseDiscountAmount: number = 0;
+
+  // Method to calculate the subtotal
+  getSubtotal(): number {
+    const subTotal = this.saleItems.reduce((sum, item) => {
+      const discountAmount = (item.discountPercentage || 0) / 100 * item.retailPrice * item.remainingQty;
+      const discountedPrice = (item.retailPrice * item.remainingQty) - discountAmount;
+      return sum + discountedPrice; // Add discounted price to the subtotal
+    }, 0);
+
+    this.saleItem.subTotal = subTotal; // Store the subtotal in saleItem
+    return subTotal;
+  }
+
+  // Method to calculate the total (after applying discount)
+  getTotal(): number {
+    const subtotal = this.getSubtotal();
+    const discountAmount = (this.billWiseDiscountPercentage || 0) / 100 * subtotal;
+    const total = subtotal - discountAmount;
+    this.saleItem.totalAmount = total; // Assign total to saleItem.totalAmount
+    this.saleItem.billWiseDiscountTotalAmount = discountAmount; // Assign discount amount to saleItem
+    return total; // Return total for display
+  }
+
+  // Function to calculate the discount amount
+  calculateDiscount(item: any): void {
+    if (item.discountPercentage != null) {
+      const discount = (item.discountPercentage / 100) * item.retailPrice;
+      item.discountAmount = discount;
+    }
+  }
+
+  // Function to calculate the total discount amount
+  getTotalDiscount(): number {
+    // Calculate the total discount across all products
+    this.lineWiseDiscountAmount = this.saleItems.reduce((totalDiscount, product) => {
+      const discountAmount = (product.discountPercentage || 0) / 100 * product.retailPrice * product.remainingQty;
+      return totalDiscount + discountAmount;
+    }, 0);
+    this.saleItem.lineWiseDiscountTotalAmount = this.lineWiseDiscountAmount;
+    return this.lineWiseDiscountAmount;
+  }
+
+  getTotalBillWiseDiscount(): number {
+    const subtotal = this.getSubtotal(); // Get current subtotal
+    const totalDiscount = (this.billWiseDiscountPercentage / 100) * subtotal; // Calculate total discount
+    return totalDiscount; // Return total discount for display
+  }
+
+  getInvoiceNumber(): void {
+    this.saleService.getInvoiceNumber()
+      .subscribe(
+        (data: string) => {
+          console.log('Invoice Number fetched: ', data);
+          this.invoiceNumber = data; // Assign the response to a component variable
+          this.saleItem.invoiceNumber = this.invoiceNumber;
+        },
+        (error) => {
+          console.error('Error fetching invoice number', error);
+        }
+      );
+  }
+
+  openCustomerListPopup() {
+    const dialogRef = this.dialog.open(PopupCustomerListComponent, {
+      width: '800px',
+      data: {}
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.selectedCustomerName = result.name;
+        this.saleItem.custId = result.custId;
+        console.log('The dialog was closed', result);
+      }
+    });
+  }
+
+  openProductListPopup() {
+    const dialogRef = this.dialog.open(ProductListComponent, {
+      width: '800px',
+      data: {}
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        console.log('The dialog was closed', result);
+      }
+    });
+  }
+
+  // Function to clear the form and saleItems
+  clearForm() {
+    this.selectedBatch = null; // Clear the selected batch
+    this.batchList = []; // Clear the batch list if needed
+    this.saleQty = 0; // Reset quantity
+    this.saleItems = [];          // Clear selected items
+    this.selectedCustomerName = 'Select Customer'; // Reset customer name
+    this.billWiseDiscountPercentage = 0; // Reset discount percentage
+  }
+
+  // Success dialog
+  openSuccessDialog() {
+    // Show success dialog
+    const dialogRef = this.dialog.open(SuccessDialogComponent, {
+      width: '300px',
+      data: { message: 'Sale created successfully!' }
+    });
+
+    dialogRef.afterClosed().subscribe(() => {
+      // Only open bill dialog if showBillButton is not already set (to avoid double open)
+      if (!this.showBillButton) {
+        this.openBillDialog();
+      }
+      this.clearForm();
+    });
+
+  }
+
+  openBillDialog() {
+    this.dialog.open(BillDialogComponent, {
+      width: '800px',
+      data: {
+        invoiceNumber: this.invoiceNumber,
+        currentDate: this.currentDate,
+        selectedCustomerName: this.selectedCustomerName,
+        loggedUserName: this.loggedUserName,
+        saleItems: this.saleItems,
+        billWiseDiscountPercentage: this.billWiseDiscountPercentage,
+        saleItem: this.saleItem,
+        getSubtotal: () => this.getSubtotal(),
+        getTotalDiscount: () => this.getTotalDiscount(),
+        getTotalBillWiseDiscount: () => this.getTotalBillWiseDiscount(),
+        getTotal: () => this.getTotal()
+      }
+    });
+    this.showBillButton = false;
+  }
+
+  // Failure dialog
+  openFailureDialog(errorMessage: string) {
+    this.dialog.open(FailureDialogComponent, {
+      width: '300px',
+      data: { message: errorMessage }
+    });
+  }
+
+  navigateToDashboard(): void {
+    this.router.navigate(['/dashboard']); // Navigates to home (dashboard)
+  }
+
+  navigateToOrders(): void {
+    this.router.navigate(['/orders']); // Navigates to orders list
+  }
+
+  openQuantityInputDialog(): void {
+    const dialogRef = this.dialog.open(QuantityInputComponent, {
+      width: '300px',
+      data: { /* any data you want to pass */ }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result !== undefined) {
+        console.log('Quantity entered:', result); // Process the entered quantity
+        // You can now use this result to add to the sale or any other logic
+      }
+    });
+  }
+
+  openBatchSelection(): void {
+    const dialogRef = this.dialog.open(BatchSelectionComponent, {
+      width: '400px'
+    });
+
+    dialogRef.afterClosed().subscribe((result: Batch) => {
+      if (result) {
+        this.selectedBatch = result; // Set the selected batch from the dialog
+        // You may also want to open the quantity input dialog here if needed
+      }
+    });
+  }
+
+  openDiscountModal(item: any): void {
+    const dialogRef = this.dialog.open(DiscountInputComponent, {
+      width: '400px', // Set the modal size
+      data: {} // Pass any data if needed
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result !== undefined) {
+        // Update the item's discountPercentage with the selected discount value
+        item.discountPercentage = result;
+        this.calculateDiscount(item); // Recalculate the discount for the item
+      }
+    });
+  }
+
+  openBillWiseDiscountModal(): void {
+    const dialogRef = this.dialog.open(DiscountBillWiseComponent, {
+      width: '400px', // Set the modal size
+      data: {} // Pass any data if needed
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result !== undefined) {
+        // Update the item's discountPercentage with the selected discount value
+        this.billWiseDiscountPercentage = result;
+        this.getTotalBillWiseDiscount(); // Recalculate the discount for the item
+      }
+    });
+  }
+
+  fetchCategories() {
+    this.categoryService.getAllCategories().subscribe((data) => {
+      this.categories = data;
+    });
+  }
+
+  loadProducts(categoryId: string) {
+    this.resetProductBoxSelection();
+    this.productService.searchProductByCategory(categoryId).subscribe((data) => {
+      this.products = data;
+    });
+  }
+
+  addProductToSale(product: Product): void {
+    // Reset product selection
+    this.resetProductBoxSelection();
+
+    this.selectedProduct = product;
+
+    // Fetch batch list for the selected product
+    this.productService.getBatchNumbersForProduct(product.sku).subscribe(
+      (batches: Batch[]) => {
+        this.batchList = batches;
+        if (this.batchList.length === 1) {
+          // If only one batch, auto-select and set default quantity as 1
+          const selectedBatch = this.batchList[0];
+          const quantityDialogRef = this.dialog.open(QuantityInputComponent, {
+            width: '400px',
+          });
+
+          // After the quantity input dialog closes
+          quantityDialogRef.afterClosed().subscribe((quantity: number) => {
+            if (quantity && quantity > 0) {
+              this.addProductToSaleItems(product, selectedBatch, quantity);
+            } else {
+              console.warn('No valid quantity entered.');
+            }
+          });
+
+        } else {
+          // Open batch selection dialog if multiple batches
+          const batchDialogRef = this.dialog.open(BatchSelectionComponent, {
+            width: '400px',
+            data: { batchList: batches }
+          });
+
+          batchDialogRef.afterClosed().subscribe((selectedBatch: Batch) => {
+            if (selectedBatch) {
+              // After batch selection, open quantity dialog
+              const quantityDialogRef = this.dialog.open(QuantityInputComponent, {
+                width: '300px',
+                data: { selectedBatch }
+              });
+
+              quantityDialogRef.afterClosed().subscribe((quantity: number) => {
+                if (quantity && quantity > 0) {
+                  this.addProductToSaleItems(product, selectedBatch, quantity);
+                }
+              });
+            }
+          });
+        }
+      },
+      error => console.error('Error fetching batches:', error)
+    );
+    this.clearProducts(); // Clear products after adding to sale
+  }
+
+  private addProductToSaleItems(product: Product, selectedBatch: Batch, quantity: number): void {
+    this.productService.getAvailableQuantity(product.sku, selectedBatch.batchNumber).subscribe(
+      availableQty => {
+        console.log("eeeeeeeeee", availableQty);
+        // Check if requested quantity is available
+        if (quantity <= 0 || quantity > availableQty) {
+          this.openFailureDialog('Requested quantity exceeds available stock.'); // Show error dialog
+          return; // Exit the method if quantity is invalid
+        }
+
+        // Check if the item with the selected batch already exists
+        const existingItem = this.saleItems.find(
+          item => item.productId === product.productId && item.batchNo === selectedBatch.batchNumber
+        );
+
+        if (existingItem) {
+          // Update quantity if item exists
+          existingItem.remainingQty += quantity;
+        } else {
+          // Add new item with batch and quantity to saleItems
+          this.saleItems.push({
+            ...product,
+            batchNo: selectedBatch.batchNumber,
+            remainingQty: quantity,
+            retailPrice: selectedBatch.unitCost
+          });
+        }
+      },
+      error => {
+        console.error('Error fetching available quantity:', error);
+        this.openFailureDialog('Unable to check available quantity.'); // Handle error in fetching available quantity
+      }
+    );
+  }
+
+  private resetProductBoxSelection(): void {
+    this.selectedProduct = null;  // Clear selected product
+    this.selectedBatch = null;     // Clear selected batch
+    this.saleQty = 1;              // Reset quantity to 1 (default)
+    this.batchList = [];           // Clear the batch list
+    this.productSearchTerm = '';    // Clear the search term
+    this.searchResults = [];        // Clear search results if necessary
+  }
+
+  clearProducts(): void {
+    this.products = []; // Clear the products array
+    this.selectedProduct = null; // Clear the selected product
+    this.selectedBatch = null; // Clear the selected batch
+    this.saleQty = 1; // Reset quantity to 1 (default)
+    this.batchList = []; // Clear the batch list
+    this.productSearchTerm = ''; // Clear the search term if needed
+    this.searchResults = []; // Clear search results if needed
+  }
+
+  // Go back to category list
+  backToCategories() {
+    this.showProducts = false; // Show categories
+    this.products = []; // Clear products if needed
+  }
+}

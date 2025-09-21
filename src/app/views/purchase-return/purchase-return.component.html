@@ -1,0 +1,79 @@
+
+<div class="container py-4">
+  <div class="card shadow-sm">
+    <div class="card-header bg-primary text-white d-flex align-items-center">
+      <c-icon name="cil-sync" class="me-2"></c-icon>
+      <h4 class="mb-0">Purchase Return</h4>
+    </div>
+    <div class="card-body">
+      <form [formGroup]="purchaseReturnForm" (ngSubmit)="onSubmit()" class="row g-4">
+        <c-col [md]="6">
+          <label cLabel for="invoiceNumber">Invoice Number</label>
+          <input cFormControl id="invoiceNumber" type="text" formControlName="invoiceNumber" placeholder="Enter invoice number" />
+        </c-col>
+        <c-col [md]="6">
+          <label cLabel for="supplierName">Supplier Name</label>
+          <input cFormControl id="supplierName" type="text" formControlName="supplierName" placeholder="Enter supplier name" />
+        </c-col>
+        <c-col [md]="6">
+          <label cLabel for="returnDate">Return Date</label>
+          <input cFormControl id="returnDate" type="date" formControlName="returnDate" />
+        </c-col>
+        <c-col [md]="6">
+          <label cLabel for="product">Product</label>
+          <input cFormControl id="product" type="text" formControlName="product" placeholder="Product name or code" />
+        </c-col>
+        <c-col [md]="6">
+          <label cLabel for="quantity">Quantity</label>
+          <input cFormControl id="quantity" type="number" formControlName="quantity" min="1" />
+        </c-col>
+        <c-col [md]="6">
+          <label cLabel for="reason">Reason</label>
+          <input cFormControl id="reason" type="text" formControlName="reason" placeholder="Reason for return" />
+        </c-col>
+        <c-col [md]="6">
+          <label cLabel for="refundAmount">Refund Amount</label>
+          <input cFormControl id="refundAmount" type="number" formControlName="refundAmount" min="0" />
+        </c-col>
+        <c-col [md]="12" class="text-end">
+          <button cButton color="primary" type="submit">
+            <c-icon name="cil-save" class="me-2"></c-icon>Submit Return
+          </button>
+          <a class="btn btn-outline-success ms-2" routerLink="/purchase-return-list">View Purchase Return List</a>
+        </c-col>
+      </form>
+    </div>
+  </div>
+
+  <div *ngIf="purchaseReturns.length > 0" class="card mt-4">
+    <div class="card-header bg-light">
+      <h5 class="mb-0">Purchase Return Records</h5>
+    </div>
+    <div class="card-body p-0">
+      <table class="table table-striped table-hover mb-0">
+        <thead class="table-light">
+          <tr>
+            <th>Invoice #</th>
+            <th>Supplier</th>
+            <th>Date</th>
+            <th>Product</th>
+            <th>Qty</th>
+            <th>Reason</th>
+            <th>Refund</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let record of purchaseReturns">
+            <td>{{ record.invoiceNumber }}</td>
+            <td>{{ record.supplierName }}</td>
+            <td>{{ record.returnDate }}</td>
+            <td>{{ record.product }}</td>
+            <td>{{ record.quantity }}</td>
+            <td>{{ record.reason }}</td>
+            <td>${{ record.refundAmount | number:'1.2-2' }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

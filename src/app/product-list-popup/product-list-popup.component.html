@@ -1,0 +1,30 @@
+<h2 mat-dialog-title>Products in Sale</h2>
+<mat-dialog-content>
+  <table mat-table>
+    <thead>
+      <tr>
+        <th>Product Name</th>
+        <th>Batch No</th>
+        <th>Quantity</th>
+        <th>Retail Price</th>
+        <th>Total Price</th>
+        <th>Discount Percentage</th>
+        <th>Discount Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let product of data.products">
+        <td>{{ product.product.productName }}</td>
+        <td>{{ product.batchNo || 'N/A' }}</td>
+        <td>{{ product.quantity }}</td>
+        <td>{{ product.retailPrice }}</td>
+        <td>{{ product.discountedTotal }}</td>
+        <td>{{ product.discountPercentage }}%</td>
+        <td>{{ product.discountAmount }}</td>
+      </tr>
+    </tbody>
+  </table>
+</mat-dialog-content>
+<div mat-dialog-actions>
+    <button mat-button class="button" (click)="closeDialog()">Close</button>
+  </div>
