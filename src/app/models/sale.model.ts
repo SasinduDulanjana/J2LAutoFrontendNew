@@ -4,8 +4,8 @@ import { Batch } from './batch.model';
 export class Sale {
   saleId?: number; // For backend mapping
   id?: number; // Optional field
-  custId: number;
-  userId: number;
+  customer?: any;
+  user?: any;
   orderDate: string;
   totalAmount: number;
   subTotal: number;
@@ -22,25 +22,29 @@ export class Sale {
   modifiedDate?: string;
 
   constructor(
-    custId: number,
-    userId: number,
-    orderDate: string,
-    totalAmount: number,
-    subTotal: number,
-    billWiseDiscountPercentage: number,
-    billWiseDiscountTotalAmount: number,
-    lineWiseDiscountTotalAmount: number,
-    invoiceNumber: string,
-    soldProducts: SaleProduct[],
-    isFullyPaid: boolean,
-    isHold: boolean,
-    paidAmount : number,
-    id?: number,
-    modifiedBy?: string,
-    modifiedDate?: string
+  orderDate: string,
+  totalAmount: number,
+  subTotal: number,
+  billWiseDiscountPercentage: number,
+  billWiseDiscountTotalAmount: number,
+  lineWiseDiscountTotalAmount: number,
+  invoiceNumber: string,
+  soldProducts: SaleProduct[],
+  isFullyPaid: boolean,
+  isHold: boolean,
+  paidAmount : number,
+  customer?: any,
+  user?: any,
+  id?: number,
+  modifiedBy?: string,
+  modifiedDate?: string
   ) {
-    this.custId = custId;
-    this.userId = userId;
+    if (customer) {
+      this.customer = customer;
+    }
+    if (user) {
+      this.user = user;
+    }
     this.orderDate = orderDate || new Date().toISOString();
     this.totalAmount = totalAmount;
     this.subTotal = subTotal;

@@ -25,18 +25,12 @@ export const navItems: INavDataWithRoles[] = [
         name: 'Sale List',
         url: '/sale-list'
       },
-      {
-        name: 'Deleted Sales',
-        url: '/deleted-sale-list'
-      },
-      {
-        name: 'Hold Sales',
-        url: '/hold-sale-list'
-      },
-      {
-        name: 'Unpaid Sales',
-        url: '/partiallyPaid-sale-list'
-      }
+  // Deleted Sales removed
+  // {
+  //   name: 'Hold Sales',
+  //   url: '/hold-sale-list'
+  // },
+  // Unpaid Sales removed
     ]
   },
   {

@@ -13,25 +13,20 @@ export class InventoryListComponent implements OnInit {
   filteredInventory: any[] = [];
   searchQuery: string = '';
   dropdownOpen: boolean[] = [];
-  categoryMap: { [catId: number]: string } = {};
+  loading: boolean = false;
+  // categoryMap removed, use category from product object
 
   constructor(private productService: ProductService, private categoryService: CategoryService) {}
 
   ngOnInit(): void {
-    // Fetch categories first
-    this.categoryService.getAllCategories().subscribe(categories => {
-      this.categoryMap = {};
-      categories.forEach((cat: Category) => {
-        if (cat.catId !== undefined && cat.name) {
-          this.categoryMap[cat.catId] = cat.name;
-        }
-      });
-      // Now fetch inventory
-      this.productService.getAllProductsByBatchWise().subscribe(data => {
-        this.inventory = data;
-        this.filteredInventory = data;
-        this.dropdownOpen = new Array(data.length).fill(false);
-      });
+    this.loading = true;
+    this.productService.getAllProductsByBatchWise().subscribe(data => {
+      this.inventory = data;
+      this.filteredInventory = data;
+      this.dropdownOpen = new Array(data.length).fill(false);
+      this.loading = false;
+    }, error => {
+      this.loading = false;
     });
   }
 

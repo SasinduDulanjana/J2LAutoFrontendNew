@@ -1,3 +1,7 @@
+<div *ngIf="loading" class="loading-overlay">
+  <div class="spinner"></div>
+  <span>Loading inventory...</span>
+</div>
 <div style="background-color: white;">
   <div class="container py-4">
     <div class="card shadow-sm mb-4">
@@ -29,7 +33,7 @@
                 <tr>
                   <td>{{ item.productName }}</td>
                   <td>{{ item.sku }}</td>
-                  <td>{{ categoryMap[item.catId] || 'N/A' }}</td>
+                  <td>{{ item.category?.name || 'N/A' }}</td>
                   <td>{{ item.barCode }}</td>
                   <td>
                     <button class="btn btn-sm btn-outline-primary" (click)="toggleDropdown(idx)">

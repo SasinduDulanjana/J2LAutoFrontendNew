@@ -1,3 +1,14 @@
+<div *ngIf="loading" class="loading-overlay">
+  <span class="dialog-loader">
+    <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+      <circle cx="24" cy="24" r="20" stroke="#e0e0e0" stroke-width="6" />
+      <path d="M24 4a20 20 0 1 1-14.14 34.14" stroke="#1976d2" stroke-width="6" stroke-linecap="round">
+        <animateTransform attributeName="transform" type="rotate" from="0 24 24" to="360 24 24" dur="1s" repeatCount="indefinite" />
+      </path>
+    </svg>
+  </span>
+  <span style="font-size:1.1rem;color:#1976d2;font-weight:500;">Creating sale & generating invoice...</span>
+</div>
 <div class="page-container">
   <!-- Common Box at the Top -->
   <div class="common-box">
@@ -84,7 +95,15 @@
                   <td>{{ i + 1 }}</td>
                   <td>{{ item.productName }}</td>
                   <td>{{ item.batchNo }}</td>
-                  <td>{{ item.remainingQty }}</td>
+                    <td style="text-align: center; vertical-align: middle;">
+                      <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                        <input type="text" class="qty-input" min="1" [max]="getMaxQty(item.batchNo)" [(ngModel)]="item.remainingQty" name="qty_{{item.batchNo}}" [ngModelOptions]="{standalone: true}" [value]="item.remainingQty || 1" (ngModelChange)="onQtyChange(item)" (blur)="onQtyBlur(item)" />
+                        <div *ngIf="qtyError[item.batchNo]" class="qty-error-message">
+                          <svg style="vertical-align:middle;margin-right:4px;" width="16" height="16" fill="#d32f2f" viewBox="0 0 16 16"><path d="M8 1a7 7 0 1 1 0 14A7 7 0 0 1 8 1zm0 2a5 5 0 1 0 0 10A5 5 0 0 0 8 3zm-.75 3.75a.75.75 0 0 1 1.5 0v2.5a.75.75 0 0 1-1.5 0v-2.5zm.75 5a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5z"/></svg>
+                          <span style="color:#d32f2f;font-size:0.97em;font-weight:500;">{{ qtyError[item.batchNo] }}</span>
+                        </div>
+                      </div>
+                    </td>
                   <td>{{ item.retailPrice}}</td>
                   <td>
                     <label class="discount-label" (click)="openDiscountModal(item)" style="cursor: pointer;">
@@ -111,7 +130,20 @@
         <c-col [xs]="4">
           <div class="d-grid gap-2">
             <button cButton color="success" size="lg" type="submit"
-              [disabled]="!saleForm.form.valid || saleItems.length === 0" style="color: white;">Create Sale</button>
+              [disabled]="!saleForm.form.valid || saleItems.length === 0 || loading" style="color: white; position:relative;">
+              <ng-container *ngIf="!loading">Create Sale</ng-container>
+              <ng-container *ngIf="loading">
+                <span class="button-loader">
+                  <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                    <circle cx="11" cy="11" r="9" stroke="#e0e0e0" stroke-width="4" />
+                    <path d="M11 2a9 9 0 1 1-6.36 15.36" stroke="#1976d2" stroke-width="4" stroke-linecap="round">
+                      <animateTransform attributeName="transform" type="rotate" from="0 11 11" to="360 11 11" dur="0.7s" repeatCount="indefinite" />
+                    </path>
+                  </svg>
+                </span>
+                <span style="margin-left:8px; color:#1976d2; font-weight:500; font-size:1rem;">Processing...</span>
+              </ng-container>
+            </button>
           </div>
         </c-col>
         <c-col [xs]="12" *ngIf="showBillButton">

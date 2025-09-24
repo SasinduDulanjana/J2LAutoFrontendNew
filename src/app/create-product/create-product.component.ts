@@ -20,6 +20,8 @@ export class CreateProductComponent implements OnInit{
   skuExists: boolean = false;
   skuCheckInProgress: boolean = false;
 
+  loading: boolean = false;
+
   products: Product[] = [];
   categories: Category[] = [];
   selectedParentCategoryId: number = 0;
@@ -110,8 +112,10 @@ export class CreateProductComponent implements OnInit{
       expDateAvailable: this.product.expDateAvailable,
       remainingQty: this.product.remainingQty
     };
+    this.loading = true;
     this.productService.createProduct(newProduct)
       .subscribe(response => {
+        this.loading = false;
         const dialogRef = this.dialog.open(SuccessDialogComponent, {
           width: '350px',
           data: { message: 'Product created successfully!' }
@@ -122,6 +126,7 @@ export class CreateProductComponent implements OnInit{
           this.selectedParentCategoryId = 0;
         });
       }, error => {
+        this.loading = false;
         console.error('Error creating product:', error);
       });
   // Removed stray statement and duplicate logic

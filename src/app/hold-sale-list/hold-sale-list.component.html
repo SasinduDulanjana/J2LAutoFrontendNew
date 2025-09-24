@@ -1,8 +1,12 @@
+<div *ngIf="loading" class="loading-overlay">
+  <div class="spinner"></div>
+  <span>Loading hold sales data...</span>
+</div>
 
 <div class="container py-4">
   <div class="card shadow-sm mb-4">
     <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
-      <h4 class="mb-0">Draft Sales</h4>
+      <h4 class="mb-0">Hold Sales</h4>
     </div>
     <div class="card-body">
       <div class="sale-search-bar mb-3">
@@ -29,15 +33,15 @@
           <tbody>
             <tr *ngFor="let sale of filteredSales; let i = index">
               <td>{{ sale.invoiceNumber }}</td>
-              <td>{{ sale.userId }}</td>
-              <td>{{ sale.custId }}</td>
+              <td>{{ sale.user.username }}</td>
+              <td>{{ sale.customer.name }}</td>
               <td>{{ sale.lineWiseDiscountTotalAmount }}</td>
               <td>{{ sale.subTotal }}</td>
               <td>{{ sale.billWiseDiscountTotalAmount }}</td>
               <td>{{ sale.netTotal || sale.lineWiseDiscountTotalAmount }}</td>
               <td>{{ sale.saleDate }}</td>
               <td>
-                <button (click)="openProductListPopup(sale.soldProducts)" cButton color="light" style="min-width: 100px;">Products</button>
+                <button (click)="openProductListPopup(sale)" cButton color="light" style="min-width: 100px;">Products</button>
               </td>
               <td>
                 <button (click)="resumeSale(sale)" cButton color="success" style="min-width: 100px;">Resume</button>

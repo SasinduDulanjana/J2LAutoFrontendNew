@@ -15,6 +15,7 @@ import { FailureDialogComponent } from '../failure-dialog/failure-dialog.compone
 export class CreateCustomerComponent {
   customer: Customer = new Customer('', '', '', ''); // Initialize with empty values or defaults
   phoneExists: boolean = false;
+  loading: boolean = false;
 
   constructor(private customerService: CustomerService, private location: Location, private dialog: MatDialog) { }
 
@@ -30,8 +31,10 @@ export class CreateCustomerComponent {
       });
       return;
     }
+    this.loading = true;
     this.customerService.createCustomer(this.customer)
       .subscribe(response => {
+        this.loading = false;
         console.log('Customer created:', response);
         const dialogRef = this.dialog.open(SuccessDialogComponent, {
           width: '350px',
@@ -42,6 +45,7 @@ export class CreateCustomerComponent {
           this.customer = new Customer('', '', '', '');
         });
       }, error => {
+        this.loading = false;
         let errorMsg = 'Error creating customer.';
         if (error && error.error && error.error.message) {
           errorMsg = error.error.message;

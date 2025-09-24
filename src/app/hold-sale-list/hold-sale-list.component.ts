@@ -16,13 +16,22 @@ export class HoldSaleListComponent {
   searchQuery: string = '';
   selectedSales: number[] = [];
   selectAll: boolean = false;
+  loading: boolean = false;
 
   constructor(private saleService: SaleService, private router: Router, private dialog: MatDialog) { }
 
   ngOnInit(): void {
-    this.saleService.findAllHoldSales().subscribe(data => {
-      this.sales = data;
-      this.filteredSales = data;
+    this.loading = true;
+    this.saleService.findAllHoldSales().subscribe({
+      next: data => {
+        this.sales = data;
+        this.filteredSales = data;
+        this.loading = false;
+      },
+      error: err => {
+        this.loading = false;
+        console.error('Error loading hold sales:', err);
+      }
     });
   }
 
@@ -65,11 +74,20 @@ export class HoldSaleListComponent {
     return this.selectedSales.includes(customerId);
   }
 
-  openProductListPopup(saleProducts: any[]): void {
-    this.dialog.open(ProductListPopupComponent, {
-      width: 'auto',
-      maxWidth: 'none',
-      data: { products: saleProducts }
+
+    openProductListPopup(sale: any): void {
+    // Use sale.saleId if available, otherwise fallback to sale.id
+    const saleId = sale.saleId || sale.id;
+    if (!saleId) {
+      alert('Sale ID not found!');
+      return;
+    }
+    this.saleService.getProductsForSale(saleId).subscribe(products => {
+      this.dialog.open(ProductListPopupComponent, {
+        width: 'auto',
+        maxWidth: 'none',
+        data: { products }
+      });
     });
   }
 

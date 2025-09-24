@@ -8,6 +8,9 @@ import { BASE_URL } from '../base-url';
   providedIn: 'root'
 })
 export class SaleService {
+  getProductsForSale(saleId: number): Observable<any[]> {
+        return this.http.post<any[]>(`${this.baseUrl}/getProductsForSale/${saleId}`, {});
+      }
   private baseUrl = BASE_URL + '/sale/api';
 
   constructor(private http: HttpClient) { }

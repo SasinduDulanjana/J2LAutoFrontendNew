@@ -21,13 +21,18 @@ export class CategoryListComponent implements OnInit {
   selectedCategory: number | null = null;
   selectAll: boolean = false;
   parentNames: { [key: number]: string } = {}; // Store fetched parent names
+  loading: boolean = false;
 
   constructor(private categoryService: CategoryService, private router: Router, private dialog: MatDialog) {}
 
   ngOnInit(): void {
+    this.loading = true;
     this.categoryService.getAllCategories().subscribe(data => {
       this.categories = data;
       this.filteredCategories = data;
+      this.loading = false;
+    }, error => {
+      this.loading = false;
     });
   }
 

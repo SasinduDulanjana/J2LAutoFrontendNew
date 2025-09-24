@@ -13,6 +13,7 @@ import { FailureDialogComponent } from '../failure-dialog/failure-dialog.compone
 export class CreateSupplierComponent {
   supplier: Supplier = new Supplier('', '', '', ''); // Initialize with empty values or defaults
   phoneExists: boolean = false;
+  loading: boolean = false;
 
   constructor(private supplierService: SupplierService, private dialog: MatDialog) { }
 
@@ -24,8 +25,10 @@ export class CreateSupplierComponent {
       });
       return;
     }
+    this.loading = true;
     this.supplierService.createSupplier(this.supplier)
       .subscribe(response => {
+        this.loading = false;
         console.log('Supplier created:', response);
         const dialogRef = this.dialog.open(SuccessDialogComponent, {
           width: '350px',
@@ -36,6 +39,7 @@ export class CreateSupplierComponent {
           this.supplier = new Supplier('', '', '', '');
         });
       }, error => {
+        this.loading = false;
         let errorMsg = 'Error creating supplier.';
         if (error && error.error && error.error.message) {
           errorMsg = error.error.message;

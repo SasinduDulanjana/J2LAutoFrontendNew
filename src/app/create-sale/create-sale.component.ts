@@ -6,12 +6,14 @@ import { Batch } from '../models/batch.model';
 import { Sale } from '../models/sale.model';
 import { SaleProduct } from '../models/sale-product.model';
 import { CustomerService } from '../services/customer.service';
-import { MatDialog } from '@angular/material/dialog';
+// import { MatDialog } from '@angular/material/dialog';
 import { PopupCustomerListComponent } from '../popup-customer-list/popup-customer-list.component';
 import { SuccessDialogComponent } from '../success-dialog/success-dialog.component';
 import { FailureDialogComponent } from '../failure-dialog/failure-dialog.component';
 import { BillDialogComponent } from '../bill/bill-dialog.component';
 import { Router } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog';
+import { LoadingDialogComponent } from '../loading-dialog/loading-dialog.component';
 import { QuantityInputComponent } from '../quantity-input/quantity-input.component';
 import { BatchSelectionComponent } from '../batch-selection/batch-selection.component';
 import { DiscountInputComponent } from '../discount-input/discount-input.component';
@@ -21,6 +23,7 @@ import { ProductListComponent } from '../product-list/product-list.component';
 import { PaymentDialogComponent } from '../payment-dialog/payment-dialog.component';
 import { AuthService } from '../services/auth.service';
 import { UserService } from '../services/user.service';
+import { InventoryListComponent } from '../inventory-list/inventory-list.component';
 
 @Component({
   selector: 'app-create-sale',
@@ -28,6 +31,55 @@ import { UserService } from '../services/user.service';
   styleUrls: ['./create-sale.component.scss']
 })
 export class CreateSaleComponent implements OnInit {
+  getMaxQty(batchNo: string): number {
+    const batch = this.batchList.find(b => b.batchNumber === batchNo);
+    return batch && typeof batch.qty === 'number' ? batch.qty : 1;
+  }
+    qtyError: { [key: string]: string } = {};
+    onQtyChange(item: any): void {
+      // Use batch from item
+      const batch = item.batch;
+      // Sanitize input: allow only numbers
+      if (typeof item.remainingQty === 'string') {
+        item.remainingQty = item.remainingQty.replace(/[^0-9]/g, '');
+        item.remainingQty = item.remainingQty ? parseInt(item.remainingQty, 10) : 1;
+      }
+      console.log('onQtyChange:', { batchNo: item.batchNo, batch, batchQty: batch ? batch.qty : undefined, enteredQty: item.remainingQty });
+      // Validate quantity
+      if (isNaN(item.remainingQty) || item.remainingQty < 1) {
+        this.qtyError[item.batchNo] = 'Quantity must be at least 1';
+      } else if (batch && typeof batch.qty === 'number' && item.remainingQty > batch.qty) {
+        this.qtyError[item.batchNo] = `Cannot exceed available stock (${batch.qty})`;
+      } else {
+        this.qtyError[item.batchNo] = '';
+      }
+      // Recalculate totals
+      this.saleItem.subTotal = this.getSubtotal();
+      this.saleItem.totalAmount = this.getTotal();
+      this.saleItem.lineWiseDiscountTotalAmount = this.getTotalDiscount();
+      this.saleItem.billWiseDiscountTotalAmount = this.getTotalBillWiseDiscount();
+    }
+
+    onQtyBlur(item: any): void {
+      // Use batch from item
+      const batch = item.batch;
+      const maxQty = batch && typeof batch.qty === 'number' ? batch.qty : 1;
+      console.log('onQtyBlur:', { batchNo: item.batchNo, batch, batchQty: batch ? batch.qty : undefined, enteredQty: item.remainingQty });
+      if (item.remainingQty > maxQty) {
+        item.remainingQty = maxQty;
+        this.qtyError[item.batchNo] = `Quantity was adjusted to available stock (${maxQty})`;
+        this.saleItem.subTotal = this.getSubtotal();
+        this.saleItem.totalAmount = this.getTotal();
+        this.saleItem.lineWiseDiscountTotalAmount = this.getTotalDiscount();
+        this.saleItem.billWiseDiscountTotalAmount = this.getTotalBillWiseDiscount();
+      } else if (isNaN(item.remainingQty) || item.remainingQty < 1) {
+        this.qtyError[item.batchNo] = 'Quantity must be at least 1';
+      } else {
+        this.qtyError[item.batchNo] = '';
+      }
+    }
+  loading: boolean = false;
+  private loadingDialogRef: any;
   viewBill(): void {
     this.dialog.open(BillDialogComponent, {
       width: '700px',
@@ -64,6 +116,7 @@ export class CreateSaleComponent implements OnInit {
   ];
   invoiceNumber: string = "";
   customers: any[] = []; // List of all customers
+  users: any[] = []; // List of all users
   filteredCustomers: any[] = []; // Filtered list of customers based on phone number
   phoneNumber: string = ''; // Input phone number
   selectedCustomerId: number = 0; // Selected customer ID
@@ -85,7 +138,19 @@ export class CreateSaleComponent implements OnInit {
     private authService: AuthService,
     private userService: UserService
   ) {
-    this.saleItem = new Sale(0, 0, "", 0, 0, 0, 0, 0, "", [], true, false, 0)
+    this.saleItem = new Sale(
+      "", // orderDate
+      0, // totalAmount
+      0, // subTotal
+      0, // billWiseDiscountPercentage
+      0, // billWiseDiscountTotalAmount
+      0, // lineWiseDiscountTotalAmount
+      "", // invoiceNumber
+      [], // soldProducts
+      true, // isFullyPaid
+      false, // isHold
+      0 // paidAmount
+    );
   }
 
   ngOnInit(): void {
@@ -100,8 +165,6 @@ export class CreateSaleComponent implements OnInit {
     if (holdSale) {
       // Create a new Sale object, copying only needed fields, and set isHold to false
       this.saleItem = new Sale(
-        holdSale.custId,
-        holdSale.userId,
         holdSale.orderDate || new Date().toISOString(),
         holdSale.totalAmount,
         holdSale.subTotal,
@@ -112,7 +175,9 @@ export class CreateSaleComponent implements OnInit {
         [], // soldProducts will be set below
         holdSale.isFullyPaid,
         false, // Always set isHold to false
-        holdSale.paidAmount
+        holdSale.paidAmount,
+        this.customers.find((c: any) => c.custId === holdSale.custId),
+        this.users.find((u: any) => u.id === holdSale.userId)
       );
       this.saleItem.saleId = 0; // Ensure saleId is not sent
       this.saleItems = holdSale.soldProducts ? holdSale.soldProducts.map((sp: any) => ({
@@ -125,15 +190,16 @@ export class CreateSaleComponent implements OnInit {
       this.currentDate = holdSale.saleDate;
       this.getInvoiceNumber(); // Always fetch a new invoice number
 
-      // Fetch and map customer name
+      // Fetch customers and users if not already loaded
       this.customerService.findAllCustomers().subscribe(customers => {
-        const found = customers.find((c: any) => c.custId === holdSale.custId);
-        this.selectedCustomerName = found ? found.name : 'Select Customer';
+        this.customers = customers;
+        const foundCustomer = this.customers.find((c: any) => c.custId === holdSale.custId);
+        this.selectedCustomerName = foundCustomer ? foundCustomer.name : 'Select Customer';
       });
-      // Fetch and map user name
       this.userService.getUsers().subscribe(users => {
-        const found = users.find((u: any) => u.id === holdSale.userId);
-        this.loggedUserName = found ? found.username : '';
+        this.users = users;
+        const foundUser = this.users.find((u: any) => u.id === holdSale.userId);
+        this.loggedUserName = foundUser ? foundUser.username : '';
       });
     } else {
       // Get the current date and format it
@@ -200,26 +266,9 @@ export class CreateSaleComponent implements OnInit {
         this.batchList = batches;
         if (this.batchList.length === 1) {
           // Automatically add to sale items if only one batch
-          // this.selectedBatch = this.batchList[0];
-          this.showBatchSelection = true;
-
-          const quantityDialogRef = this.dialog.open(QuantityInputComponent, {
-            width: '400px',
-            // data: { selectedBatch }
-          });
-
-          // After the quantity input dialog closes
-          quantityDialogRef.afterClosed().subscribe((quantity: number) => {
-            if (quantity && quantity > 0) {
-              this.addSaleItem(this.batchList[0], quantity);
-            } else {
-              console.warn('No valid quantity entered.');
-            }
-          });
-
+          this.addSaleItem(this.batchList[0], 1);
         } else {
           // Otherwise, show the modal or batch selection section
-          // Open the BatchSelectionComponent as a dialog and pass the batches
           const dialogRef = this.dialog.open(BatchSelectionComponent, {
             width: '1000px', // Set the width of the dialog
             data: { batchList: batches } // Pass the batch list as data
@@ -227,26 +276,10 @@ export class CreateSaleComponent implements OnInit {
 
           dialogRef.afterClosed().subscribe((selectedBatch: Batch) => {
             if (selectedBatch) {
-              // If a batch was selected in the dialog
-              // this.selectedBatch = selectedBatch; // Assign the selected batch
-              // this.showBatchSelection = false; // You may not need this anymore if using the popup
-              // Open the QuantityInputComponent dialog after batch is selected
-              const quantityDialogRef = this.dialog.open(QuantityInputComponent, {
-                width: '400px',
-                data: { selectedBatch }
-              });
-
-              // After the quantity input dialog closes
-              quantityDialogRef.afterClosed().subscribe((quantity: number) => {
-                if (quantity && quantity > 0) {
-                  this.addSaleItem(selectedBatch, quantity);
-                } else {
-                  console.warn('No valid quantity entered.');
-                }
-              });
+              // Add to sale items with default quantity 1
+              this.addSaleItem(selectedBatch, 1);
             }
           });
-
         }
       },
       error => {
@@ -262,43 +295,34 @@ export class CreateSaleComponent implements OnInit {
   }
 
   addSaleItem(selectedBatch: Batch, saleQty: number): void {
-    // Check available quantity from the database
-    this.productService.getAvailableQuantity(this.selectedProduct!.sku, selectedBatch.batchNumber).subscribe(
-      availableQty => {
-        console.log("eeeeeeeeee", availableQty);
-        // Check if requested quantity is available
-        if (saleQty <= 0 || saleQty > availableQty) {
-          this.openFailureDialog('Requested quantity exceeds available stock.'); // Show error dialog
-          return; // Exit the method if quantity is invalid
-        }
+    // Use availableQty from batch object instead of API
+    const availableQty = selectedBatch.qty;
+    if (saleQty <= 0 || saleQty > availableQty) {
+      this.openFailureDialog('Requested quantity exceeds available stock.'); // Show error dialog
+      return; // Exit the method if quantity is invalid
+    }
 
-        if (this.selectedProduct && selectedBatch && saleQty > 0) {
-          const existingItem = this.saleItems.find(product =>
-            product.productId === this.selectedProduct!.productId &&
-            product.batchNo === selectedBatch!.batchNumber
-          );
-          if (existingItem) {
-            // If the item already exists, update the quantity
-            existingItem.remainingQty += saleQty;
-          } else {
-            // If the item doesn't exist, add a new entry to the sale array
-            const newProduct = {
-              ...this.selectedProduct,
-              batchNo: selectedBatch.batchNumber,
-              remainingQty: saleQty,
-              retailPrice: selectedBatch.retailPrice
-            };
-
-            this.saleItems.push(newProduct);
-          }
-          this.resetSelection();
-        }
-      },
-      error => {
-        console.error('Error fetching available quantity:', error);
-        this.openFailureDialog('Unable to check available quantity.'); // Handle error in fetching available quantity
+    if (this.selectedProduct && selectedBatch) {
+      const existingItem = this.saleItems.find(product =>
+        product.productId === this.selectedProduct!.productId &&
+        product.batchNo === selectedBatch!.batchNumber
+      );
+      if (existingItem) {
+        // If the item already exists, update the quantity
+        existingItem.remainingQty += (saleQty > 0 ? saleQty : 1);
+      } else {
+        // If the item doesn't exist, add a new entry to the sale array
+        const newProduct = {
+          ...this.selectedProduct,
+          batchNo: selectedBatch.batchNumber,
+          batch: selectedBatch, // Store batch object directly
+          remainingQty: 1,
+          retailPrice: selectedBatch.retailPrice
+        };
+        this.saleItems.push(newProduct);
       }
-    );
+      this.resetSelection();
+    }
   }
 
   resetSelection(): void {
@@ -319,14 +343,14 @@ export class CreateSaleComponent implements OnInit {
 
   holdSale(): void {
     this.saleItem.isHold = true; // Set the isHold field to true
-    // Assign logged-in user ID before saving
+    // Assign logged-in user before saving
     const token = localStorage.getItem('token');
     if (token) {
       try {
         const payload = JSON.parse(atob(token.split('.')[1]));
         const username = payload.sub;
         this.userService.getUserDetailsByUsername(username).subscribe(user => {
-          this.saleItem.userId = user.id ?? 0;
+          this.saleItem.user = user;
           this.createSale(true, () => {
             this.dialog.open(SuccessDialogComponent, {
               width: '300px',
@@ -335,7 +359,7 @@ export class CreateSaleComponent implements OnInit {
           });
         });
       } catch {
-        this.saleItem.userId = 0;
+        this.saleItem.user = null;
         this.createSale(true, () => {
           this.dialog.open(SuccessDialogComponent, {
             width: '300px',
@@ -344,7 +368,7 @@ export class CreateSaleComponent implements OnInit {
         });
       }
     } else {
-      this.saleItem.userId = 0;
+      this.saleItem.user = null;
       this.createSale(true, () => {
         this.dialog.open(SuccessDialogComponent, {
           width: '300px',
@@ -360,22 +384,22 @@ export class CreateSaleComponent implements OnInit {
       return;
     }
     // Validate customer selection
-    if (!this.saleItem.custId || this.saleItem.custId === 0) {
+    if (!this.saleItem.customer) {
       this.openFailureDialog('Please select a customer before creating the sale.');
       return;
     }
 
-    // Assign logged-in user ID before saving
+    // Assign logged-in user before saving
     const token = localStorage.getItem('token');
     if (token) {
       try {
         const payload = JSON.parse(atob(token.split('.')[1]));
         const username = payload.sub;
         this.userService.getUserDetailsByUsername(username).subscribe(user => {
-          this.saleItem.userId = user.id ?? 0;
+          this.saleItem.user = user;
         });
       } catch {
-        this.saleItem.userId = 0;
+        this.saleItem.user = null;
       }
     }
 
@@ -403,24 +427,36 @@ export class CreateSaleComponent implements OnInit {
       delete (this.saleItem as any).saleId;
     }
 
+    // Attach full customer and user objects
+  // customer and user are already set on saleItem
+
     if (isHold) {
       // Save as hold sale directly, skip payment dialog
       this.saleItem.paidAmount = 0;
       this.saleItem.isFullyPaid = false;
       this.saleItem.paymentType = 'Hold';
       this.saleItem.isHold = true;
-      this.saleService.createSale(this.saleItem).subscribe(response => {
-        if (response.statusCode == 201) {
-          this.invoiceNumber = response.invoiceNumber;
-          this.clearForm();
-          this.getInvoiceNumber();
-          if (onHoldSaved) onHoldSaved();
-        } else {
-          this.openFailureDialog(response.message);
+      this.loadingDialogRef = this.dialog.open(LoadingDialogComponent, {
+        disableClose: true,
+        panelClass: 'custom-loading-dialog'
+      });
+      this.saleService.createSale(this.saleItem).subscribe({
+        next: response => {
+          this.loadingDialogRef.close();
+          if (response.statusCode == 201) {
+            this.invoiceNumber = response.invoiceNumber;
+            this.clearForm();
+            this.getInvoiceNumber();
+            if (onHoldSaved) onHoldSaved();
+          } else {
+            this.openFailureDialog(response.message);
+          }
+        },
+        error: error => {
+          this.loadingDialogRef.close();
+          const errorMessage = error.error || 'Unknown error occurred';
+          this.openFailureDialog(errorMessage);
         }
-      }, error => {
-        const errorMessage = error.error || 'Unknown error occurred';
-        this.openFailureDialog(errorMessage);
       });
       return;
     } else {
@@ -440,41 +476,48 @@ export class CreateSaleComponent implements OnInit {
           this.saleItem.isFullyPaid = result.paymentAmount >= this.saleItem.totalAmount;
           this.saleItem.paymentType = result.paymentType;
 
-          // Here you can call a service to update the sale with payment information if needed
-          console.log('Payment Amount:', result.paymentAmount);
-          console.log('Payment Type:', result.paymentType);
-          console.log('Is Fully Paid:', this.saleItem.isFullyPaid);
+          // Attach full customer and user objects again before sending
+          // customer and user are already set on saleItem
 
-          this.saleService.createSale(this.saleItem).subscribe(response => {
-            console.log('ssss', response);
-            if (response.statusCode == 201) {
-              this.invoiceNumber = response.invoiceNumber;
-              console.log('Sale created with Invoice Number:', this.invoiceNumber);
-              console.log('Sale created successfully:', response);
-              // Prepare invoice data for navigation
-              const invoiceData = {
-                invoiceNumber: this.invoiceNumber,
-                currentDate: this.currentDate,
-                selectedCustomerName: this.selectedCustomerName,
-                loggedUserName: this.loggedUserName,
-                saleItems: this.saleItems,
-                billWiseDiscountPercentage: this.billWiseDiscountPercentage,
-                saleItem: this.saleItem,
-                subtotal: this.getSubtotal(),
-                totalDiscount: this.getTotalDiscount(),
-                billWiseDiscountTotal: this.getTotalBillWiseDiscount(),
-                netTotal: this.getTotal()
-              };
-              this.router.navigate(['/invoice'], { state: { invoiceData } });
-            } else {
-              console.error('Error creating sale:', response.message);
-              this.openFailureDialog(response.message);
+          this.loadingDialogRef = this.dialog.open(LoadingDialogComponent, {
+            disableClose: true,
+            panelClass: 'custom-loading-dialog'
+          });
+          this.saleService.createSale(this.saleItem).subscribe({
+            next: response => {
+              this.loadingDialogRef.close();
+              console.log('ssss', response);
+              if (response.statusCode == 201) {
+                this.invoiceNumber = response.invoiceNumber;
+                console.log('Sale created with Invoice Number:', this.invoiceNumber);
+                console.log('Sale created successfully:', response);
+                // Prepare invoice data for navigation
+                const invoiceData = {
+                  invoiceNumber: this.invoiceNumber,
+                  currentDate: this.currentDate,
+                  selectedCustomerName: this.selectedCustomerName,
+                  loggedUserName: this.loggedUserName,
+                  saleItems: this.saleItems,
+                  billWiseDiscountPercentage: this.billWiseDiscountPercentage,
+                  saleItem: this.saleItem,
+                  subtotal: this.getSubtotal(),
+                  totalDiscount: this.getTotalDiscount(),
+                  billWiseDiscountTotal: this.getTotalBillWiseDiscount(),
+                  netTotal: this.getTotal()
+                };
+                this.router.navigate(['/invoice'], { state: { invoiceData } });
+              } else {
+                console.error('Error creating sale:', response.message);
+                this.openFailureDialog(response.message);
+              }
+              this.clearForm();
+              this.getInvoiceNumber();
+            },
+            error: error => {
+              this.loadingDialogRef.close();
+              const errorMessage = error.error || 'Unknown error occurred';
+              this.openFailureDialog(errorMessage);
             }
-            this.clearForm();
-            this.getInvoiceNumber();
-          }, error => {
-            const errorMessage = error.error || 'Unknown error occurred';
-            this.openFailureDialog(errorMessage);
           });
 
         } else {
@@ -558,14 +601,14 @@ export class CreateSaleComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         this.selectedCustomerName = result.name;
-        this.saleItem.custId = result.custId;
+        this.saleItem.customer = result;
         console.log('The dialog was closed', result);
       }
     });
   }
 
   openProductListPopup() {
-    const dialogRef = this.dialog.open(ProductListComponent, {
+    const dialogRef = this.dialog.open(InventoryListComponent, {
       width: '800px',
       data: {}
     });

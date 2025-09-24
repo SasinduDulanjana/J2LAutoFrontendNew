@@ -1,4 +1,10 @@
 <div class="container py-4">
+  <div *ngIf="loading" class="loading-overlay" style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(255,255,255,0.6);display:flex;flex-direction:column;align-items:center;justify-content:center;">
+    <div class="spinner-border text-primary mb-3" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  <div style="font-size:1.2rem;color:#0d6efd;font-weight:500;">Updating supplier...</div>
+  </div>
   <div class="card shadow-sm">
     <div class="card-header bg-primary text-white d-flex align-items-center">
       <svg cIcon name="cil-truck" class="me-2"></svg>

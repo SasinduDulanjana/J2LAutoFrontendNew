@@ -11,6 +11,7 @@ import { SuccessDialogComponent } from '../success-dialog/success-dialog.compone
   styleUrls: ['./edit-category.component.scss']
 })
 export class EditCategoryComponent implements OnInit {
+  loading: boolean = false;
   categoryId!: number;
   categories: Category[] = [];
   selectedParentCategoryId: number | undefined = 0;
@@ -24,6 +25,7 @@ export class EditCategoryComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.loading = true;
     this.route.paramMap.subscribe(params => {
       const idParam = params.get('id');
       this.categoryId = idParam ? +idParam : 0; // Handle null value
@@ -31,8 +33,12 @@ export class EditCategoryComponent implements OnInit {
         this.categoryService.getCategoryById(this.categoryId).subscribe(data => {
           this.category = data;
           this.selectedParentCategoryId = data.parent;
+          this.loading = false;
+        }, error => {
+          this.loading = false;
         });
       } else {
+        this.loading = false;
         console.error('Invalid category ID');
       }
     });
@@ -43,6 +49,7 @@ export class EditCategoryComponent implements OnInit {
   }
 
   saveCategory(): void {
+    this.loading = true;
     const updatedCategory = {
       name: this.category.name,
       catDesc: this.category.catDesc,
@@ -52,12 +59,14 @@ export class EditCategoryComponent implements OnInit {
 
     this.categoryService.updateCategory(updatedCategory)
       .subscribe(response => {
+        this.loading = false;
         this.dialog.open(SuccessDialogComponent, {
           data: { message: 'Category updated successfully!' }
         }).afterClosed().subscribe(() => {
           this.router.navigate(['/category-list']);
         });
       }, error => {
+        this.loading = false;
         console.error('Error updating category:', error);
       });
   }

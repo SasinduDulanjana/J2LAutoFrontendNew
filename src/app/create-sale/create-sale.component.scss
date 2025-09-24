@@ -1,3 +1,39 @@
+// Modern quantity input styles
+.qty-input {
+  border-radius: 6px;
+  border: 1px solid #b6cdfa;
+  padding: 4px 8px;
+  font-size: 1rem;
+  box-shadow: 0 1px 4px rgba(13, 71, 161, 0.07);
+  transition: border-color 0.2s, box-shadow 0.2s;
+  outline: none;
+  width: 55px;
+  background: #e3edff;
+  color: #0d47a1;
+  text-align: center;
+}
+
+.qty-input:focus {
+  border-color: #1976d2;
+  box-shadow: 0 2px 8px rgba(25, 118, 210, 0.12);
+}
+
+.qty-error-message {
+  margin-top: 4px;
+  color: #d32f2f;
+  font-size: 0.97em;
+  font-weight: 500;
+  background: #fff3f3;
+  border-radius: 6px;
+  padding: 4px 8px;
+  display: inline-block;
+}
+.button-loader {
+  display: inline-block;
+  vertical-align: middle;
+  position: relative;
+  top: 2px;
+}
 /* Professional style for selectable bill wise discount */
 .discount-label {
   background: #e3edff;

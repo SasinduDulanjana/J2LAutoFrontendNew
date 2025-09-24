@@ -20,13 +20,18 @@ export class ProductListComponent implements OnInit {
   selectedProducts: number[] = []; // Array to store selected category IDs
   selectAll: boolean = false;
   categoryNames: { [key: number]: string } = {}; // Store fetched category names
+  loading: boolean = false;
 
   constructor(private productService: ProductService, private categoryService: CategoryService, private router: Router, private dialog: MatDialog) {}
 
   ngOnInit(): void {
+    this.loading = true;
     this.productService.getAllProducts().subscribe(data => {
       this.products = data;
       this.filteredProducts = data;
+      this.loading = false;
+    }, error => {
+      this.loading = false;
     });
   }
 
@@ -41,49 +46,6 @@ export class ProductListComponent implements OnInit {
       this.filteredProducts = this.products;
     }
   }
-
-  // onSelect(productId: number): void {
-  //   const index = this.selectedProducts.indexOf(productId);
-  //   if (index > -1) {
-  //     this.selectedProducts.splice(index, 1);
-  //   } else {
-  //     this.selectedProducts.push(productId);
-  //   }
-  // }
-
-  // onSelectAll(): void {
-  //   if (this.selectAll) {
-  //     this.selectedProducts = this.filteredProducts.map(product => product.id);
-  //   } else {
-  //     this.selectedProducts = [];
-  //   }
-  // }
-
-  // isSelected(productId: number): boolean {
-  //   return this.selectedProducts.includes(productId);
-  // }
-
-  // deleteSelected(): void {
-  //   if (confirm('Are you sure you want to delete the selected products?')) {
-  //     // Call the service to delete selected categories
-  //     this.productService.deleteProducts(this.selectedProducts).subscribe(
-  //       () => {
-  //         // Remove deleted products from the list
-  //         this.products = this.products.filter(product =>
-  //           !this.selectedProducts.includes(product.id)
-  //         );
-  //         this.filteredProducts = this.filteredProducts.filter(product=>
-  //           !this.selectedProducts.includes(product.id)
-  //         );
-  //         this.selectedProducts = [];
-  //         this.selectAll = false;
-  //       },
-  //       error => {
-  //         console.error('Error deleting products', error);
-  //       }
-  //     );
-  //   }
-  // }
 
   deleteProduct(product: Product): void {
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
@@ -121,24 +83,6 @@ export class ProductListComponent implements OnInit {
     }
   }
 
-  getCategoryName(catId: number | null): string {
-    if (!catId || catId == 0) {
-      return 'No Category';
-    }
-    if (this.categoryNames[catId]) {
-      return this.categoryNames[catId];
-    }
-    this.categoryService.getCategoryById(catId).subscribe(
-      category => {
-        this.categoryNames[catId] = category.name;
-      },
-      error => {
-        console.error('Error fetching category:', error);
-        this.categoryNames[catId] = 'Unknown Category';
-      }
-    );
-    return 'Loading...';
-  }
 
   openCreateProductPopup() {
     const dialogRef = this.dialog.open(CreateProductComponent, {

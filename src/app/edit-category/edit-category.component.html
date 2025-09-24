@@ -1,4 +1,10 @@
 <div class="container py-4">
+  <div *ngIf="loading" class="loading-overlay" style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(255,255,255,0.6);display:flex;flex-direction:column;align-items:center;justify-content:center;">
+    <div class="spinner-border text-primary mb-3" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <div style="font-size:1.2rem;color:#0d6efd;font-weight:500;">Updating category...</div>
+  </div>
   <div class="card shadow-sm">
     <div class="card-header bg-primary text-white d-flex align-items-center">
       <svg cIcon name="cil-layers" class="me-2"></svg>
@@ -10,14 +16,14 @@
           <label cLabel for="name">Category Name</label>
           <input cFormControl id="name" type="text" [(ngModel)]="category.name" name="name" required />
         </c-col>
-        <c-col [md]="6">
+        <!-- <c-col [md]="6">
           <label cLabel for="parent">Parent Category</label>
           <select cFormControl id="parent" [(ngModel)]="selectedParentCategoryId" name="parent" required class="form-select">
             <option value="" disabled>Select Parent Category</option>
             <option [value]="0">No Parent</option>
             <option *ngFor="let cat of categories" [value]="cat.catId">{{ cat.name }}</option>
           </select>
-        </c-col>
+        </c-col> -->
         <c-col [md]="6">
           <label cLabel for="catDesc">Description</label>
           <textarea cFormControl id="catDesc" [(ngModel)]="category.catDesc" name="catDesc" rows="4" required class="form-control"></textarea>

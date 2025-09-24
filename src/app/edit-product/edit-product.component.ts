@@ -14,6 +14,7 @@ import { FailureDialogComponent } from '../failure-dialog/failure-dialog.compone
   styleUrls: ['./edit-product.component.scss']
 })
 export class EditProductComponent implements OnInit {
+  loading: boolean = false;
   skuExists: boolean = false;
   barcodeExists: boolean = false;
   // category: any = {};
@@ -34,15 +35,20 @@ export class EditProductComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.loading = true;
     this.route.paramMap.subscribe(params => {
       const idParam = params.get('id');
       this.productId = idParam ? +idParam : 0; // Handle null value
       if (this.productId) {
         this.productService.getProductById(this.productId).subscribe(data => {
           this.product = data;
-          this.selectedParentCategoryId = data.catId ?? 0;
+            this.selectedParentCategoryId = data.category?.catId ?? data.catId ?? 0;
+          this.loading = false;
+        }, error => {
+          this.loading = false;
         });
       } else {
+        this.loading = false;
         console.error('Invalid category ID');
       }
     });
@@ -128,9 +134,11 @@ export class EditProductComponent implements OnInit {
       });
       return;
     }
+    this.loading = true;
     this.productService.updateProduct(updatedProduct)
       .subscribe({
         next: (response) => {
+          this.loading = false;
           const dialogRef = this.dialog.open(SuccessDialogComponent, {
             data: { message: 'Product updated successfully!' },
             panelClass: 'success-dialog-panel'
@@ -140,6 +148,7 @@ export class EditProductComponent implements OnInit {
           });
         },
         error: (error) => {
+          this.loading = false;
           let message = 'Failed to update product.';
           if (error.status === 500) {
             message = 'This product cannot be updated because it has associated sales or is restricted by business rules.';

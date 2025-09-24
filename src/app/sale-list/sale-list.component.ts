@@ -14,6 +14,7 @@ import { CustomerService } from '../services/customer.service';
   styleUrls: ['./sale-list.component.scss']
 })
 export class SaleListComponent {
+  loading: boolean = false;
   sales: any[] = [];
   filteredSales: any[] = [];
   searchQuery: string = '';
@@ -31,9 +32,7 @@ export class SaleListComponent {
   ) { }
 
   ngOnInit(): void {
-    // Fetch all users and customers for mapping
-    this.userMap = {};
-    this.customerMap = {};
+    this.loading = true;
     this.saleService.findAllSales().subscribe(data => {
       // Sort by invoiceNumber ascending
       data.sort((a: any, b: any) => {
@@ -43,24 +42,9 @@ export class SaleListComponent {
       });
       this.sales = data;
       this.filteredSales = data;
-      // Map user and customer names
-      this.userService.getUsers().subscribe(users => {
-        users.forEach((user: any) => {
-          this.userMap[user.id] = user.username;
-        });
-        this.filteredSales.forEach(sale => {
-          sale.userName = this.userMap[sale.userId] || sale.userId;
-        });
-      });
-      this.customerService.findAllCustomers().subscribe(customers => {
-        customers.forEach((customer: any) => {
-          // Use custId from backend response for mapping
-          this.customerMap[customer.custId] = customer.name;
-        });
-        this.filteredSales.forEach(sale => {
-          sale.customerName = this.customerMap[sale.custId] || sale.custId;
-        });
-      });
+      this.loading = false;
+    }, error => {
+      this.loading = false;
     });
   }
 
@@ -92,42 +76,7 @@ export class SaleListComponent {
     console.log('Select All:', this.selectAll)
   }
 
-  // onSelectAll(): void {
-  //   if (this.selectAll) {
-  //     this.selectedSales = this.filteredSales.map(sale => sale.id);
-  //   } else {
-  //     this.selectedSales = [];
-  //   }
-  // }
-
-  // isSelected(customerId: number): boolean {
-  //   return this.selectedSales.includes(customerId);
-  // }
-
-  // deleteSelected(): void {
-  //   if (confirm('Are you sure you want to delete the selected sale?')) {
-  //     // Call the service to delete selected customers
-  //     this.saleService.deleteSales(this.selectedSales).subscribe(
-  //       () => {
-  //         // Remove deleted customers from the list
-  //         this.sales = this.sales.filter(sale =>
-  //           !this.selectedSales.includes(sale.id)
-  //         );
-  //         this.filteredSales = this.filteredSales.filter(sale =>
-  //           !this.selectedSales.includes(sale.id)
-  //         );
-  //         this.selectedSales = [];
-  //         this.selectAll = false;
-  //       },
-  //       error => {
-  //         console.error('Error deleting sales', error);
-  //       }
-  //     );
-  //   }
-  // }
-
   deleteSale(sale: Sale): void {
-    console.log("awaaaaaaa");
     if (confirm('Are you sure you want to delete this customer?')) {
       this.saleService.deleteSale(sale).subscribe(
         () => {
@@ -149,28 +98,6 @@ export class SaleListComponent {
     }
   }
 
-  // editCustomer(customer: any): void {
-  //   console.log('Customer:', customer);
-  //   if (customer?.custId) {
-  //     this.router.navigate(['/edit-customer', customer.custId]);
-  //   } else {
-  //     console.error('Customer ID is undefined or null.');
-  //   }
-  // }
-
-  // openCreateCustomerPopup() {
-  //   const dialogRef = this.dialog.open(CreateCustomerComponent, {
-  //     width: '800px', // Adjust the width as needed
-  //     data: {} // You can pass data to the dialog here if needed
-  //   });
-
-  //   dialogRef.afterClosed().subscribe(result => {
-  //     if (result) {
-  //       console.log('The dialog was closed', result);
-  //     }
-  //   });
-  // }
-
   navigateToDeletedSales() {
     this.router.navigate(['/deleted-sale-list']);
   }
@@ -183,11 +110,19 @@ export class SaleListComponent {
     this.router.navigate(['/partiallyPaid-sale-list']);
   }
 
-  openProductListPopup(saleProducts: SaleProduct[]): void {
-    this.dialog.open(ProductListPopupComponent, {
-      width: 'auto',
-      maxWidth: 'none', // Ensures it doesn’t cap at a default max width
-      data: { products: saleProducts }
+  openProductListPopupForSale(sale: any): void {
+    // Use sale.saleId if available, otherwise fallback to sale.id
+    const saleId = sale.saleId || sale.id;
+    if (!saleId) {
+      alert('Sale ID not found!');
+      return;
+    }
+    this.saleService.getProductsForSale(saleId).subscribe(products => {
+      this.dialog.open(ProductListPopupComponent, {
+        width: 'auto',
+        maxWidth: 'none',
+        data: { products }
+      });
     });
   }
   

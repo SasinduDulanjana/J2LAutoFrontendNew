@@ -4,10 +4,25 @@ import { RolePermissionsService } from '../role-permissions/role-permissions.ser
 
 @Injectable({ providedIn: 'root' })
 export class FeaturePermissionsService {
-  constructor(private authService: AuthService, private rolePermService: RolePermissionsService) {}
+  constructor(private authService: AuthService, private rolePermService: RolePermissionsService) {
+    // Load permissions from localStorage if available
+    const cached = localStorage.getItem('rolePermissions');
+    if (cached) {
+      try {
+        const perms = JSON.parse(cached);
+        this.rolePermService.setLocalPermissions(perms);
+      } catch {}
+    } else {
+      // If not cached, fetch and cache
+      this.rolePermService.loadPermissions().subscribe(perms => {
+        this.rolePermService.setLocalPermissions(perms);
+        localStorage.setItem('rolePermissions', JSON.stringify(perms));
+      });
+    }
+  }
 
   can(feature: string): boolean {
-    // Always get latest roles and permissions
+    // Use cached permissions
     const userRoles = this.authService.getUserRoles();
     return userRoles.some(role => this.rolePermService.can(role, feature));
   }

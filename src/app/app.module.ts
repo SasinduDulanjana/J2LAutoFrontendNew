@@ -76,6 +76,7 @@ import { ViewProductsDialogComponent } from './purchase-list/view-products-dialo
 import { CreateSaleComponent } from './create-sale/create-sale.component';
 import { SaleListComponent } from './sale-list/sale-list.component';
 import { MatDialogModule } from '@angular/material/dialog';
+import { LoadingDialogComponent } from './loading-dialog/loading-dialog.component';
 import { PopupCustomerListComponent } from './popup-customer-list/popup-customer-list.component';
 import { SuccessDialogComponent } from './success-dialog/success-dialog.component';
 import { FailureDialogComponent } from './failure-dialog/failure-dialog.component';
@@ -115,7 +116,7 @@ const APP_CONTAINERS = [
 ];
 
 @NgModule({
-  declarations: [AppComponent, ...APP_CONTAINERS, CreateCustomerComponent, LoginComponent, CustomerListComponent, EditCustomerComponent, CreateSupplierComponent, EditSupplierComponent, SupplierListComponent, ProductListComponent, CategoryListComponent, CreateProductComponent, EditProductComponent, EditCategoryComponent, CreateCategoryComponent, CreatePurchaseComponent, PurchaseListComponent, ViewProductsDialogComponent, CreateSaleComponent, SaleListComponent, PopupCustomerListComponent, SuccessDialogComponent, FailureDialogComponent, QuantityInputComponent, BatchSelectionComponent, DiscountInputComponent, DiscountBillWiseComponent, PaymentDialogComponent, DeletedSaleListComponent, HoldSaleListComponent, PartiallyPaidSaleListComponent, ProductListPopupComponent, RolesComponent, UsersComponent, SaleReportComponent, PurchaseReportComponent, InventoryReportComponent, ProductReportComponent, CustomerReportComponent, SupplierReportComponent, ProfitLossComponent, SalesReturnComponent, PurchaseReturnComponent, SalesReturnListComponent, PurchaseReturnListComponent, RolePermissionsComponent, BillComponent, BillDialogComponent, InventoryListComponent],
+  declarations: [AppComponent, ...APP_CONTAINERS, CreateCustomerComponent, LoginComponent, CustomerListComponent, EditCustomerComponent, CreateSupplierComponent, EditSupplierComponent, SupplierListComponent, ProductListComponent, CategoryListComponent, CreateProductComponent, EditProductComponent, EditCategoryComponent, CreateCategoryComponent, CreatePurchaseComponent, PurchaseListComponent, ViewProductsDialogComponent, CreateSaleComponent, SaleListComponent, PopupCustomerListComponent, SuccessDialogComponent, FailureDialogComponent, QuantityInputComponent, BatchSelectionComponent, DiscountInputComponent, DiscountBillWiseComponent, PaymentDialogComponent, DeletedSaleListComponent, HoldSaleListComponent, PartiallyPaidSaleListComponent, ProductListPopupComponent, RolesComponent, UsersComponent, SaleReportComponent, PurchaseReportComponent, InventoryReportComponent, ProductReportComponent, CustomerReportComponent, SupplierReportComponent, ProfitLossComponent, SalesReturnComponent, PurchaseReturnComponent, SalesReturnListComponent, PurchaseReturnListComponent, RolePermissionsComponent, BillComponent, BillDialogComponent, InventoryListComponent, LoadingDialogComponent],
   imports: [
     BrowserModule,
     CommonModule,

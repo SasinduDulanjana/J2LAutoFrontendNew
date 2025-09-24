@@ -16,6 +16,7 @@ export class CreateCategoryComponent implements OnInit{
   selectedParentCategoryId: number | undefined = 0;
   category: Category = new Category('', ''); // Initialize with empty values or defaults
   categoryNameExists: boolean = false;
+  loading: boolean = false;
 
   constructor(private categoryService: CategoryService, private dialog: MatDialog) { }
 
@@ -33,6 +34,7 @@ export class CreateCategoryComponent implements OnInit{
       });
       return;
     }
+    this.loading = true;
     const newCategory = {
       name: this.category.name,
       catDesc: this.category.catDesc,
@@ -41,6 +43,7 @@ export class CreateCategoryComponent implements OnInit{
     };
     this.categoryService.createCategory(newCategory)
       .subscribe(response => {
+        this.loading = false;
         this.dialog.open(SuccessDialogComponent, {
           data: { message: 'Category created successfully!' }
         });
@@ -52,6 +55,7 @@ export class CreateCategoryComponent implements OnInit{
           this.categories = data;
         });
       }, error => {
+        this.loading = false;
         let errorMsg = 'Error creating category.';
         if (error && error.error && error.error.message) {
           errorMsg = error.error.message;

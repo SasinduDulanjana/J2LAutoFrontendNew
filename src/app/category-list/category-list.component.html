@@ -1,3 +1,7 @@
+<div *ngIf="loading" class="loading-overlay">
+  <div class="spinner"></div>
+  <span>Loading categories...</span>
+</div>
 <div class="container py-4">
   <div class="card shadow-sm mb-4">
     <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
@@ -16,18 +20,18 @@
           <thead class="table-light">
             <tr>
               <th>Name</th>
-              <th>Parent</th>
+              <!-- <th>Parent</th> -->
               <th>Description</th>
-              <th>Total Products</th>
+              <!-- <th>Total Products</th> -->
               <th class="text-end">Actions</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let category of filteredCategories">
               <td>{{ category.name }}</td>
-              <td>{{ getParentName(category.parent) }}</td>
+              <!-- <td>{{ getParentName(category.parent) }}</td> -->
               <td>{{ category.catDesc }}</td>
-              <td>0</td>
+              <!-- <td>0</td> -->
               <td class="text-end">
                 <c-dropdown>
                   <button cButton cDropdownToggle color="secondary" style="min-width: 100px;">Options</button>

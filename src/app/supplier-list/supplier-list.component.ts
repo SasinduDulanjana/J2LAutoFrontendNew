@@ -17,13 +17,18 @@ export class SupplierListComponent implements OnInit{
   searchQuery: string = '';
   selectedSuppliers: number[] = []; // Array to store selected supplier IDs
   selectAll: boolean = false;
+  loading: boolean = false;
 
   constructor(private supplierService: SupplierService, private router: Router,private dialog: MatDialog) {}
 
   ngOnInit(): void {
+    this.loading = true;
     this.supplierService.findAllSuppliers().subscribe(data => {
       this.suppliers = data;
       this.filteredSuppliers = data;
+      this.loading = false;
+    }, error => {
+      this.loading = false;
     });
   }
 

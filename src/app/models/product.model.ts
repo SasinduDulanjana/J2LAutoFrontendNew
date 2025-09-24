@@ -1,4 +1,5 @@
 export class Product {
+  category?: any;
   batchQuantities?: { batchNo: string; qty: number, cost: number, retailPrice: number, wholesalePrice: number }[];
     productId?: number; // Optional field
     catId: number;

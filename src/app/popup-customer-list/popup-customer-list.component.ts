@@ -12,6 +12,7 @@ export class PopupCustomerListComponent {
   customers: any[] = [];
   filteredCustomers: any[] = [];
   searchQuery: string = '';
+  loading: boolean = false;
   // selectedCustomers: number[] = []; // Array to store selected customer IDs
   // selectAll: boolean = false;
 
@@ -19,9 +20,17 @@ export class PopupCustomerListComponent {
     @Inject(MAT_DIALOG_DATA) public data: any,) { }
 
   ngOnInit(): void {
-    this.customerService.findAllCustomers().subscribe(data => {
-      this.customers = data;
-      this.filteredCustomers = data;
+    this.loading = true;
+    this.customerService.findAllCustomers().subscribe({
+      next: data => {
+        this.customers = data;
+        this.filteredCustomers = data;
+        this.loading = false;
+      },
+      error: err => {
+        this.loading = false;
+        console.error('Error loading customers:', err);
+      }
     });
   }
   onSearch(): void {

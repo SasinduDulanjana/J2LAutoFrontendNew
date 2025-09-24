@@ -15,6 +15,7 @@ export class EditSupplierComponent {
   supplierId!: number;
   phoneExists: boolean = false;
   allSuppliers: any[] = [];
+  loading: boolean = false;
 
   constructor(
     private supplierService: SupplierService,
@@ -24,6 +25,7 @@ export class EditSupplierComponent {
   ) {}
 
   ngOnInit(): void {
+    this.loading = true;
     this.supplierService.findAllSuppliers().subscribe((suppliers: any[]) => {
       this.allSuppliers = suppliers;
     });
@@ -34,8 +36,12 @@ export class EditSupplierComponent {
         console.log('Inside if:', this.supplierId);
         this.supplierService.getSupplierById(this.supplierId).subscribe(data => {
           this.supplier = data;
+          this.loading = false;
+        }, error => {
+          this.loading = false;
         });
       } else {
+        this.loading = false;
         console.error('Invalid supplier ID');
       }
     });
@@ -45,21 +51,24 @@ export class EditSupplierComponent {
     this.phoneExists = this.allSuppliers.some((s: any) => s.phone.trim() === phone.trim() && s.id !== this.supplierId);
   }
 
-  saveSupplier(): void {
-    this.supplierService.updateSupplier(this.supplier).subscribe({
-      next: () => {
-        const dialogRef = this.dialog.open(SuccessDialogComponent, {
-          data: { message: 'Supplier updated successfully!' },
-          panelClass: 'success-dialog-panel'
-        });
-        dialogRef.afterClosed().subscribe(() => {
-          this.router.navigate(['/supplier-list']); // Redirect after success
-        });
-      },
-      error: (err) => {
-        alert('Failed to update supplier: ' + (err?.error?.message || err.message || err));
-        console.error('Update error:', err);
-      }
-    });
-  }
+   saveSupplier(): void {
+     this.loading = true;
+     this.supplierService.updateSupplier(this.supplier).subscribe({
+       next: () => {
+         this.loading = false;
+         const dialogRef = this.dialog.open(SuccessDialogComponent, {
+           data: { message: 'Supplier updated successfully!' },
+           panelClass: 'success-dialog-panel'
+         });
+         dialogRef.afterClosed().subscribe(() => {
+           this.router.navigate(['/supplier-list']); // Redirect after success
+         });
+       },
+       error: (err) => {
+         this.loading = false;
+         alert('Failed to update supplier: ' + (err?.error?.message || err.message || err));
+         console.error('Update error:', err);
+       }
+     });
+   }
 }

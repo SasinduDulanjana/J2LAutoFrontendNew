@@ -17,13 +17,18 @@ export class CustomerListComponent implements OnInit {
   searchQuery: string = '';
   selectedCustomers: number[] = []; // Array to store selected customer IDs
   selectAll: boolean = false;
+  loading: boolean = false;
 
   constructor(private customerService: CustomerService, private router: Router, private dialog: MatDialog) { }
 
   ngOnInit(): void {
+    this.loading = true;
     this.customerService.findAllCustomers().subscribe(data => {
       this.customers = data;
       this.filteredCustomers = data;
+      this.loading = false;
+    }, error => {
+      this.loading = false;
     });
   }
 
@@ -38,71 +43,6 @@ export class CustomerListComponent implements OnInit {
       this.filteredCustomers = this.customers;
     }
   }
-
-  // onSelect(customerId: number): void {
-  //   console.log('Selected customer:', customerId); // Log selected customer
-
-  //   const index = this.selectedCustomers.indexOf(customerId);
-  //   if (index > -1) {
-  //     this.selectedCustomers.splice(index, 1);
-  //   } else {
-  //     this.selectedCustomers.push(customerId);
-  //   }
-
-
-  //   console.log('Currently selected customers:', this.selectedCustomers);
-  //   this.selectAll = this.selectedCustomers.length === this.filteredCustomers.length;
-  //   console.log('Select All:', this.selectAll)
-  // }
-
-  // onSelectAll(): void {
-  //   if (this.selectAll) {
-  //     this.selectedCustomers = this.filteredCustomers.map(customer => customer.id);
-  //   } else {
-  //     this.selectedCustomers = [];
-  //   }
-  // }
-
-  // isSelected(customerId: number): boolean {
-  //   return this.selectedCustomers.includes(customerId);
-  // }
-
-  // deleteSelected(): void {
-  //   if (confirm('Are you sure you want to delete the selected customers?')) {
-  //     // Call the service to delete selected customers
-  //     this.customerService.deleteCustomers(this.selectedCustomers).subscribe(
-  //       () => {
-  //         // Remove deleted customers from the list
-  //         this.customers = this.customers.filter(customer =>
-  //           !this.selectedCustomers.includes(customer.id)
-  //         );
-  //         this.filteredCustomers = this.filteredCustomers.filter(customer =>
-  //           !this.selectedCustomers.includes(customer.id)
-  //         );
-  //         this.selectedCustomers = [];
-  //         this.selectAll = false;
-  //       },
-  //       error => {
-  //         console.error('Error deleting customers', error);
-  //       }
-  //     );
-  //   }
-  // }
-
-  // deleteCustomer(customerId: number): void {
-  //   if (confirm('Are you sure you want to delete this customer?')) {
-  //     this.customerService.deleteCustomer(customerId).subscribe(
-  //       () => {
-  //         this.customers = this.customers.filter(customer => customer.id !== customerId);
-  //         this.filteredCustomers = this.filteredCustomers.filter(customer => customer.id !== customerId);
-  //       },
-  //       error => {
-  //         console.error('Error deleting customer', error);
-  //       }
-  //     );
-  //   }
-  // }
-
   
   deleteCustomer(customer: Customer): void {
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, {

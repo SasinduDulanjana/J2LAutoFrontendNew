@@ -1,4 +1,10 @@
 <div class="container py-4">
+  <div *ngIf="loading" class="loading-overlay" style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(255,255,255,0.6);display:flex;flex-direction:column;align-items:center;justify-content:center;">
+    <div class="spinner-border text-primary mb-3" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <div style="font-size:1.2rem;color:#0d6efd;font-weight:500;">Updating product...</div>
+  </div>
   <div class="card shadow-sm">
     <div class="card-header bg-primary text-white d-flex align-items-center">
       <svg cIcon name="cil-pencil" class="me-2"></svg>
@@ -42,7 +48,7 @@
           <div *ngIf="skuExists" class="text-danger small">SKU already exists. Please enter a unique SKU.</div>
         </c-col>
         <!-- Product Type -->
-        <c-col [md]="6">
+        <!-- <c-col [md]="6">
           <label cLabel for="productType">Product Type</label>
           <select cFormControl id="productType" [(ngModel)]="product.productType" name="productType" required #productType="ngModel" class="form-select">
             <option value="" disabled selected>Select Product Type</option>
@@ -53,16 +59,8 @@
           <div *ngIf="productType.invalid && (productType.dirty || productType.touched)" class="text-danger small">
             <div *ngIf="productType.errors?.['required']">Product type is required.</div>
           </div>
-        </c-col>
-        <c-col [md]="12">
-          <label cLabel for="description">Description</label>
-          <textarea cFormControl id="description" [(ngModel)]="product.description" name="description" rows="2" required minlength="3" #description="ngModel"></textarea>
-          <div *ngIf="description.invalid && (description.dirty || description.touched)" class="text-danger small">
-            <div *ngIf="description.errors?.['required']">Description is required.</div>
-            <div *ngIf="description.errors?.['minlength']">Description must be at least 3 characters.</div>
-          </div>
-        </c-col>
-        <c-col [md]="4">
+        </c-col> -->
+        <c-col [md]="6">
           <label cLabel for="lowQty">Low Qty</label>
           <input cFormControl id="lowQty" [(ngModel)]="product.lowQty" name="lowQty" required pattern="^[0-9]+$" #lowQty="ngModel" />
           <div *ngIf="lowQty.invalid && (lowQty.dirty || lowQty.touched)" class="text-danger small">
@@ -70,7 +68,16 @@
             <div *ngIf="lowQty.errors?.['pattern']">Low Qty must be a number.</div>
           </div>
         </c-col>
-        <c-col [md]="4">
+        <c-col [md]="6">
+          <label cLabel for="description">Description</label>
+          <textarea cFormControl id="description" [(ngModel)]="product.description" name="description" rows="2" required minlength="3" #description="ngModel"></textarea>
+          <div *ngIf="description.invalid && (description.dirty || description.touched)" class="text-danger small">
+            <div *ngIf="description.errors?.['required']">Description is required.</div>
+            <div *ngIf="description.errors?.['minlength']">Description must be at least 3 characters.</div>
+          </div>
+        </c-col>
+        
+        <!-- <c-col [md]="4">
           <label cLabel for="taxGroup">Tax Group</label>
           <input cFormControl id="taxGroup" [(ngModel)]="product.taxGroup" name="taxGroup" />
         </c-col>
@@ -81,7 +88,7 @@
         <c-col [md]="12">
           <label cLabel for="imgUrl">Image URL</label>
           <input cFormControl id="imgUrl" [(ngModel)]="product.imgUrl" name="imgUrl" />
-        </c-col>
+        </c-col> -->
         <c-col [md]="12" class="text-end">
           <button cButton color="primary" type="submit" [disabled]="!productForm.form.valid || skuExists || barcodeExists" style="min-width: 120px; height: 40px; font-size: 1rem;">
             <svg cIcon name="cil-save" class="me-2"></svg>Update Product
