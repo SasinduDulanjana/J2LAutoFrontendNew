@@ -8,9 +8,16 @@ import { BASE_URL } from '../base-url';
   providedIn: 'root'
 })
 export class SaleService {
+  salesReturn(payload: any): Observable<string> {
+    return this.http.post(`${this.baseUrl}/salesReturn`, payload, { responseType: 'text' });
+  }
   getProductsForSale(saleId: number): Observable<any[]> {
-        return this.http.post<any[]>(`${this.baseUrl}/getProductsForSale/${saleId}`, {});
-      }
+    return this.http.post<any[]>(`${this.baseUrl}/getProductsForSale/${saleId}`, {});
+  }
+
+  getSaleByInvoiceNumber(invoiceNumber: string): Observable<Sale> {
+    return this.http.get<Sale>(`${this.baseUrl}/getSaleByInvoiceNumber/${invoiceNumber}`);
+  }
   private baseUrl = BASE_URL + '/sale/api';
 
   constructor(private http: HttpClient) { }
@@ -59,5 +66,9 @@ export class SaleService {
 
   deleteHoldSale(saleId: number): Observable<any> {
     return this.http.post<any>(`${this.baseUrl}/deleteHoldSale`, { saleId });
+  }
+
+  getAllSalesReturn(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/getAllSalesReturn`);
   }
 }

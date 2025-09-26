@@ -25,12 +25,22 @@ export const navItems: INavDataWithRoles[] = [
         name: 'Sale List',
         url: '/sale-list'
       },
-  // Deleted Sales removed
-  // {
-  //   name: 'Hold Sales',
-  //   url: '/hold-sale-list'
-  // },
-  // Unpaid Sales removed
+      {
+        name: 'Sales Return',
+        feature: 'salesReturn',
+        url: '/sales-return'
+      },
+      {
+        name: 'Sales Return List',
+        feature: 'salesReturnList',
+        url: '/sales-return-list'
+      }
+      // Deleted Sales removed
+      // {
+      //   name: 'Hold Sales',
+      //   url: '/hold-sale-list'
+      // },
+      // Unpaid Sales removed
     ]
   },
   {
@@ -114,12 +124,7 @@ export const navItems: INavDataWithRoles[] = [
       }
     ]
   },
-  {
-    name: 'Sales Return',
-    iconComponent: { name: 'cil-share' },
-    feature: 'salesReturn',
-    url: '/sales-return'
-  },
+  // Sales Return now under Sale
   {
     name: 'Purchase Return',
     iconComponent: { name: 'cil-chevron-left' }, // Changed to chevron left icon (confirmed available)

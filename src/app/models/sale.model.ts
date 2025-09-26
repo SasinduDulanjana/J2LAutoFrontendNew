@@ -2,6 +2,7 @@ import { SaleProduct } from './sale-product.model';
 import { Batch } from './batch.model';
 
 export class Sale {
+  saleDate?: string;
   saleId?: number; // For backend mapping
   id?: number; // Optional field
   customer?: any;
@@ -18,6 +19,7 @@ export class Sale {
   isHold: boolean;
   paidAmount : number;
   paymentType?: string;
+  paymentMethod?: string;
   modifiedBy?: string;
   modifiedDate?: string;
 

@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { SaleService } from '../../services/sale.service';
 
 @Component({
   selector: 'app-sales-return-list',
@@ -6,32 +7,39 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./sales-return-list.component.scss']
 })
 export class SalesReturnListComponent implements OnInit {
-  salesReturns: any[] = [
-    {
-      invoiceNumber: 'INV-001',
-      customerName: 'John Doe',
-      returnDate: '2025-08-10',
-      product: 'Product A',
-      quantity: 2,
-      reason: 'Damaged',
-      refundAmount: 100
-    },
-    {
-      invoiceNumber: 'INV-002',
-      customerName: 'Jane Smith',
-      returnDate: '2025-08-11',
-      product: 'Product B',
-      quantity: 1,
-      reason: 'Expired',
-      refundAmount: 50
-    }
-  ];
-
+  salesReturns: any[] = [];
   searchQuery: string = '';
   filteredSalesReturns: any[] = [];
+  loading: boolean = false;
+
+  constructor(private saleService: SaleService) {}
 
   ngOnInit(): void {
-    this.filteredSalesReturns = this.salesReturns;
+    this.loading = true;
+    this.saleService.getAllSalesReturn().subscribe({
+      next: (data) => {
+        // Transform backend response to flat table rows
+        this.salesReturns = (data || []).flatMap((sale: any) => {
+          return (sale.returns || []).map((ret: any) => ({
+            saleId: sale.saleId,
+            invoiceNumber: sale.invoiceNumber || '',
+            customerName: sale.customerName || '',
+            returnDate: sale.returnDate || '',
+            product: ret.productName || ret.product?.productName || ret.productId,
+            batchNumber: ret.batchNumber || '',
+            quantity: ret.quantityToReturn,
+            condition: ret.condition,
+            reason: ret.reason,
+            refundAmount: ret.refundAmount || ''
+          }));
+        });
+        this.filteredSalesReturns = this.salesReturns;
+        this.loading = false;
+      },
+      error: () => {
+        this.loading = false;
+      }
+    });
   }
 
   onSearch(): void {
@@ -41,9 +49,9 @@ export class SalesReturnListComponent implements OnInit {
       return;
     }
     this.filteredSalesReturns = this.salesReturns.filter(record =>
-      record.invoiceNumber.toLowerCase().includes(query) ||
-      record.customerName.toLowerCase().includes(query) ||
-      record.product.toLowerCase().includes(query)
+      (record.invoiceNumber && record.invoiceNumber.toString().toLowerCase().includes(query)) ||
+      (record.customerName && record.customerName.toLowerCase().includes(query)) ||
+      (record.product && record.product.toString().toLowerCase().includes(query))
     );
   }
 

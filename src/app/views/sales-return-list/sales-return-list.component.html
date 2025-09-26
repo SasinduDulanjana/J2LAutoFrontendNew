@@ -15,7 +15,11 @@
         <svg cIcon name="cil-magnifying-glass"></svg>
         <input type="text" placeholder="Search by invoice, customer, or product" [(ngModel)]="searchQuery" (input)="onSearch()" />
       </div>
-      <div class="table-responsive">
+      <div *ngIf="loading" class="loading-overlay">
+        <div class="spinner"></div>
+        <span>Loading sales returns...</span>
+      </div>
+      <div class="table-responsive" *ngIf="!loading">
         <table class="table table-hover align-middle mb-0">
           <thead class="table-light">
             <tr>
@@ -23,22 +27,24 @@
               <th>Customer</th>
               <th>Date</th>
               <th>Product</th>
+              <th>Batch #</th>
               <th>Qty</th>
               <th>Reason</th>
-              <th>Refund</th>
-              <th class="text-end">Actions</th>
+              <th>Refund Amount</th>
+              <!-- <th class="text-end">Actions</th> -->
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let record of filteredSalesReturns">
-              <td>{{ record.invoiceNumber }}</td>
-              <td>{{ record.customerName }}</td>
-              <td>{{ record.returnDate }}</td>
-              <td>{{ record.product }}</td>
-              <td>{{ record.quantity }}</td>
-              <td>{{ record.reason }}</td>
-              <td>${{ record.refundAmount | number:'1.2-2' }}</td>
-              <td class="text-end">
+              <td>{{ record.invoiceNumber || '-' }}</td>
+              <td>{{ record.customerName || '-' }}</td>
+              <td>{{ record.returnDate || '-' }}</td>
+              <td>{{ record.product || '-' }}</td>
+              <td>{{ record.batchNumber || '-' }}</td>
+              <td>{{ record.quantity != null && record.quantity !== '' ? record.quantity : '-' }}</td>
+              <td>{{ record.reason || '-' }}</td>
+              <td>{{ record.refundAmount != null && record.refundAmount !== '' ? (record.refundAmount | number:'1.2-2') : '-' }}</td>
+              <!-- <td class="text-end">
                 <c-dropdown>
                   <button cButton cDropdownToggle color="secondary" style="min-width: 100px;">Options</button>
                   <ul cDropdownMenu>
@@ -46,7 +52,7 @@
                     <li><button (click)="deleteSalesReturn(record)" cDropdownItem>Delete</button></li>
                   </ul>
                 </c-dropdown>
-              </td>
+              </td> -->
             </tr>
             <tr *ngIf="filteredSalesReturns.length === 0">
               <td colspan="8" class="text-center text-muted">No sales returns found.</td>
