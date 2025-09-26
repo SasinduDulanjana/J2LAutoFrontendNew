@@ -7,6 +7,7 @@ import { Category } from '../models/category.model';
 import { MatDialog } from '@angular/material/dialog';
 import { SuccessDialogComponent } from '../success-dialog/success-dialog.component';
 import { FailureDialogComponent } from '../failure-dialog/failure-dialog.component';
+import { VehicleService } from '../services/vehicle.service';
 
 @Component({
   selector: 'app-edit-product',
@@ -17,32 +18,48 @@ export class EditProductComponent implements OnInit {
   loading: boolean = false;
   skuExists: boolean = false;
   barcodeExists: boolean = false;
-  // category: any = {};
   productId!: number;
   products: Product[] = [];
   selectedParentCategoryId: number = 0;
   categoryId!: number;
   categories: Category[] = [];
   category: Category = new Category('', '');
-  product: Product = new Product(0, '', false, "", "", "", "", "", "", false, 0, 0, 0, 0, "", false, "", "", "", "", "", 0, false, false, false, 0); // Initialize with empty values or defaults
+  product: Product = new Product(0, '', false, "", "", "", "", "", "", false, 0, 0, 0, 0, "", false, "", "", "", "", "", 0, false, false, false, 0);
+  vehicleModels: any[] = [];
+  selectedVehicleId: number | null = null;
+  selectedVehicles: any[] = [];
 
   constructor(
     private productService: ProductService,
     private categoryService: CategoryService,
+    private vehicleService: VehicleService,
     private route: ActivatedRoute,
     private router: Router,
-    private dialog: MatDialog // Inject MatDialog
+    private dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
     this.loading = true;
     this.route.paramMap.subscribe(params => {
       const idParam = params.get('id');
-      this.productId = idParam ? +idParam : 0; // Handle null value
+      this.productId = idParam ? +idParam : 0;
       if (this.productId) {
         this.productService.getProductById(this.productId).subscribe(data => {
           this.product = data;
-            this.selectedParentCategoryId = data.category?.catId ?? data.catId ?? 0;
+          this.selectedParentCategoryId = data.category?.catId ?? data.catId ?? 0;
+          // Set brandName and partNumber robustly
+          this.product.brandName = data.brandName ?? '';
+          this.product.partNumber = data.partNumber ?? '';
+          // Vehicle selection: prefer vehicleList, fallback to vehicleModelIds
+          const vehicleList = (data as any).vehicleList;
+          const vehicleModelIds = (data as any).vehicleModelIds;
+          if (Array.isArray(vehicleList) && vehicleList.length) {
+            this.selectedVehicles = vehicleList;
+          } else if (Array.isArray(vehicleModelIds) && vehicleModelIds.length && this.vehicleModels.length) {
+            this.selectedVehicles = this.vehicleModels.filter(vm => vehicleModelIds?.includes(vm.id));
+          } else {
+            this.selectedVehicles = [];
+          }
           this.loading = false;
         }, error => {
           this.loading = false;
@@ -55,6 +72,23 @@ export class EditProductComponent implements OnInit {
     this.categoryService.getAllCategories().subscribe(data => {
       this.categories = data;
     });
+    this.vehicleService.getAllVehicles().subscribe(data => {
+      this.vehicleModels = data;
+    });
+    this.selectedVehicleId = null;
+  }
+
+  addVehicle(): void {
+    if (this.selectedVehicleId) {
+      const found = this.vehicleModels.find(v => v.id === this.selectedVehicleId);
+      if (found && !this.selectedVehicles.some(v => v.id === found.id)) {
+        this.selectedVehicles.push(found);
+      }
+    }
+  }
+
+  removeVehicle(index: number): void {
+    this.selectedVehicles.splice(index, 1);
   }
 
 
@@ -95,6 +129,9 @@ export class EditProductComponent implements OnInit {
       productId: this.productId,
       catId: this.selectedParentCategoryId,
       productName: this.product.productName,
+      brandName: this.product.brandName,
+      partNumber: this.product.partNumber,
+      vehicleList: this.selectedVehicles,
       isBarCodeAvailable: this.product.isBarCodeAvailable,
       barCode: this.product.barCode,
       sku: this.product.sku,

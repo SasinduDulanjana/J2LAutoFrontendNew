@@ -30,8 +30,10 @@ export class Product {
     remainingQty: number;
     discountPercentage?: number;
     discountAmount?: number;
-
-    // other fields...
+  brandName?: string;
+  partNumber?: string;
+  vehicleModelId?: number;
+  vehicleModelIds?: number[];
 
     constructor(
       catId: number,
@@ -62,7 +64,12 @@ export class Product {
       remainingQty: number,
       productId?: number,
       discountPercentage?: number,
-      discountAmount?: number,){
+      discountAmount?: number,
+      brandName?: string,
+      partNumber?: string,
+  vehicleModelId?: number,
+  vehicleModelIds?: number[]
+    ){
       this.catId = catId;
       this.productName = productName;
       this.isBarCodeAvailable = isBarCodeAvailable;
@@ -97,6 +104,18 @@ export class Product {
       }
       if (discountAmount) {
         this.discountAmount = discountAmount;
+      }
+      if (brandName) {
+        this.brandName = brandName;
+      }
+      if (partNumber) {
+        this.partNumber = partNumber;
+      }
+      if (vehicleModelId) {
+        this.vehicleModelId = vehicleModelId;
+      }
+      if (vehicleModelIds) {
+        this.vehicleModelIds = vehicleModelIds;
       }
 
     }

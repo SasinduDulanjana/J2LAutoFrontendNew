@@ -39,9 +39,24 @@ export class ProductListComponent implements OnInit {
   onSearch(): void {
     const query = this.searchQuery.toLowerCase().trim();
     if (query) {
-      this.filteredProducts = this.products.filter(product =>
-        product.productName.toLowerCase().includes(query.toLowerCase())
-      );
+      this.filteredProducts = this.products.filter(product => {
+        // Basic fields
+        const matchesBasic =
+          (product.productName && product.productName.toLowerCase().includes(query)) ||
+          (product.partNumber && product.partNumber.toLowerCase().includes(query)) ||
+          (product.barCode && product.barCode.toLowerCase().includes(query)) ||
+          (product.sku && product.sku.toLowerCase().includes(query)) ||
+          (product.category?.name && product.category.name.toLowerCase().includes(query));
+
+        // Vehicle fields
+        const matchesVehicle = Array.isArray(product.vehicleList) && product.vehicleList.some((v: any) =>
+          (v.make && v.make.toLowerCase().includes(query)) ||
+          (v.model && v.model.toLowerCase().includes(query)) ||
+          (v.year && v.year.toString().includes(query))
+        );
+
+        return matchesBasic || matchesVehicle;
+      });
     } else {
       this.filteredProducts = this.products;
     }

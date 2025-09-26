@@ -1,2 +1,40 @@
 <h2>Sales Return</h2>
-<p>This is a blank Sales Return page.</p>
+<div class="sales-return-form">
+	<label for="invoiceInput">Invoice Number:</label>
+	<input id="invoiceInput" [(ngModel)]="invoiceNumber" placeholder="Enter invoice number" />
+	<button (click)="fetchSaleByInvoiceNumber()" [disabled]="loading">Fetch Sale</button>
+</div>
+
+<div *ngIf="loading">Loading...</div>
+<div *ngIf="error" class="error">{{ error }}</div>
+
+<div *ngIf="sale">
+	<h3>Sale Details</h3>
+	<p><strong>Invoice Number:</strong> {{ sale.invoiceNumber }}</p>
+	<p><strong>Order Date:</strong> {{ sale.orderDate }}</p>
+	<p><strong>Customer:</strong> {{ sale.customer?.name || 'N/A' }}</p>
+	<p><strong>Total Amount:</strong> {{ sale.totalAmount }}</p>
+	<p><strong>Paid Amount:</strong> {{ sale.paidAmount }}</p>
+	<p><strong>Payment Type:</strong> {{ sale.paymentType || 'N/A' }}</p>
+	<h4>Sold Products</h4>
+	<table>
+		<thead>
+			<tr>
+				<th>Product Name</th>
+				<th>Quantity</th>
+				<th>Retail Price</th>
+				<th>Discount (%)</th>
+				<th>Discounted Total</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr *ngFor="let sp of sale.soldProducts">
+				<td>{{ sp.product?.name }}</td>
+				<td>{{ sp.quantity }}</td>
+				<td>{{ sp.retailPrice }}</td>
+				<td>{{ sp.discountPercentage }}</td>
+				<td>{{ sp.discountedTotal }}</td>
+			</tr>
+		</tbody>
+	</table>
+</div>

@@ -21,34 +21,47 @@
       <div class="card-body">
         <div class="customer-search-bar mb-3">
           <svg cIcon name="cil-magnifying-glass"></svg>
-          <input type="text" placeholder="Search products by name, SKU, or category" [(ngModel)]="searchQuery" (input)="onSearch()" />
+          <input type="text" placeholder="Search products by name, SKU, category, part number or vehicle" [(ngModel)]="searchQuery" (input)="onSearch()" />
         </div>
         <div class="table-responsive">
           <table class="table table-hover align-middle mb-0">
             <thead class="table-light">
               <tr>
                 <th>Name</th>
-                <th>Product Type</th>
-                <th>SKU</th>
+                <th>Part Number</th>
+                <th>Brand Name</th>
+                <!-- <th>SKU</th> -->
                 <th>Barcode</th>
                 <th>Description</th>
-                <th>Low Qty</th>
+                <!-- <th>Low Qty</th> -->
                 <th>Category</th>
-                <th>Status</th>
+                <th>Compatible Vehicles</th>
                 <th class="text-end">Actions</th>
               </tr>
             </thead>
             <tbody>
               <tr *ngFor="let product of filteredProducts">
                 <td>{{ product.productName }}</td>
-                <td>{{ product.productType }}</td>
-                <td>{{ product.sku }}</td>
-                <td>{{ product.barCode }}</td>
-                <td>{{ product.description }}</td>
-                <td>{{ product.lowQty }}</td>
+                <td>{{ product.partNumber || '-' }}</td>
+                <td>{{ product.brandName || '-' }}</td>
+                <!-- <td>{{ product.sku }}</td> -->
+                <td>{{ product.barCode || '-' }}</td>
+                <td>{{ product.description || '-' }}</td>
+                <!-- <td>{{ product.lowQty }}</td> -->
                 <td>{{ product.category?.name || 'No Category' }}</td>
-                <td>
-                  {{ product.status === 1 ? 'Active' : (product.status === 0 ? 'Inactive' : (product.productStatus || product.status)) }}
+                <td class="vehicle-cell">
+                  <ng-container *ngIf="product.vehicleList && product.vehicleList.length; else noVehicles">
+                    <div class="vehicle-chips">
+                      <ng-container *ngFor="let v of product.vehicleList; let i = index; let last = last">
+                        <span class="vehicle-chip" title="{{ v.make }} {{ v.model }} {{ v.year }}">
+                          {{ v.make }} {{ v.model }} {{ v.year }}
+                        </span><span *ngIf="!last">, </span>
+                      </ng-container>
+                    </div>
+                  </ng-container>
+                  <ng-template #noVehicles>
+                    <span class="text-muted">No vehicles</span>
+                  </ng-template>
                 </td>
                 <td class="text-end">
                   <c-dropdown>

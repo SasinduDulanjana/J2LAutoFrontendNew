@@ -14,7 +14,8 @@ import { BASE_URL } from '../../base-url';
 })
 export class DashboardComponent implements OnInit {
   public sales: any[] = [];
-  private customerMap: { [key: number]: string } = {};
+  public loading: boolean = true;
+  // Removed customerMap, will use customer name from sale response
   public mainChart: IChartProps = {};
   public chart: Array<IChartProps> = [];
   public trafficRadioGroup = new UntypedFormGroup({
@@ -34,20 +35,14 @@ export class DashboardComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.initCharts();
-    this.fetchCustomersAndSales();
-    this.fetchFinancialSummary();
+  this.initCharts();
+  this.fetchRecentSales();
+  this.fetchFinancialSummary();
 
   }
 
   fetchCustomersAndSales(): void {
-    this.customerService.findAllCustomers().subscribe((customers: any[]) => {
-      this.customerMap = {};
-      customers.forEach(cust => {
-        this.customerMap[cust.id || cust.custId] = cust.name || cust.customerName || cust.custName;
-      });
-      this.fetchRecentSales();
-    });
+  // Removed: No longer needed
   }
 
   fetchFinancialSummary(): void {
@@ -79,24 +74,32 @@ export class DashboardComponent implements OnInit {
   }
 
   fetchRecentSales(): void {
-    this.saleService.findAllSales().subscribe((sales: any[]) => {
-      // Sort by INV_ID (saleID) descending and take the latest 8
-      const mappedSales = (sales || []).map(sale => ({
-        saleID: sale.invoiceNumber || sale.id,
-        customer: this.customerMap[sale.custId] || sale.customerName || sale.custName || sale.custId || '-',
-        grandTotal: sale.totalAmount,
-        paid: sale.paidAmount,
-        due: (sale.totalAmount || 0) - (sale.paidAmount || 0)
-      }));
-      const sorted = mappedSales.sort((a, b) => {
-        // If saleID is numeric, sort numerically; otherwise, lexically
-        const aId = isNaN(Number(a.saleID)) ? a.saleID : Number(a.saleID);
-        const bId = isNaN(Number(b.saleID)) ? b.saleID : Number(b.saleID);
-        if (aId < bId) return 1;
-        if (aId > bId) return -1;
-        return 0;
-      });
-      this.sales = sorted.slice(0, 8);
+    this.loading = true;
+    this.saleService.findAllSales().subscribe({
+      next: (sales: any[]) => {
+        // Sort by INV_ID (saleID) descending and take the latest 8
+        const mappedSales = (sales || []).map(sale => ({
+          saleID: sale.invoiceNumber || sale.id,
+          customer: sale.customer?.name || sale.customerName || sale.custName || sale.custId || '-',
+          grandTotal: sale.totalAmount,
+          paid: sale.paidAmount,
+          due: (sale.totalAmount || 0) - (sale.paidAmount || 0)
+        }));
+        const sorted = mappedSales.sort((a, b) => {
+          // If saleID is numeric, sort numerically; otherwise, lexically
+          const aId = isNaN(Number(a.saleID)) ? a.saleID : Number(a.saleID);
+          const bId = isNaN(Number(b.saleID)) ? b.saleID : Number(b.saleID);
+          if (aId < bId) return 1;
+          if (aId > bId) return -1;
+          return 0;
+        });
+        this.sales = sorted.slice(0, 8);
+        this.loading = false;
+      },
+      error: () => {
+        this.sales = [];
+        this.loading = false;
+      }
     });
   }
 }

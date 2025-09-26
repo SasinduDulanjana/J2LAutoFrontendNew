@@ -372,7 +372,12 @@
     <c-card class="mb-4">
       <c-card-header>Recent Transactions</c-card-header>
       <c-card-body>
+        <div *ngIf="loading" class="loading-overlay">
+          <div class="spinner"></div>
+          <span>Loading dashboard...</span>
+        </div>
         <table
+          *ngIf="!loading"
           [hover]="true"
           [responsive]="true"
           [striped]="true"

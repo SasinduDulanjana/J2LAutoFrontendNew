@@ -2,9 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import { ProductService } from '../services/product.service'; // Correct path to the service
 import { Product } from '../models/product.model'; // Correct path to the model
 import { CategoryService } from '../services/category.service'; // Correct path to the service
+import { VehicleService } from '../services/vehicle.service'; // Correct path to the service
 import { Category } from '../models/category.model'; // Correct path to the model
 import { CreateCategoryComponent } from '../create-category/create-category.component';
 import { MatDialog } from '@angular/material/dialog';
+import { HttpClient } from '@angular/common/http';
 import { SuccessDialogComponent } from '../success-dialog/success-dialog.component';
 import { FailureDialogComponent } from '../failure-dialog/failure-dialog.component';
 
@@ -15,10 +17,11 @@ import { FailureDialogComponent } from '../failure-dialog/failure-dialog.compone
   styleUrls: ['./create-product.component.scss']
 })
 export class CreateProductComponent implements OnInit{
+  selectedVehicleId: number | null = null;
+  selectedVehicles: any[] = [];
   // skuExists already declared below
   barcodeExists: boolean = false;
-  skuExists: boolean = false;
-  skuCheckInProgress: boolean = false;
+  // SKU is auto-generated, not user input
 
   loading: boolean = false;
 
@@ -31,22 +34,15 @@ export class CreateProductComponent implements OnInit{
   isDropdownVisibleProductStatus: boolean = false;
   isDropdownVisibleTaxGroup: boolean = false;
   isDropdownVisibleTaxType: boolean = false;
-  constructor(private productService: ProductService,private categoryService: CategoryService,private dialog: MatDialog) { }
+  vehicleModels: any[] = [];
+  constructor(
+    private productService: ProductService,
+    private categoryService: CategoryService,
+    private vehicleService: VehicleService,
+    private dialog: MatDialog,
+    private http: HttpClient
+  ) { }
 
-  onSkuChange(sku: string) {
-    if (!sku || sku.length < 2) {
-      this.skuExists = false;
-      return;
-    }
-    this.productService.searchProductBySkuOrBarcode(sku).subscribe(
-      (existingProduct) => {
-        this.skuExists = !!(existingProduct && existingProduct.sku === sku);
-      },
-      (error: any) => {
-        this.skuExists = false;
-      }
-    );
-  }
 
   onBarcodeChange(barcode: string) {
     if (!barcode || barcode.length < 3) {
@@ -67,16 +63,36 @@ export class CreateProductComponent implements OnInit{
     this.categoryService.getAllCategories().subscribe(data => {
       this.categories = data;
     });
+    // Fetch vehicle models from backend API
+    this.vehicleService.getAllVehicles().subscribe(data => {
+      this.vehicleModels = data;
+    });
+    this.selectedVehicleId = null;
+    this.selectedVehicles = [];
+    // Auto-generate SKU (example: random string with prefix)
+    this.product.sku = 'SKU-' + Math.random().toString(36).substring(2, 10).toUpperCase();
+  }
+
+  addVehicle(): void {
+    if (this.selectedVehicleId) {
+      const found = this.vehicleModels.find(v => v.id === this.selectedVehicleId);
+      if (found && !this.selectedVehicles.some(v => v.id === found.id)) {
+        this.selectedVehicles.push(found);
+        // Sync selected vehicle IDs to product model
+        this.product.vehicleModelIds = this.selectedVehicles.map(v => v.id);
+      }
+      this.selectedVehicleId = null;
+    }
+  }
+
+  removeVehicle(index: number): void {
+  this.selectedVehicles.splice(index, 1);
+  // Sync selected vehicle IDs to product model
+  this.product.vehicleModelIds = this.selectedVehicles.map(v => v.id);
   }
   
   createProduct(): void {
-    if (this.skuExists) {
-      this.dialog.open(FailureDialogComponent, {
-        width: '350px',
-        data: { message: 'SKU already exists. Please enter a unique SKU.' }
-      });
-      return;
-    }
+    // SKU is auto-generated, no need to check existence
     if (this.barcodeExists) {
       this.dialog.open(FailureDialogComponent, {
         width: '350px',
@@ -110,8 +126,13 @@ export class CreateProductComponent implements OnInit{
       stockManagementEnable: this.product.stockManagementEnable,
       barCodeAvailable: this.product.barCodeAvailable,
       expDateAvailable: this.product.expDateAvailable,
-      remainingQty: this.product.remainingQty
+      remainingQty: this.product.remainingQty,
+      brandName: this.product.brandName,
+      partNumber: this.product.partNumber,
+      vehicleList: this.selectedVehicles
     };
+    console.log('Product creation payload:', newProduct);
+    console.log('Product creation payload:', newProduct);
     this.loading = true;
     this.productService.createProduct(newProduct)
       .subscribe(response => {
@@ -124,6 +145,7 @@ export class CreateProductComponent implements OnInit{
           // Reset the form fields
           this.product = new Product(0, '', false, '', '', '', '', '', '', false, 0, 0, 0, 0, '', false, '', '', '', '', '', 0, false, false, false, 0);
           this.selectedParentCategoryId = 0;
+          this.selectedVehicles = [];
         });
       }, error => {
         this.loading = false;
