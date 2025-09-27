@@ -122,14 +122,18 @@ export const navItems: INavDataWithRoles[] = [
         name: 'Purchase List',
         url: '/purchase-list'
       }
+        ,
+        {
+          name: 'Purchase Return',
+          url: '/purchase-return',
+          feature: 'purchaseReturn'
+        },
+        {
+          name: 'Purchase Return List',
+          url: '/purchase-return-list',
+          feature: 'purchaseReturnList'
+        }
     ]
-  },
-  // Sales Return now under Sale
-  {
-    name: 'Purchase Return',
-    iconComponent: { name: 'cil-chevron-left' }, // Changed to chevron left icon (confirmed available)
-    feature: 'purchaseReturn',
-    url: '/purchase-return'
   },
   {
     name: 'User Management',

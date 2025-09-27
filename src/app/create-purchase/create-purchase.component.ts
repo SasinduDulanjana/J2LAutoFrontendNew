@@ -28,6 +28,8 @@ export class CreatePurchaseComponent implements OnInit{
   batchNumbers: { [sku: string]: Batch[] } = {};
   selectedTab: number = 1;
   paidAmount: number = 0; // New field for paid amount
+  paymentType: string = '';
+  chequeNumber: string = '';
 
   constructor(private purchaseService: PurchaseService,private productService: ProductService, private supplierService: SupplierService,private dialog: MatDialog) { }
 
@@ -57,23 +59,28 @@ export class CreatePurchaseComponent implements OnInit{
     const totalCost = this.calculateTotalCost();
     // Use the paidAmount entered by the user
     const paidAmount = this.paidAmount;
+    const paymentType = this.paymentType;
     // Determine if fully paid
     const isFullyPaid = paidAmount >= totalCost;
     // Set paymentStatus automatically
     const paymentStatus = isFullyPaid ? 'Paid' : 'Unpaid';
 
-    const newPurchase = {
+    const newPurchase: any = {
       purchaseName: this.purchase.purchaseName,
       invoiceNumber: this.purchase.invoiceNumber,
       deliveryTime: this.purchase.deliveryTime,
       invoiceDate: this.purchase.invoiceDate,
       paymentStatus: paymentStatus,
+      paymentType: paymentType,
       products: this.purchase.products,
       supId: this.selectedSupplierId,
       totalCost: totalCost,
       paidAmount: paidAmount,
       isFullyPaid: isFullyPaid
     };
+    if (paymentType === 'Cheque') {
+      newPurchase.chequeNumber = this.chequeNumber;
+    }
 
     console.log(newPurchase);
 
@@ -90,6 +97,7 @@ export class CreatePurchaseComponent implements OnInit{
           this.purchase.invoiceDate = currentInvoiceDate;
           this.selectedSupplierId = 0;
           this.paidAmount = 0;
+          this.paymentType = '';
         });
       }, error => {
         console.error('Error creating purchase:', error);

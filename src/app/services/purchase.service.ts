@@ -1,7 +1,4 @@
 
-// ...existing code...
-
-// (stray code removed)
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Purchase } from '../models/purchase.model';
@@ -17,6 +14,30 @@ export class PurchaseService {
 
   constructor(private http: HttpClient) {}
 
+  /**
+   * Fetch product batch details for a purchase
+   * @param purchaseId purchase id
+   */
+  /**
+   * Fetch product batch details for a purchase using POST and request body
+   * @param purchaseId purchase id
+   * @param batchNo batch number
+   * @param productId product id
+   */
+  getProductBatchDetails(purchaseId: number, productId: number): Observable<any[]> {
+    const body = { purchaseId, productId };
+    return this.http.post<any[]>(`${this.baseUrl}/getProductBatchDetails`, body);
+  }
+
+  /**
+   * Fetch purchase by either purchaseId or invoiceNumber
+   * @param identifier purchaseId (number) or invoiceNumber (string)
+   */
+  getPurchaseByIdentifier(identifier: string | number): Observable<Purchase> {
+    let url = '';
+    url = `${this.baseUrl}/getPurchaseByIdentifier/${identifier}`;
+    return this.http.get<Purchase>(url);
+  }
 
   createPurchase(purchase: Purchase): Observable<Purchase> {
     const url = `${this.baseUrl}/createPurchase`;
@@ -32,23 +53,14 @@ export class PurchaseService {
     return this.http.get<Purchase[]>(url);
   }
 
-  // deleteCategories(categoryIds: number[]): Observable<void> {
-  //   const url = `${this.baseUrl}/deleteCategories`; // Create a new endpoint for bulk delete
-  //   return this.http.post<void>(url, { ids: categoryIds });
-  // }
-
-  // deleteCategory(categoryIds: number): Observable<void> {
-  //   const url = `${this.baseUrl}/deleteCategory/${categoryIds}`; // Endpoint for deleting a single customer
-  //   return this.http.delete<void>(url);
-  // }
-
   getPurchaseById(id: number): Observable<Purchase> {
     const url = `${this.baseUrl}/getPurchaseById/${id}`;
     return this.http.get<Purchase>(url);
   }
 
-  // updateCategory(category: Category): Observable<Category> {
-  //   const url = `${this.baseUrl}/updateCategory`;
-  //   return this.http.post<Category>(url, category);
-  // }
+  // ...other methods...
+
+    savePurchaseReturn(data: any): Observable<any> {
+      return this.http.post<any>(`${this.baseUrl}/purchaseReturn`, data);
+    }
 }

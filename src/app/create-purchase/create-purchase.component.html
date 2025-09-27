@@ -117,10 +117,29 @@
                   <td>{{ calculateTotalCost() | number:'1.2-2' }}</td>
                 </tr>
                 <tr>
-                  <th colspan="4" class="text-end">Paid Amount</th>
+                  <th colspan="4" class="text-end align-middle">Payment</th>
                   <td>
-                    <input type="text" [(ngModel)]="paidAmount" name="paidAmount" class="form-control" inputmode="decimal" pattern="[0-9]*" style="appearance: textfield;" required #paidAmountField="ngModel" />
-                    <div *ngIf="paidAmountField.invalid && (paidAmountField.dirty || paidAmountField.touched)" class="text-danger small">Paid amount is required.</div>
+                    <div style="display: flex; gap: 1rem; align-items: center;">
+                      <div style="flex: 1;">
+                        <input type="text" [(ngModel)]="paidAmount" name="paidAmount" class="form-control" inputmode="decimal" pattern="[0-9]*" style="appearance: textfield;" required #paidAmountField="ngModel" placeholder="Paid Amount" />
+                        <div *ngIf="paidAmountField.invalid && (paidAmountField.dirty || paidAmountField.touched)" class="text-danger small">Paid amount is required.</div>
+                      </div>
+                      <div style="flex: 1;">
+                        <select [(ngModel)]="paymentType" name="paymentType" required class="form-select">
+                          <option value="" disabled selected hidden>Select payment type</option>
+                          <option value="Cash">Cash</option>
+                          <option value="Card">Card</option>
+                          <option value="Bank Transfer">Bank Transfer</option>
+                          <option value="Credit">Credit</option>
+                          <option value="Cheque">Cheque</option>
+                        </select>
+                        <div *ngIf="paymentType === ''" class="text-danger small">Payment type is required.</div>
+                      </div>
+                    </div>
+                    <div *ngIf="paymentType === 'Cheque'" class="mt-2">
+                      <label for="chequeNumber">Cheque Number (optional)</label>
+                      <input type="text" [(ngModel)]="chequeNumber" name="chequeNumber" class="form-control" />
+                    </div>
                   </td>
                 </tr>
               </tfoot>
