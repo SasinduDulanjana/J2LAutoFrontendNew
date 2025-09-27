@@ -29,6 +29,10 @@ export class PurchaseService {
     return this.http.post<any[]>(`${this.baseUrl}/getProductBatchDetails`, body);
   }
 
+   getPurchaseReturns(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/getAllPurchaseReturn`);
+  }
+
   /**
    * Fetch purchase by either purchaseId or invoiceNumber
    * @param identifier purchaseId (number) or invoiceNumber (string)

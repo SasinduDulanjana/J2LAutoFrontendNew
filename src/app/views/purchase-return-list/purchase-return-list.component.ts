@@ -1,34 +1,36 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { PurchaseService } from '../../services/purchase.service';
 
 @Component({
   selector: 'app-purchase-return-list',
   templateUrl: './purchase-return-list.component.html',
   styleUrls: ['./purchase-return-list.component.scss']
 })
-export class PurchaseReturnListComponent {
-  purchaseReturns = [
-    {
-      returnNumber: 'PR-001',
-      supplierName: 'Supplier A',
-      returnDate: '2025-08-01',
-      product: 'Product X',
-      quantity: 10,
-      reason: 'Damaged',
-      refundAmount: 100
-    },
-    {
-      returnNumber: 'PR-002',
-      supplierName: 'Supplier B',
-      returnDate: '2025-08-05',
-      product: 'Product Y',
-      quantity: 5,
-      reason: 'Expired',
-      refundAmount: 50
-    }
-  ];
-
-  filteredPurchaseReturns = [...this.purchaseReturns];
+export class PurchaseReturnListComponent implements OnInit {
+  purchaseReturns: any[] = [];
+  loading = false;
+  filteredPurchaseReturns: any[] = [];
   searchQuery = '';
+
+  constructor(private purchaseService: PurchaseService) {}
+
+  ngOnInit(): void {
+    this.fetchPurchaseReturns();
+  }
+
+  fetchPurchaseReturns(): void {
+    this.loading = true;
+    this.purchaseService.getPurchaseReturns().subscribe({
+      next: (data: any[]) => {
+        this.purchaseReturns = data || [];
+        this.filteredPurchaseReturns = [...this.purchaseReturns];
+        this.loading = false;
+      },
+      error: () => {
+        this.loading = false;
+      }
+    });
+  }
 
   onSearch(): void {
     const query = this.searchQuery.trim().toLowerCase();
@@ -36,11 +38,21 @@ export class PurchaseReturnListComponent {
       this.filteredPurchaseReturns = [...this.purchaseReturns];
       return;
     }
-    this.filteredPurchaseReturns = this.purchaseReturns.filter(record =>
-      record.returnNumber.toLowerCase().includes(query) ||
-      record.supplierName.toLowerCase().includes(query) ||
-      record.product.toLowerCase().includes(query)
-    );
+    this.filteredPurchaseReturns = this.purchaseReturns.filter(record => {
+      // Check top-level fields
+      const topMatch = (record.invoiceNumber?.toLowerCase().includes(query) ||
+        record.purchaseId?.toString().toLowerCase().includes(query) ||
+        record.supplierName?.toLowerCase().includes(query) ||
+        record.returnDate?.toLowerCase().includes(query));
+      // Check all returned items
+  const returnsMatch = Array.isArray(record.returns) && record.returns.some((ret: any) =>
+        ret.productName?.toLowerCase().includes(query) ||
+        ret.batchNumber?.toLowerCase().includes(query) ||
+        ret.reason?.toLowerCase().includes(query) ||
+        (ret.refundAmount != null && ret.refundAmount.toString().toLowerCase().includes(query))
+      );
+      return topMatch || returnsMatch;
+    });
   }
 
   editPurchaseReturn(record: any): void {
