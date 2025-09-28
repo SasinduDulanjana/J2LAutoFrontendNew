@@ -36,6 +36,7 @@ import { PurchaseReportComponent } from './purchase-report/purchase-report.compo
 import { InventoryReportComponent } from './inventory-report/inventory-report.component';
 import { ProductReportComponent } from './product-report/product-report.component';
 import { CustomerReportComponent } from './customer-report/customer-report.component';
+import { CustomerOutstandingReportComponent } from './customer-outstanding-report/customer-outstanding-report.component';
 import { SupplierReportComponent } from './supplier-report/supplier-report.component';
 import { ProfitLossComponent } from './profit-loss/profit-loss.component';
 import { SalesReturnComponent } from './views/sales-return/sales-return.component';
@@ -112,6 +113,13 @@ const routes: Routes = [
           title: 'Customer List'
         }
       },
+        {
+          path: 'customer-outstanding-report/:id',
+          component: CustomerOutstandingReportComponent,
+          data: {
+            title: 'Customer Outstanding Report'
+          }
+        },
       {
         path: 'edit-customer/:custId',
         component: EditCustomerComponent,

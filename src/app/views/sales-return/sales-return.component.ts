@@ -66,6 +66,7 @@ export class SalesReturnComponent {
     const payload = {
       saleId: this.sale.saleId || this.sale.id,
       invoiceNumber: this.sale.invoiceNumber,
+      customerId: this.sale.customer?.id || this.sale.customer?.custId || '',
       customerName: this.sale.customer?.name || '',
       returns
     };

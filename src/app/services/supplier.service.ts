@@ -23,6 +23,11 @@ export class SupplierService {
     return this.http.get<any>(url);
   }
 
+  findAllSuppliersWithoutStatus(): Observable<any> {
+    const url = `${this.baseUrl}/getAllSuppliersWithoutStatus`;
+    return this.http.get<any>(url);
+  }
+
   deleteSuppliers(supplierIds: number[]): Observable<void> {
     const url = `${this.baseUrl}/deleteSuppliers`; // Create a new endpoint for bulk delete
     return this.http.post<void>(url, { ids: supplierIds });

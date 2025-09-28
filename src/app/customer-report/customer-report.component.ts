@@ -4,6 +4,7 @@ import { CustomerService } from '../services/customer.service';
 import { Customer } from '../models/customer.model';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-customer-report',
@@ -17,7 +18,16 @@ export class CustomerReportComponent implements OnInit {
   loading: boolean = false;
   error: string = '';
 
-  constructor(private customerService: CustomerService) {}
+  constructor(private customerService: CustomerService, private router: Router) {}
+  goToOutstandingReport(customer: any): void {
+    const id = customer?.id ?? customer?.custId;
+    if (customer && id) {
+      console.log('Navigating to customer-outstanding-report with id:', id);
+      this.router.navigate(['/customer-outstanding-report', id]);
+    } else {
+      console.warn('Customer or customer.id/custId missing:', customer);
+    }
+  }
 
   ngOnInit(): void {
     this.fetchCustomers();
@@ -25,7 +35,7 @@ export class CustomerReportComponent implements OnInit {
 
   fetchCustomers(): void {
     this.loading = true;
-    this.customerService.findAllCustomers().subscribe({
+    this.customerService.findAllCustomersWithOutstanding().subscribe({
       next: (data: any[]) => {
         this.customers = data;
         this.filteredCustomers = data;
@@ -59,7 +69,8 @@ export class CustomerReportComponent implements OnInit {
       'Phone',
       'Email',
       'Address',
-      'Total Purchases',
+      'Total Sales',
+      'Total Returns',
       'Outstanding'
     ]];
     const data = (this.filteredCustomers || []).map((customer: any) => [
@@ -67,8 +78,9 @@ export class CustomerReportComponent implements OnInit {
       customer.phone || '',
       customer.email || '',
       customer.address || '',
-      customer.totalPurchases != null ? customer.totalPurchases.toFixed(2) : '',
-      customer.outstanding != null ? customer.outstanding.toFixed(2) : ''
+      customer.totalSales != null ? customer.totalSales.toFixed(2) : '',
+      customer.totalReturns != null ? customer.totalReturns.toFixed(2) : '',
+      customer.totalOutstanding != null ? customer.totalOutstanding.toFixed(2) : ''
     ]);
     autoTable(doc, {
       head,

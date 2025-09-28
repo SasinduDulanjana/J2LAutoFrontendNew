@@ -1,0 +1,64 @@
+<div *ngIf="loading" class="loading-overlay">
+  <div class="spinner"></div>
+  <span>Loading customers...</span>
+</div>
+<div class="container py-4">
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+      <h4 class="mb-0">Customer Outstanding Report</h4>
+      <div class="sale-header-actions d-flex gap-2">
+        <button class="custom-outline-btn export-btn" (click)="exportToPDF()">
+          <mat-icon class="me-1">picture_as_pdf</mat-icon>
+          <span>Export PDF</span>
+        </button>
+      </div>
+    </div>
+    <div class="card-body">
+      <div *ngIf="outstandingData && !loading" class="mt-4">
+        <div class="modern-info-card mb-4 p-3 d-flex flex-wrap align-items-center justify-content-between shadow-sm">
+          <div class="info-item d-flex align-items-center gap-2">
+            <span class="info-label">Name:</span>
+            <span class="info-value fw-bold">{{ outstandingData.name }}</span>
+          </div>
+          <div class="info-item d-flex align-items-center gap-2">
+            <span class="info-label">Phone:</span>
+            <span class="info-value text-primary fw-bold">{{ outstandingData.phone }}</span>
+          </div>
+          <div class="info-item d-flex align-items-center gap-2">
+            <span class="info-label">Email:</span>
+            <span class="info-value text-info fw-bold">{{ outstandingData.email }}</span>
+          </div>
+          <div class="info-item d-flex align-items-center gap-2">
+            <span class="info-label">Address:</span>
+            <span class="info-value text-secondary fw-bold">{{ outstandingData.address }}</span>
+          </div>
+        </div>
+        <div class="card shadow-sm modern-details-card">
+          <div class="card-header bg-info text-white">
+            <h5 class="mb-0">Customer Details</h5>
+          </div>
+          <div class="card-body">
+            <div class="row mb-2 text-center">
+              <div class="col-md-3">
+                <div class="details-label">Total Sales</div>
+                <span class="details-badge bg-success">{{ outstandingData.totalSales | number:'1.2-2' }}</span>
+              </div>
+              <div class="col-md-3">
+                <div class="details-label">Total Returns</div>
+                <span class="details-badge bg-warning">{{ outstandingData.totalReturns | number:'1.2-2' }}</span>
+              </div>
+              <div class="col-md-3">
+                <div class="details-label">Total Payments</div>
+                <span class="details-badge bg-success">{{ outstandingData.totalPayments | number:'1.2-2' }}</span>
+              </div>
+              <div class="col-md-3">
+                <div class="details-label">Outstanding</div>
+                <span class="details-badge bg-danger">{{ outstandingData.totalOutstanding | number:'1.2-2' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,3 +1,7 @@
+<div *ngIf="loading" class="loading-overlay">
+  <div class="spinner"></div>
+  <span>Loading customers...</span>
+</div>
 <div class="container py-4">
   <div class="card shadow-sm mb-4">
     <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
@@ -15,9 +19,6 @@
         <input type="text" placeholder="Search by customer name or phone" [(ngModel)]="searchQuery" (input)="onSearch()" />
       </div>
       <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
-      <div *ngIf="loading" class="text-center my-4">
-        <span class="spinner-border spinner-border-sm"></span> Loading...
-      </div>
       <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">
           <thead class="table-light">
@@ -26,8 +27,10 @@
               <th>Phone</th>
               <th>Email</th>
               <th>Address</th>
-              <th>Total Purchases</th>
+              <th>Total Sales</th>
+              <th>Total Returns</th>
               <th>Outstanding</th>
+              <th>Details</th>
             </tr>
           </thead>
           <tbody>
@@ -36,8 +39,12 @@
               <td>{{ customer.phone }}</td>
               <td>{{ customer.email }}</td>
               <td>{{ customer.address }}</td>
-              <td>{{ customer.totalPurchases | number:'1.2-2' }}</td>
-              <td>{{ customer.outstanding | number:'1.2-2' }}</td>
+              <td>{{ customer.totalSales | number:'1.2-2' }}</td>
+              <td>{{ customer.totalReturns | number:'1.2-2' }}</td>
+              <td>{{ customer.totalOutstanding | number:'1.2-2' }}</td>
+              <td>
+                <button class="btn btn-outline-primary btn-sm" (click)="goToOutstandingReport(customer)">View</button>
+              </td>
             </tr>
             <tr *ngIf="filteredCustomers.length === 0">
               <td colspan="6" class="text-center text-muted">No customers found.</td>

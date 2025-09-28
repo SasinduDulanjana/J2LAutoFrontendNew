@@ -23,7 +23,7 @@ export class CustomerListComponent implements OnInit {
 
   ngOnInit(): void {
     this.loading = true;
-    this.customerService.findAllCustomers().subscribe(data => {
+    this.customerService.findAllCustomersWithoutStatus().subscribe(data => {
       this.customers = data;
       this.filteredCustomers = data;
       this.loading = false;

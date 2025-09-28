@@ -60,6 +60,7 @@ export const navItems: INavDataWithRoles[] = [
         url: '/customer-list',
         class: 'with-bullet'
       }
+      // Removed 'Customer Outstanding Report' from sidebar
     ]
   },
   {

@@ -23,7 +23,7 @@ export class SupplierListComponent implements OnInit{
 
   ngOnInit(): void {
     this.loading = true;
-    this.supplierService.findAllSuppliers().subscribe(data => {
+    this.supplierService.findAllSuppliersWithoutStatus().subscribe(data => {
       this.suppliers = data;
       this.filteredSuppliers = data;
       this.loading = false;

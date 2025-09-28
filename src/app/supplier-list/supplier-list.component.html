@@ -33,6 +33,7 @@
                 <th>Email</th>
                 <th>Phone</th>
                 <th>Address</th>
+                <th>Status</th>
                 <th class="text-end">Actions</th>
               </tr>
             </thead>
@@ -42,12 +43,20 @@
                 <td>{{ supplier.email }}</td>
                 <td>{{ supplier.phone }}</td>
                 <td>{{ supplier.address }}</td>
+                <td>
+                  <span [ngClass]="supplier.status == 1 ? 'badge bg-success' : 'badge bg-secondary'">
+                    {{ supplier.status == 1 ? 'Active' : 'Inactive' }}
+                  </span>
+                </td>
                 <td class="text-end">
                   <c-dropdown>
                     <button cButton cDropdownToggle color="secondary" style="min-width: 100px;">Options</button>
                     <ul cDropdownMenu>
                       <li><button (click)="editSupplier(supplier)" cDropdownItem>Edit</button></li>
-                      <li><button (click)="deleteSupplier(supplier)" cDropdownItem>Delete</button></li>
+                      <!-- <li><button (click)="deleteSupplier(supplier)" cDropdownItem>Delete</button></li> -->
+                        <li>
+                          <button (click)="deleteSupplier(supplier)" cDropdownItem [disabled]="supplier.status != 1">Delete</button>
+                        </li>
                     </ul>
                   </c-dropdown>
                 </td>

@@ -23,6 +23,21 @@ export class CustomerService {
     return this.http.get<any>(url);
   }
 
+  findAllCustomersWithoutStatus(): Observable<any> {
+    const url = `${this.baseUrl}/getAllCustomersWithoutStatus`;
+    return this.http.get<any>(url);
+  }
+
+  findAllCustomersWithOutstanding(): Observable<any> {
+    const url = `${this.baseUrl}/getAllCustomerDetailsWithSummary`;
+    return this.http.get<any>(url);
+  }
+
+  getCustomerWithOutstanding(custId: number): Observable<any> {
+      const url = `${this.baseUrl}/getCustomerWithOutstanding/${custId}`;
+      return this.http.get<any>(url);
+    }
+
   deleteCustomers(customerIds: number[]): Observable<void> {
     const url = `${this.baseUrl}/deleteCustomers`; // Create a new endpoint for bulk delete
     return this.http.post<void>(url, { ids: customerIds });
