@@ -475,6 +475,15 @@ export class CreateSaleComponent implements OnInit {
           this.saleItem.paidAmount = result.paymentAmount;
           this.saleItem.isFullyPaid = result.paymentAmount >= this.saleItem.totalAmount;
           this.saleItem.paymentType = result.paymentType;
+          if (result.paymentType === 'Cheque') {
+            this.saleItem.chequeNumber = result.chequeNumber;
+            this.saleItem.bankName = result.bankName;
+            this.saleItem.chequeDate = result.chequeDate;
+          } else {
+            this.saleItem.chequeNumber = undefined;
+            this.saleItem.bankName = undefined;
+            this.saleItem.chequeDate = undefined;
+          }
 
           // Attach full customer and user objects again before sending
           // customer and user are already set on saleItem

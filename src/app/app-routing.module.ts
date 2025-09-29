@@ -1,3 +1,4 @@
+import { PaymentHistoryComponent } from './payment-history/payment-history.component';
 import { SalesReturnListComponent } from './views/sales-return-list/sales-return-list.component';
 import { PurchaseReturnListComponent } from './views/purchase-return-list/purchase-return-list.component';
 import { NgModule } from '@angular/core';
@@ -65,6 +66,11 @@ const routes: Routes = [
       title: 'Home'
     },
     children: [
+        {
+          path: 'payment-history/:id',
+          component: PaymentHistoryComponent,
+          data: { title: 'Payment History' }
+        },
       {
         path: 'inventory-list',
         component: InventoryListComponent,

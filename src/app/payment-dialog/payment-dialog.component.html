@@ -16,7 +16,22 @@
         <option value="Card">Card</option>
         <option value="Bank Transfer">Bank Transfer</option>
         <option value="Credit">Credit</option>
+        <option value="Cheque">Cheque</option>
       </select>
+    </div>
+    <div *ngIf="paymentType === 'Cheque'" class="cheque-fields">
+      <div class="form-group mb-2">
+        <label for="chequeNumber"><strong>Cheque Number</strong></label>
+        <input id="chequeNumber" name="chequeNumber" [(ngModel)]="chequeNumber" class="form-control" type="text" placeholder="Enter cheque number" required />
+      </div>
+      <div class="form-group mb-2">
+        <label for="bankName"><strong>Bank Name</strong></label>
+        <input id="bankName" name="bankName" [(ngModel)]="bankName" class="form-control" type="text" placeholder="Enter bank name" required />
+      </div>
+      <div class="form-group mb-2">
+        <label for="chequeDate"><strong>Cheque Date</strong></label>
+        <input id="chequeDate" name="chequeDate" [(ngModel)]="chequeDate" class="form-control" type="date" required />
+      </div>
     </div>
     <div class="button-container">
       <button mat-button class="btn-cancel" (click)="closeDialog()">Cancel</button>

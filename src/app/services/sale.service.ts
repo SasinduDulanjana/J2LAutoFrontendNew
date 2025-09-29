@@ -8,6 +8,10 @@ import { BASE_URL } from '../base-url';
   providedIn: 'root'
 })
 export class SaleService {
+
+  private baseUrl = BASE_URL + '/sale/api';
+
+
   salesReturn(payload: any): Observable<string> {
     return this.http.post(`${this.baseUrl}/salesReturn`, payload, { responseType: 'text' });
   }
@@ -18,7 +22,11 @@ export class SaleService {
   getSaleByInvoiceNumber(invoiceNumber: string): Observable<Sale> {
     return this.http.get<Sale>(`${this.baseUrl}/getSaleByInvoiceNumber/${invoiceNumber}`);
   }
-  private baseUrl = BASE_URL + '/sale/api';
+
+  getPaymentsByInvoiceNumber(invoiceNumber: string): Observable<Sale> {
+    return this.http.get<Sale>(`${this.baseUrl}/getPaymentDetailsByInvoice/${invoiceNumber}`);
+  }
+
 
   constructor(private http: HttpClient) { }
 

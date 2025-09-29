@@ -30,6 +30,7 @@
               <th>Net Total</th>
               <th>Created At</th>
               <th>Products</th>
+          <th>Payment Details</th>
             </tr>
           </thead>
           <tbody>
@@ -44,6 +45,9 @@
               <td>{{ sale.saleDate }}</td>
               <td>
                 <button (click)="openProductListPopupForSale(sale)" cButton color="light" style="min-width: 100px;">Products</button>
+              </td>
+              <td>
+                <button (click)="goToPaymentDetails(sale)" cButton color="info" style="min-width: 120px;">Payment Details</button>
               </td>
             </tr>
             <tr *ngIf="filteredSales.length === 0">

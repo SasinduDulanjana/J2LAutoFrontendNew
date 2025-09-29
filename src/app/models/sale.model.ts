@@ -20,6 +20,9 @@ export class Sale {
   paidAmount : number;
   paymentType?: string;
   paymentMethod?: string;
+  chequeNumber?: string;
+  bankName?: string;
+  chequeDate?: string;
   modifiedBy?: string;
   modifiedDate?: string;
 

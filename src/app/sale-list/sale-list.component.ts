@@ -14,6 +14,10 @@ import { CustomerService } from '../services/customer.service';
   styleUrls: ['./sale-list.component.scss']
 })
 export class SaleListComponent {
+  goToPaymentDetails(sale: any): void {
+    const invoiceNumber = sale.invoiceNumber;
+    this.router.navigate(['/payment-history', invoiceNumber]);
+  }
   loading: boolean = false;
   sales: any[] = [];
   filteredSales: any[] = [];
