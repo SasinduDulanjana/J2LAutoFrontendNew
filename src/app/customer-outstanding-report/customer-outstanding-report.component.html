@@ -7,7 +7,7 @@
     <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
       <h4 class="mb-0">Customer Outstanding Report</h4>
       <div class="sale-header-actions d-flex gap-2">
-        <button class="custom-outline-btn export-btn" (click)="exportToPDF()">
+  <button class="custom-outline-btn export-btn" (click)="exportToPDF(activeTab)">
           <mat-icon class="me-1">picture_as_pdf</mat-icon>
           <span>Export PDF</span>
         </button>
@@ -56,10 +56,10 @@
           <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
             <ul class="nav nav-tabs card-header-tabs" style="--bs-nav-link-color: #fff; font-size: 0.95rem; font-weight: 400;">
               <li class="nav-item">
-                <a class="nav-link" [class.active]="activeTab === 'details'" (click)="activeTab = 'details'">Details</a>
+                <a class="nav-link" [class.active]="activeTab === 'details'" (click)="activeTab = 'details'">Ledger Report</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" [class.active]="activeTab === 'outstanding'" (click)="activeTab = 'outstanding'">Outstanding</a>
+                <a class="nav-link" [class.active]="activeTab === 'outstanding'" (click)="activeTab = 'outstanding'">Outstanding Report</a>
               </li>
             </ul>
             <span class="ms-auto" style="font-size: 0.92rem; font-weight: 400;">Transaction Details</span>

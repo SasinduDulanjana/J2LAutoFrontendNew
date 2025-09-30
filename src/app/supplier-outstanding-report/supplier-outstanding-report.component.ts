@@ -95,7 +95,7 @@ export class SupplierOutstandingReportComponent implements OnInit {
     }
   }
 
-  exportToPDF(): void {
+  exportToPDF(tab: string = this.activeTab): void {
     const doc = new jsPDF();
     doc.setFontSize(16);
     doc.text('Supplier Outstanding Report', 14, 16);
@@ -108,48 +108,80 @@ export class SupplierOutstandingReportComponent implements OnInit {
       doc.text(`Total Payments: ${this.outstandingData.totalPayments != null ? this.outstandingData.totalPayments : '-'}`, 14, 54);
       doc.text(`Outstanding: ${this.outstandingData.outstanding != null ? this.outstandingData.outstanding : '-'}`, 14, 61);
     }
-    const columns = [
-      { header: 'Date & Time', dataKey: 'date' },
-      { header: 'Type', dataKey: 'type' },
-      { header: 'Invoice No', dataKey: 'invoiceNo' },
-      { header: 'Debit', dataKey: 'debit' },
-      { header: 'Credit', dataKey: 'credit' },
-      { header: 'Balance', dataKey: 'balance' },
-      { header: 'Payment Method', dataKey: 'paymentMethod' },
-      { header: 'Cheque No', dataKey: 'chequeNo' },
-      { header: 'Cheque Date', dataKey: 'chequeDate' },
-      { header: 'Payment Status', dataKey: 'paymentStatus' }
-    ];
-    const rows = (this.outstandingData?.transactionDetails || []).map((txn: any) => ({
-      date: txn.date ? new Date(txn.date).toLocaleString() : '-',
-      type: txn.type || '-',
-      invoiceNo: txn.invoiceNo != null ? txn.invoiceNo : '-',
-      debit: txn.debit != null ? txn.debit : '-',
-      credit: txn.credit != null ? txn.credit : '-',
-      balance: txn.balance != null ? txn.balance : '-',
-      paymentMethod: txn.paymentMethod != null ? txn.paymentMethod : '-',
-      chequeNo: txn.chequeNo != null ? txn.chequeNo : '-',
-      chequeDate: txn.chequeDate != null ? txn.chequeDate : '-',
-      paymentStatus: txn.paymentStatus != null ? txn.paymentStatus : '-'
-    }));
-    autoTable(doc, {
-      head: [columns.map(col => col.header)],
-      body: rows.map((row: any) => [
-        row.date,
-        row.type,
-        row.invoiceNo,
-        row.debit,
-        row.credit,
-        row.balance,
-        row.paymentMethod,
-        row.chequeNo,
-        row.chequeDate,
-        row.paymentStatus
-      ]),
-      startY: 70,
-      styles: { fontSize: 10 }
-    });
-    doc.save('supplier-outstanding-report.pdf');
+    if (tab === 'details') {
+      // Ledger Report (transaction details)
+      const columns = [
+        { header: 'Date & Time', dataKey: 'date' },
+        { header: 'Type', dataKey: 'type' },
+        { header: 'Invoice No', dataKey: 'invoiceNo' },
+        { header: 'Debit', dataKey: 'debit' },
+        { header: 'Credit', dataKey: 'credit' },
+        { header: 'Balance', dataKey: 'balance' },
+        { header: 'Payment Method', dataKey: 'paymentMethod' },
+        { header: 'Cheque No', dataKey: 'chequeNo' },
+        { header: 'Cheque Date', dataKey: 'chequeDate' },
+        { header: 'Payment Status', dataKey: 'paymentStatus' }
+      ];
+      const rows = (this.outstandingData?.transactionDetails || []).map((txn: any) => ({
+        date: txn.date ? new Date(txn.date).toLocaleString() : '-',
+        type: txn.type || '-',
+        invoiceNo: txn.invoiceNo != null ? txn.invoiceNo : '-',
+        debit: txn.debit != null ? txn.debit : '-',
+        credit: txn.credit != null ? txn.credit : '-',
+        balance: txn.balance != null ? txn.balance : '-',
+        paymentMethod: txn.paymentMethod != null ? txn.paymentMethod : '-',
+        chequeNo: txn.chequeNo != null ? txn.chequeNo : '-',
+        chequeDate: txn.chequeDate != null ? txn.chequeDate : '-',
+        paymentStatus: txn.paymentStatus != null ? txn.paymentStatus : '-'
+      }));
+      autoTable(doc, {
+        head: [columns.map(col => col.header)],
+        body: rows.map((row: any) => [
+          row.date,
+          row.type,
+          row.invoiceNo,
+          row.debit,
+          row.credit,
+          row.balance,
+          row.paymentMethod,
+          row.chequeNo,
+          row.chequeDate,
+          row.paymentStatus
+        ]),
+        startY: 70,
+        styles: { fontSize: 10 }
+      });
+      doc.save('supplier-ledger-report.pdf');
+    } else if (tab === 'outstanding') {
+      // Outstanding Report
+      const columns = [
+        { header: 'Invoice No', dataKey: 'invoiceNumber' },
+        { header: 'Purchase Date', dataKey: 'purchaseDate' },
+        { header: 'Total Amount', dataKey: 'totalAmount' },
+        { header: 'Paid Amount', dataKey: 'paidAmount' },
+        { header: 'Outstanding', dataKey: 'outstanding' }
+      ];
+      const rows = (this.supplierOutstanding || []).map((item: any) => ({
+        invoiceNumber: item.invoiceNumber || '-',
+        purchaseDate: item.purchaseDate || '-',
+        totalAmount: item.totalAmount != null ? item.totalAmount : '-',
+        paidAmount: item.paidAmount != null ? item.paidAmount : '-',
+        outstanding: item.outstanding != null ? item.outstanding : '-'
+      }));
+      autoTable(doc, {
+        head: [columns.map(col => col.header)],
+        body: rows.map((row: any) => [
+          row.invoiceNumber,
+          row.purchaseDate,
+          row.totalAmount,
+          row.paidAmount,
+          row.outstanding
+        ]),
+        startY: 70,
+        styles: { fontSize: 10 }
+      });
+      doc.save('supplier-outstanding-report.pdf');
+    }
   }
 
   exportExcel() {
