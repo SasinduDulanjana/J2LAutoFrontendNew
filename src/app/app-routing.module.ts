@@ -38,6 +38,7 @@ import { InventoryReportComponent } from './inventory-report/inventory-report.co
 import { ProductReportComponent } from './product-report/product-report.component';
 import { CustomerReportComponent } from './customer-report/customer-report.component';
 import { CustomerOutstandingReportComponent } from './customer-outstanding-report/customer-outstanding-report.component';
+import { SupplierOutstandingReportComponent } from './supplier-outstanding-report/supplier-outstanding-report.component';
 import { SupplierReportComponent } from './supplier-report/supplier-report.component';
 import { ProfitLossComponent } from './profit-loss/profit-loss.component';
 import { SalesReturnComponent } from './views/sales-return/sales-return.component';
@@ -129,6 +130,13 @@ const routes: Routes = [
           component: CustomerOutstandingReportComponent,
           data: {
             title: 'Customer Outstanding Report'
+          }
+        },
+        {
+          path: 'supplier-outstanding-report/:id',
+          component: SupplierOutstandingReportComponent,
+          data: {
+            title: 'Supplier Outstanding Report'
           }
         },
       {
@@ -371,6 +379,11 @@ const routes: Routes = [
         path: 'pages',
         loadChildren: () =>
           import('./views/pages/pages.module').then((m) => m.PagesModule)
+      },
+      {
+        path: 'purchase-payment-details/:id',
+        loadChildren: () => import('./purchase-payment-details/purchase-payment-details.module').then(m => m.PurchasePaymentDetailsModule),
+        data: { title: 'Purchase Payment Details' }
       },
     ]
   },

@@ -55,6 +55,7 @@ import {
 import { IconModule, IconSetService } from '@coreui/icons-angular';
 import { CreateCustomerComponent } from './create-customer/create-customer.component';
 import { CustomerService } from './services/customer.service';
+import { SupplierService } from './services/supplier.service';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { LoginComponent } from './loginPage/login.component';
 import { AuthService } from './services/auth.service';
@@ -101,6 +102,7 @@ import { ProductReportComponent } from './product-report/product-report.componen
 import { CustomerReportComponent } from './customer-report/customer-report.component';
 import { SupplierReportComponent } from './supplier-report/supplier-report.component';
 import { CustomerOutstandingReportComponent } from './customer-outstanding-report/customer-outstanding-report.component';
+import { SupplierOutstandingReportComponent } from './supplier-outstanding-report/supplier-outstanding-report.component';
 import { ProfitLossComponent } from './profit-loss/profit-loss.component';
 import { InventoryListComponent } from './inventory-list/inventory-list.component';
 import { SalesReturnComponent } from './views/sales-return/sales-return.component';
@@ -118,7 +120,7 @@ const APP_CONTAINERS = [
 ];
 
 @NgModule({
-  declarations: [AppComponent, ...APP_CONTAINERS, CreateCustomerComponent, LoginComponent, CustomerListComponent, EditCustomerComponent, CreateSupplierComponent, EditSupplierComponent, SupplierListComponent, ProductListComponent, CategoryListComponent, CreateProductComponent, EditProductComponent, EditCategoryComponent, CreateCategoryComponent, CreatePurchaseComponent, PurchaseListComponent, ViewProductsDialogComponent, CreateSaleComponent, SaleListComponent, PopupCustomerListComponent, SuccessDialogComponent, FailureDialogComponent, QuantityInputComponent, BatchSelectionComponent, DiscountInputComponent, DiscountBillWiseComponent, PaymentDialogComponent, DeletedSaleListComponent, HoldSaleListComponent, PartiallyPaidSaleListComponent, ProductListPopupComponent, RolesComponent, UsersComponent, SaleReportComponent, PurchaseReportComponent, InventoryReportComponent, ProductReportComponent, CustomerReportComponent, SupplierReportComponent, ProfitLossComponent, SalesReturnComponent, PurchaseReturnComponent, SalesReturnListComponent, PurchaseReturnListComponent, RolePermissionsComponent, BillComponent, BillDialogComponent, InventoryListComponent, LoadingDialogComponent, CustomerOutstandingReportComponent, PaymentHistoryComponent],
+  declarations: [AppComponent, ...APP_CONTAINERS, CreateCustomerComponent, LoginComponent, CustomerListComponent, EditCustomerComponent, CreateSupplierComponent, EditSupplierComponent, SupplierListComponent, ProductListComponent, CategoryListComponent, CreateProductComponent, EditProductComponent, EditCategoryComponent, CreateCategoryComponent, CreatePurchaseComponent, PurchaseListComponent, ViewProductsDialogComponent, CreateSaleComponent, SaleListComponent, PopupCustomerListComponent, SuccessDialogComponent, FailureDialogComponent, QuantityInputComponent, BatchSelectionComponent, DiscountInputComponent, DiscountBillWiseComponent, PaymentDialogComponent, DeletedSaleListComponent, HoldSaleListComponent, PartiallyPaidSaleListComponent, ProductListPopupComponent, RolesComponent, UsersComponent, SaleReportComponent, PurchaseReportComponent, InventoryReportComponent, ProductReportComponent, CustomerReportComponent, SupplierReportComponent, ProfitLossComponent, SalesReturnComponent, PurchaseReturnComponent, SalesReturnListComponent, PurchaseReturnListComponent, RolePermissionsComponent, BillComponent, BillDialogComponent, InventoryListComponent, LoadingDialogComponent, CustomerOutstandingReportComponent, PaymentHistoryComponent, SupplierOutstandingReportComponent],
   imports: [
     BrowserModule,
     CommonModule,
@@ -170,7 +172,8 @@ const APP_CONTAINERS = [
     Title,
     CustomerService,
     AuthService,
-    AuthGuard
+  AuthGuard,
+  SupplierService
   ],
   bootstrap: [AppComponent],
 })

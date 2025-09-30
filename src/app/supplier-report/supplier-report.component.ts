@@ -1,6 +1,7 @@
 
 import { Component, OnInit } from '@angular/core';
 import { SupplierService } from '../services/supplier.service';
+import { Router } from '@angular/router';
 import { Supplier } from '../models/supplier.model';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -17,7 +18,13 @@ export class SupplierReportComponent implements OnInit {
   loading: boolean = false;
   error: string = '';
 
-  constructor(private supplierService: SupplierService) {}
+  constructor(private supplierService: SupplierService, private router: Router) {}
+  viewSupplierDetails(supplier: any): void {
+    const id = supplier.supId ?? supplier.id;
+    if (id) {
+      this.router.navigate(['/supplier-outstanding-report', id]);
+    }
+  }
 
   ngOnInit(): void {
     this.fetchSuppliers();
@@ -25,7 +32,7 @@ export class SupplierReportComponent implements OnInit {
 
   fetchSuppliers(): void {
     this.loading = true;
-    this.supplierService.findAllSuppliers().subscribe({
+    this.supplierService.findAllSuppliersWithOutstanding().subscribe({
       next: (data: any[]) => {
         this.suppliers = data;
         this.filteredSuppliers = data;

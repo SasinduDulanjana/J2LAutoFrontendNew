@@ -1,3 +1,8 @@
+<div *ngIf="loading" class="loading-overlay">
+  <div class="spinner"></div>
+  <span>Loading suppliers...</span>
+</div>
+
 <div class="container py-4">
   <div class="card shadow-sm mb-4">
     <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
@@ -15,9 +20,9 @@
         <input type="text" placeholder="Search by supplier name or phone" [(ngModel)]="searchQuery" (input)="onSearch()" />
       </div>
       <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
-      <div *ngIf="loading" class="text-center my-4">
+      <!-- <div *ngIf="loading" class="text-center my-4">
         <span class="spinner-border spinner-border-sm"></span> Loading...
-      </div>
+      </div> -->
       <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">
           <thead class="table-light">
@@ -26,21 +31,54 @@
               <th>Phone</th>
               <th>Email</th>
               <th>Address</th>
-              <th>Total Purchases</th>
-              <th>Outstanding</th>
+              <th>Purchases</th>
+              <th>Returns</th>
+              <th>Payments</th>
+              <th>Outstandings</th>
+                <th>Details</th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let supplier of filteredSuppliers">
+            <tr *ngFor="let supplier of filteredSuppliers" class="modern-row">
               <td>{{ supplier.name }}</td>
-              <td>{{ supplier.phone }}</td>
-              <td>{{ supplier.email }}</td>
-              <td>{{ supplier.address }}</td>
-              <td>{{ supplier.totalPurchases | number:'1.2-2' }}</td>
-              <td>{{ supplier.outstanding | number:'1.2-2' }}</td>
+              <td><span class="text-secondary">{{ supplier.phone }}</span></td>
+              <td><span class="text-secondary">{{ supplier.email }}</span></td>
+              <td><span class="text-secondary">{{ supplier.address }}</span></td>
+              <td>
+                <span class="text-secondary">{{ supplier.totalPurchases | number:'1.2-2' }}</span>
+              </td>
+              <td>
+                <span class="text-secondary">{{ supplier.totalReturns | number:'1.2-2' }}</span>
+              </td>
+              <td>
+                <span class="text-secondary">{{ supplier.totalPayments | number:'1.2-2' }}</span>
+              </td>
+              <td>
+                    <ng-container *ngIf="supplier.totalOutstanding == null || supplier.totalOutstanding == undefined; else showOutstanding">
+                      <span class="badge bg-secondary" style="font-size: 0.85rem; padding: 0.25em 0.6em;">-</span>
+                    </ng-container>
+                    <ng-template #showOutstanding>
+                      <span *ngIf="supplier.totalOutstanding < 0" class="badge bg-success" style="font-size: 0.85rem; padding: 0.25em 0.6em;">
+                        {{ supplier.totalOutstanding | number:'1.2-2' }}
+                      </span>
+                      <span *ngIf="supplier.totalOutstanding === 0" class="badge bg-success" style="font-size: 0.85rem; padding: 0.25em 0.6em;">
+                        {{ supplier.totalOutstanding | number:'1.2-2' }}
+                      </span>
+                      <span *ngIf="supplier.totalOutstanding > 0" class="badge bg-danger" style="font-size: 0.85rem; padding: 0.25em 0.6em; color: #ffffff;">
+                        {{ supplier.totalOutstanding | number:'1.2-2' }}
+                      </span>
+                    </ng-template>
+              </td>
+              <td>
+                <button class="btn btn-outline-primary btn-sm" (click)="viewSupplierDetails(supplier)">
+                  <!-- <mat-icon style="vertical-align: middle; font-size: 1rem;">visibility</mat-icon> -->
+                  View
+                </button>
+              </td>
+
             </tr>
             <tr *ngIf="filteredSuppliers.length === 0">
-              <td colspan="6" class="text-center text-muted">No suppliers found.</td>
+              <td colspan="8" class="text-center text-muted">No suppliers found.</td>
             </tr>
           </tbody>
         </table>

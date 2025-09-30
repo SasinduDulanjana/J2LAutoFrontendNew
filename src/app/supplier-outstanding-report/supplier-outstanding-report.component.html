@@ -1,0 +1,111 @@
+<div *ngIf="loading" class="loading-overlay">
+  <div class="spinner"></div>
+  <span>Loading supplier outstanding report...</span>
+</div>
+<div class="container py-4">
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+      <h4 class="mb-0">Supplier Outstanding Report</h4>
+      <div class="sale-header-actions d-flex gap-2">
+        <button class="custom-outline-btn export-btn" (click)="exportToPDF()">
+          <mat-icon class="me-1">picture_as_pdf</mat-icon>
+          <span>Export PDF</span>
+        </button>
+      </div>
+    </div>
+    <div class="card-body">
+      <div *ngIf="outstandingData && !loading" class="mt-4">
+        <div class="modern-info-card mb-4 p-3 d-flex flex-wrap align-items-center justify-content-between shadow-sm">
+          <div class="info-item d-flex align-items-center gap-2">
+            <span class="info-label">Supplier Name:</span>
+            <span class="info-value fw-bold">{{ outstandingData.supplierName }}</span>
+          </div>
+          <div class="info-item d-flex align-items-center gap-2">
+            <span class="info-label">Supplier ID:</span>
+            <span class="info-value fw-bold">{{ outstandingData.supplierId }}</span>
+          </div>
+        </div>
+        <div class="card shadow-sm modern-details-card mb-4">
+          <div class="card-header bg-info text-white">
+            <h5 class="mb-0">Supplier Details</h5>
+          </div>
+          <div class="card-body">
+            <div class="row mb-2 text-center">
+              <div class="col-md-3">
+                <div class="details-label">Total Purchases</div>
+                <span class="details-badge bg-success">{{ outstandingData.totalPurchases | number:'1.2-2' }}</span>
+              </div>
+              <div class="col-md-3">
+                <div class="details-label">Total Returns</div>
+                <span class="details-badge bg-warning">{{ outstandingData.totalReturns | number:'1.2-2' }}</span>
+              </div>
+              <div class="col-md-3">
+                <div class="details-label">Total Payments</div>
+                <span class="details-badge bg-success">{{ outstandingData.totalPayments | number:'1.2-2' }}</span>
+              </div>
+              <div class="col-md-3">
+                 <div class="details-label">Outstanding</div>
+                 <span class="details-badge bg-danger">
+                   {{ outstandingData.outstanding == null || outstandingData.outstanding == undefined ? '-' : outstandingData.outstanding | number:'1.2-2' }}
+                 </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card shadow-sm">
+          <div class="card-header bg-secondary text-white">
+            <h5 class="mb-0">Transaction Details</h5>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-striped table-hover align-middle mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th>Date & Time</th>
+                    <th>Type</th>
+                    <th>Invoice No</th>
+                    <th>Debit</th>
+                    <th>Credit</th>
+                    <th>Balance</th>
+                    <th>Payment Method</th>
+                    <th>Cheque No</th>
+                    <th>Cheque Date</th>
+                    <th>Payment Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let txn of outstandingData.transactionDetails; let i = index">
+                    <td>{{ txn.date | date:'yyyy-MM-dd HH:mm:ss' }}</td>
+                    <td>{{ txn.type }}</td>
+                      <td>{{ txn.invoiceNo == null || txn.invoiceNo == undefined ? '-' : txn.invoiceNo }}</td>
+                      <td>{{ txn.debit == null || txn.debit == undefined ? '-' : (txn.debit | number:'1.2-2') }}</td>
+                      <td>{{ txn.credit == null || txn.credit == undefined ? '-' : (txn.credit | number:'1.2-2') }}</td>
+                    <td>
+                      <span *ngIf="i === 0" [ngClass]="{'text-danger': txn.balance < 0, 'text-success': txn.balance >= 0}" style="font-weight: bold;">
+                        {{ txn.balance | number:'1.2-2' }}
+                      </span>
+                      <span *ngIf="i !== 0">
+                        {{ txn.balance | number:'1.2-2' }}
+                      </span>
+                    </td>
+                      <td>{{ txn.paymentMethod == null || txn.paymentMethod == undefined ? '-' : txn.paymentMethod }}</td>
+                      <td>{{ txn.chequeNo == null || txn.chequeNo == undefined ? '-' : txn.chequeNo }}</td>
+                      <td>{{ txn.chequeDate == null || txn.chequeDate == undefined ? '-' : txn.chequeDate }}</td>
+                      <td>
+                        <span [ngStyle]="{color: txn.paymentStatus === 'PENDING' ? 'red' : (txn.paymentStatus === 'CLEARED' ? 'green' : '')}">
+                          {{ txn.paymentStatus == null || txn.paymentStatus == undefined ? '-' : txn.paymentStatus }}
+                        </span>
+                      </td>
+                  </tr>
+                  <tr *ngIf="!outstandingData.transactionDetails || outstandingData.transactionDetails.length === 0">
+                    <td colspan="6" class="text-center text-muted">No transactions found.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
