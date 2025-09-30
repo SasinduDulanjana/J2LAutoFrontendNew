@@ -61,9 +61,18 @@ export class CustomerService {
   /**
    * Search customers by name or phone (partial match)
    */
- searchCustomers(term: string): Observable<Customer[]> {
-  const url = `${this.baseUrl}/getCustomersByNameOrPhone/${encodeURIComponent(term)}`;
-  return this.http.get<Customer[]>(url);
-}
+  searchCustomers(term: string): Observable<Customer[]> {
+    const url = `${this.baseUrl}/getCustomersByNameOrPhone/${encodeURIComponent(term)}`;
+    return this.http.get<Customer[]>(url);
+  }
+
+  /**
+   * Get customer outstanding invoices for Outstanding tab
+   */
+  getCustomerOutstanding(customerId: number): Observable<any[]> {
+    // Direct API endpoint (not under /customer/api)
+    const url = `${this.baseUrl}/getCustomerOutstanding/${customerId}`;
+    return this.http.get<any[]>(url);
+  }
 
 }

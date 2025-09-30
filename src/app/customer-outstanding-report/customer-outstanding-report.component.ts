@@ -16,6 +16,8 @@ export class CustomerOutstandingReportComponent implements OnInit {
   selectedCustomer: any;
   outstandingData: any;
   loading: boolean = false;
+  activeTab: string = 'details';
+  customerOutstanding: any[] = [];
 
   constructor(private route: ActivatedRoute, private customerService: CustomerService) {}
 
@@ -56,6 +58,7 @@ export class CustomerOutstandingReportComponent implements OnInit {
   onSearch() {
     if (this.selectedCustomer) {
       this.loading = true;
+      // Fetch transaction details (existing logic)
       this.customerService.getCustomerWithOutstanding(Number(this.selectedCustomer)).subscribe(data => {
         if (data && Array.isArray(data.transactionDetails)) {
           // Robust normalization for date strings
@@ -80,7 +83,14 @@ export class CustomerOutstandingReportComponent implements OnInit {
           });
         }
         this.outstandingData = data;
-        this.loading = false;
+        // Fetch outstanding tab data from new API
+        this.customerService.getCustomerOutstanding(Number(this.selectedCustomer)).subscribe(outData => {
+          this.customerOutstanding = Array.isArray(outData) ? outData : [];
+          this.loading = false;
+        }, err => {
+          this.customerOutstanding = [];
+          this.loading = false;
+        });
       }, err => {
         this.loading = false;
       });

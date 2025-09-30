@@ -16,6 +16,8 @@ export class SupplierOutstandingReportComponent implements OnInit {
   selectedSupplier: any;
   outstandingData: any;
   loading: boolean = false;
+  activeTab: string = 'details';
+  supplierOutstanding: any[] = [];
 
   constructor(private route: ActivatedRoute, private supplierService: SupplierService) {}
 
@@ -55,6 +57,7 @@ export class SupplierOutstandingReportComponent implements OnInit {
   onSearch() {
     if (this.selectedSupplier) {
       this.loading = true;
+      // Fetch main supplier report
       this.supplierService.getSupplierWithOutstanding(Number(this.selectedSupplier)).subscribe(data => {
         if (data && Array.isArray(data.transactionDetails)) {
           data.transactionDetails = data.transactionDetails.map((txn: any) => {
@@ -77,6 +80,17 @@ export class SupplierOutstandingReportComponent implements OnInit {
         this.loading = false;
       }, err => {
         this.loading = false;
+      });
+
+      // Fetch outstanding tab data from new API
+      this.supplierService.getSupplierOutstanding(Number(this.selectedSupplier)).subscribe(outData => {
+        if (Array.isArray(outData)) {
+          this.supplierOutstanding = outData;
+        } else {
+          this.supplierOutstanding = [];
+        }
+      }, err => {
+        this.supplierOutstanding = [];
       });
     }
   }

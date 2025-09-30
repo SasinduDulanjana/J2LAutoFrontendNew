@@ -64,4 +64,10 @@ export class SupplierService {
     const url = `${this.baseUrl}/getSupplierWithOutstanding/${supplierId}`;
     return this.http.get<any>(url);
   }
+
+  // Get outstanding tab data by supplier ID (new API)
+  getSupplierOutstanding(supplierId: number): Observable<any[]> {
+    const url = `${this.baseUrl}/getSupplierOutstanding/${supplierId}`;
+    return this.http.get<any[]>(url);
+  }
 }

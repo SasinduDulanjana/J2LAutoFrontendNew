@@ -53,55 +53,96 @@
           </div>
         </div>
         <div class="card shadow-sm">
-          <div class="card-header bg-secondary text-white">
-            <h5 class="mb-0">Transaction Details</h5>
+          <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+            <ul class="nav nav-tabs card-header-tabs">
+              <li class="nav-item">
+                <a class="nav-link" [class.active]="activeTab === 'details'" (click)="activeTab = 'details'">Ledger Report</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" [class.active]="activeTab === 'outstanding'" (click)="activeTab = 'outstanding'">Outstanding Report</a>
+              </li>
+            </ul>
+            <span class="ms-auto" style="font-size: 0.92rem; font-weight: 400;">Transaction Details</span>
           </div>
           <div class="card-body">
-            <div class="table-responsive">
-              <table class="table table-striped table-hover align-middle mb-0">
-                <thead class="table-light">
-                  <tr>
-                    <th>Date & Time</th>
-                    <th>Type</th>
-                    <th>Invoice No</th>
-                    <th>Debit</th>
-                    <th>Credit</th>
-                    <th>Balance</th>
-                    <th>Payment Method</th>
-                    <th>Cheque No</th>
-                    <th>Cheque Date</th>
-                    <th>Payment Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let txn of outstandingData.transactionDetails; let i = index">
-                    <td>{{ txn.date | date:'yyyy-MM-dd HH:mm:ss' }}</td>
-                    <td>{{ txn.type }}</td>
-                      <td>{{ txn.invoiceNo == null || txn.invoiceNo == undefined ? '-' : txn.invoiceNo }}</td>
-                      <td>{{ txn.debit == null || txn.debit == undefined ? '-' : (txn.debit | number:'1.2-2') }}</td>
-                      <td>{{ txn.credit == null || txn.credit == undefined ? '-' : (txn.credit | number:'1.2-2') }}</td>
-                    <td>
-                      <span *ngIf="i === 0" [ngClass]="{'text-danger': txn.balance < 0, 'text-success': txn.balance >= 0}" style="font-weight: bold;">
-                        {{ txn.balance | number:'1.2-2' }}
-                      </span>
-                      <span *ngIf="i !== 0">
-                        {{ txn.balance | number:'1.2-2' }}
-                      </span>
-                    </td>
-                      <td>{{ txn.paymentMethod == null || txn.paymentMethod == undefined ? '-' : txn.paymentMethod }}</td>
-                      <td>{{ txn.chequeNo == null || txn.chequeNo == undefined ? '-' : txn.chequeNo }}</td>
-                      <td>{{ txn.chequeDate == null || txn.chequeDate == undefined ? '-' : txn.chequeDate }}</td>
+            <div [hidden]="activeTab !== 'details'">
+              <div class="table-responsive">
+                <table class="table table-striped table-hover align-middle mb-0">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Date & Time</th>
+                      <th>Type</th>
+                      <th>Invoice No</th>
+                      <th>Debit</th>
+                      <th>Credit</th>
+                      <th>Balance</th>
+                      <th>Payment Method</th>
+                      <th>Cheque No</th>
+                      <th>Cheque Date</th>
+                      <th>Payment Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let txn of outstandingData.transactionDetails; let i = index">
+                      <td>{{ txn.date | date:'yyyy-MM-dd HH:mm:ss' }}</td>
+                      <td>{{ txn.type }}</td>
+                        <td>{{ txn.invoiceNo == null || txn.invoiceNo == undefined ? '-' : txn.invoiceNo }}</td>
+                        <td>{{ txn.debit == null || txn.debit == undefined ? '-' : (txn.debit | number:'1.2-2') }}</td>
+                        <td>{{ txn.credit == null || txn.credit == undefined ? '-' : (txn.credit | number:'1.2-2') }}</td>
                       <td>
-                        <span [ngStyle]="{color: txn.paymentStatus === 'PENDING' ? 'red' : (txn.paymentStatus === 'CLEARED' ? 'green' : '')}">
-                          {{ txn.paymentStatus == null || txn.paymentStatus == undefined ? '-' : txn.paymentStatus }}
+                        <span *ngIf="i === 0" [ngClass]="{'text-danger': txn.balance < 0, 'text-success': txn.balance >= 0}" style="font-weight: bold;">
+                          {{ txn.balance | number:'1.2-2' }}
+                        </span>
+                        <span *ngIf="i !== 0">
+                          {{ txn.balance | number:'1.2-2' }}
                         </span>
                       </td>
-                  </tr>
-                  <tr *ngIf="!outstandingData.transactionDetails || outstandingData.transactionDetails.length === 0">
-                    <td colspan="6" class="text-center text-muted">No transactions found.</td>
-                  </tr>
-                </tbody>
-              </table>
+                        <td>{{ txn.paymentMethod == null || txn.paymentMethod == undefined ? '-' : txn.paymentMethod }}</td>
+                        <td>{{ txn.chequeNo == null || txn.chequeNo == undefined ? '-' : txn.chequeNo }}</td>
+                        <td>{{ txn.chequeDate == null || txn.chequeDate == undefined ? '-' : txn.chequeDate }}</td>
+                        <td>
+                          <span [ngStyle]="{color: txn.paymentStatus === 'PENDING' ? 'red' : (txn.paymentStatus === 'CLEARED' ? 'green' : '')}">
+                            {{ txn.paymentStatus == null || txn.paymentStatus == undefined ? '-' : txn.paymentStatus }}
+                          </span>
+                        </td>
+                    </tr>
+                    <tr *ngIf="!outstandingData.transactionDetails || outstandingData.transactionDetails.length === 0">
+                      <td colspan="10" class="text-center text-muted">No transactions found.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div [hidden]="activeTab !== 'outstanding'">
+              <div class="table-responsive">
+                <table class="table table-striped table-hover align-middle mb-0">
+                  <thead class="table-light">
+                    <tr>
+                      <th>Invoice No</th>
+                      <th>Purchase Date</th>
+                      <th>Total Amount</th>
+                      <th>Paid Amount</th>
+                      <th>Outstanding</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let item of supplierOutstanding">
+                      <td>{{ item.invoiceNumber }}</td>
+                      <td>{{ item.purchaseDate }}</td>
+                      <td>{{ item.totalAmount | number:'1.2-2' }}</td>
+                      <td>{{ item.paidAmount | number:'1.2-2' }}</td>
+                      <td>
+                        <span [ngClass]="{'text-danger': item.outstanding > 0, 'text-success': item.outstanding <= 0}">
+                          {{ item.outstanding | number:'1.2-2' }}
+                        </span>
+                      </td>
+                    </tr>
+                    <tr *ngIf="supplierOutstanding.length === 0">
+                      <td colspan="5" class="text-center text-muted">No outstanding found.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
