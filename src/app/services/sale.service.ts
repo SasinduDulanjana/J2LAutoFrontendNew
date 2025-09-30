@@ -8,6 +8,9 @@ import { BASE_URL } from '../base-url';
   providedIn: 'root'
 })
 export class SaleService {
+  createPaymentDetails(payload: any): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/createPaymentDetails`, payload);
+  }
 
   private baseUrl = BASE_URL + '/sale/api';
 

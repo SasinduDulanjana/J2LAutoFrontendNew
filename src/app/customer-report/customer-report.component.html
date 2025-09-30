@@ -41,7 +41,22 @@
               <td>{{ customer.address }}</td>
               <td>{{ customer.totalSales | number:'1.2-2' }}</td>
               <td>{{ customer.totalReturns | number:'1.2-2' }}</td>
-              <td>{{ customer.totalOutstanding | number:'1.2-2' }}</td>
+              <td>
+                    <ng-container *ngIf="customer.totalOutstanding == null || customer.totalOutstanding == undefined; else showOutstanding">
+                      <span class="badge bg-secondary" style="font-size: 0.85rem; padding: 0.25em 0.6em;">-</span>
+                    </ng-container>
+                    <ng-template #showOutstanding>
+                      <span *ngIf="customer.totalOutstanding < 0" class="badge bg-success" style="font-size: 0.85rem; padding: 0.25em 0.6em;">
+                        {{ customer.totalOutstanding | number:'1.2-2' }}
+                      </span>
+                      <span *ngIf="customer.totalOutstanding === 0" class="badge bg-success" style="font-size: 0.85rem; padding: 0.25em 0.6em;">
+                        {{ customer.totalOutstanding | number:'1.2-2' }}
+                      </span>
+                      <span *ngIf="customer.totalOutstanding > 0" class="badge bg-danger" style="font-size: 0.85rem; padding: 0.25em 0.6em; color: #ffffff;">
+                        {{ customer.totalOutstanding | number:'1.2-2' }}
+                      </span>
+                    </ng-template>
+              </td>
               <td>
                 <button class="btn btn-outline-primary btn-sm" (click)="goToOutstandingReport(customer)">View</button>
               </td>

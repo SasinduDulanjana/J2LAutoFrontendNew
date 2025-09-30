@@ -1,4 +1,8 @@
 import { Component, OnInit } from '@angular/core';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import { MatDialog } from '@angular/material/dialog';
+import { PaymentDialogComponent } from '../payment-dialog/payment-dialog.component';
 import { ActivatedRoute } from '@angular/router';
 import { SaleService } from '../services/sale.service';
 
@@ -9,15 +13,59 @@ import { SaleService } from '../services/sale.service';
 })
 export class PaymentHistoryComponent implements OnInit {
   exportToPDF() {
-    // TODO: Implement PDF export logic
-    alert('Export to PDF clicked!');
+    const doc = new jsPDF();
+  doc.setFontSize(16);
+  doc.text('Payment History', 14, 16);
+  // Add sale info as headings
+  doc.setFontSize(12);
+  doc.text(`Invoice No: ${this.sale?.invoiceNumber || '-'}`, 14, 26);
+  doc.text(`Customer: ${this.sale?.customer?.name || '-'}`, 14, 33);
+  doc.text(`Net Total: ${this.sale?.totalAmount != null ? this.sale.totalAmount : '-'}`, 14, 40);
+  doc.text(`Paid Amount: ${this.sale?.paidAmount != null ? this.sale.paidAmount : '-'}`, 14, 47);
+    const columns = [
+      { header: 'Date & Time', dataKey: 'date' },
+      { header: 'Method', dataKey: 'method' },
+      { header: 'Cheque No', dataKey: 'chequeNo' },
+      { header: 'Bank Name', dataKey: 'bankName' },
+      { header: 'Cheque Date', dataKey: 'chequeDate' },
+      { header: 'Amount', dataKey: 'amount' },
+      { header: 'Payment Status', dataKey: 'status' }
+    ];
+    const rows = this.paymentHistory.map((p: any) => ({
+      date: p.date ? new Date(p.date).toLocaleString() : '-',
+      method: p.method || '-',
+      chequeNo: p.chequeNo || '-',
+      bankName: p.bankName || '-',
+      chequeDate: p.chequeDate || '-',
+      amount: p.amount != null ? p.amount : '-',
+      status: p.status || '-'
+    }));
+    autoTable(doc, {
+      head: [columns.map(col => col.header)],
+      body: rows.map((row: any) => [
+        row.date,
+        row.method,
+        row.chequeNo,
+        row.bankName,
+        row.chequeDate,
+        row.amount,
+        row.status
+      ]),
+      startY: 54,
+      styles: { fontSize: 10 }
+    });
+    doc.save('payment-history.pdf');
   }
   invoiceNumber!: string;
   sale: any = null;
   paymentHistory: any[] = [];
   loading: boolean = false;
 
-  constructor(private route: ActivatedRoute, private saleService: SaleService) {}
+  constructor(
+    private route: ActivatedRoute,
+    private saleService: SaleService,
+    private dialog: MatDialog
+  ) {}
 
   ngOnInit(): void {
     this.invoiceNumber = this.route.snapshot.paramMap.get('id')!;
@@ -34,15 +82,22 @@ export class PaymentHistoryComponent implements OnInit {
                 totalAmount: first.payment.totalAmount || 0,
                 paidAmount: data.reduce((sum: number, item: any) => sum + (item.amount || 0), 0)
               };
-              this.paymentHistory = data.map((item: any) => ({
-                date: item.payment.paymentDate,
-                chequeNo: item.chequeNo,
-                bankName: item.bankName,
-                chequeDate: item.chequeDate,
-                amount: item.amount,
-                status: item.paymentStatus || item.payment.status || 'Unknown',
-                method: item.paymentMethod
-              }));
+                this.paymentHistory = data
+                  .map((item: any) => ({
+                    date: item.paymentDate || item.payment?.paymentDate,
+                    chequeNo: item.chequeNo,
+                    bankName: item.bankName,
+                    chequeDate: item.chequeDate,
+                    amount: item.amount,
+                    status: item.paymentStatus || item.payment?.status || 'Unknown',
+                    method: item.paymentMethod,
+                    payment: item.payment // Preserve full payment object for paymentId access
+                  }))
+                  .sort((a: any, b: any) => {
+                    const dateA = new Date(a.date).getTime();
+                    const dateB = new Date(b.date).getTime();
+                    return dateA - dateB;
+                  });
             } else {
               this.sale = null;
               this.paymentHistory = [];
@@ -58,7 +113,78 @@ export class PaymentHistoryComponent implements OnInit {
   }
 
   payBalance() {
-    // TODO: Implement payment logic or open payment dialog
-    alert('Pay Balance clicked!');
+    if (!this.sale) return;
+    const dialogRef = this.dialog.open(PaymentDialogComponent, {
+      width: '400px',
+      data: {
+        maxAmount: this.sale.totalAmount - this.sale.paidAmount,
+        paidAmount: this.sale.paidAmount
+      }
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        // Build payload for API
+        let paymentId = 0;
+        if (this.paymentHistory.length > 0 && this.paymentHistory[this.paymentHistory.length - 1].payment && this.paymentHistory[this.paymentHistory.length - 1].payment.paymentId) {
+          paymentId = this.paymentHistory[this.paymentHistory.length - 1].payment.paymentId;
+        }
+        const payload = {
+          paymentId: paymentId,
+          method: result.paymentType,
+          amount: result.paymentAmount,
+          chequeNo: result.chequeNumber || null,
+          bankName: result.bankName || null,
+          chequeDate: result.chequeDate || null,
+        };
+        this.saleService.createPaymentDetails(payload).subscribe(
+          (resp) => {
+            console.log('Payment created:', resp);
+            // Refresh payment history after successful payment
+            this.loading = true;
+            this.saleService.getPaymentsByInvoiceNumber(this.invoiceNumber).subscribe(
+              (data: any) => {
+                if (Array.isArray(data) && data.length > 0) {
+                  const first = data[0];
+                  this.sale = {
+                    invoiceNumber: first.payment.referenceId || '',
+                    customer: first.payment.customer || { name: '' },
+                    totalAmount: first.payment.totalAmount || 0,
+                    paidAmount: data.reduce((sum: number, item: any) => sum + (item.amount || 0), 0)
+                  };
+                  this.paymentHistory = data
+                    .map((item: any) => ({
+                      date: item.paymentDate || item.payment?.paymentDate,
+                      chequeNo: item.chequeNo,
+                      bankName: item.bankName,
+                      chequeDate: item.chequeDate,
+                      amount: item.amount,
+                      status: item.paymentStatus || item.payment?.status || 'Unknown',
+                      method: item.paymentMethod,
+                      payment: item.payment
+                    }))
+                    .sort((a: any, b: any) => {
+                      const dateA = new Date(a.date).getTime();
+                      const dateB = new Date(b.date).getTime();
+                      return dateA - dateB;
+                    });
+                } else {
+                  this.sale = null;
+                  this.paymentHistory = [];
+                }
+                this.loading = false;
+              },
+              error => {
+                this.loading = false;
+                this.sale = null;
+                this.paymentHistory = [];
+              }
+            );
+          },
+          (err) => {
+            console.error('Payment creation failed:', err);
+          }
+        );
+      }
+    });
   }
 }

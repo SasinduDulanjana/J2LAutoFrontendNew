@@ -35,11 +35,7 @@ export const navItems: INavDataWithRoles[] = [
         feature: 'salesReturnList',
         url: '/sales-return-list'
       },
-      {
-        name: 'Payment History',
-        url: '/payment-history/1', // Default to 1, should be dynamic in real app
-        iconComponent: { name: 'cil-money' }
-      }
+      // Removed Payment History from sidebar
       // Deleted Sales removed
       // {
       //   name: 'Hold Sales',

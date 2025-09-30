@@ -1,7 +1,6 @@
-
 <div *ngIf="loading" class="loading-overlay">
   <div class="spinner"></div>
-  <span>Loading payment history...</span>
+  <span>Loading Payment History...</span>
 </div>
 <div class="container py-4">
   <div class="card shadow-sm mb-4">
@@ -47,7 +46,7 @@
               <table class="table table-hover align-middle mb-0">
                 <thead class="table-light">
                   <tr>
-                    <th>Date</th>
+                    <th>Date & Time</th>
                     <th>Method</th>
                     <th>Cheque No</th>
                     <th>Bank Name</th>
@@ -58,7 +57,7 @@
                 </thead>
                 <tbody>
                   <tr *ngFor="let payment of paymentHistory">
-                    <td>{{ payment.date }}</td>
+                    <td>{{ payment.date | date:'yyyy-MM-dd HH:mm:ss' }}</td>
                     <td>{{ payment.method }}</td>
                     <td>{{ payment.chequeNo ? payment.chequeNo : '-' }}</td>
                     <td>{{ payment.bankName ? payment.bankName : '-' }}</td>
@@ -72,10 +71,10 @@
                         'status-badge failed': payment.status === 'Failed',
                         'status-badge unknown': payment.status !== 'Paid' && payment.status !== 'Cleared' && payment.status !== 'Pending' && payment.status !== 'Failed'
                       }">
-                        <svg *ngIf="payment.status === 'Paid' || payment.status === 'Cleared'" cIcon name="cil-check-circle" class="badge-icon"></svg>
-                        <svg *ngIf="payment.status === 'Pending'" cIcon name="cil-clock" class="badge-icon"></svg>
-                        <svg *ngIf="payment.status === 'Failed'" cIcon name="cil-x-circle" class="badge-icon"></svg>
-                        <svg *ngIf="payment.status !== 'Paid' && payment.status !== 'Cleared' && payment.status !== 'Pending' && payment.status !== 'Failed'" cIcon name="cil-info" class="badge-icon"></svg>
+                        <svg *ngIf="payment.status === 'Paid' || payment.status === 'Cleared'"  class="badge-icon"></svg>
+                        <svg *ngIf="payment.status === 'Pending'"  class="badge-icon"></svg>
+                        <svg *ngIf="payment.status === 'Failed'"  class="badge-icon"></svg>
+                        <svg *ngIf="payment.status !== 'Paid' && payment.status !== 'Cleared' && payment.status !== 'Pending' && payment.status !== 'Failed'" class="badge-icon"></svg>
                         {{ payment.status }}
                       </span>
                     </td>

@@ -39,15 +39,15 @@
               <span class="fw-bold text-dark">Paid Amount</span>
               <div class="fw-bold text-primary">{{ sale.paidAmount | number:'1.2-2' }}</div>
             </div>
-            <div class="col-md-1">
+            <!-- <div class="col-md-1">
               <span class="fw-bold text-dark">Payment Type</span>
               <span class="badge bg-secondary ms-1">{{ sale.paymentMethod || 'N/A' }}</span>
-            </div>
-            <div class="col-md-1 text-end">
+            </div> -->
+            <!-- <div class="col-md-1 text-end">
               <span class="fw-bold text-dark me-2">Payment Status:</span>
               <span *ngIf="sale.isFullyPaid" class="badge bg-success">Fully Paid</span>
               <span *ngIf="!sale.isFullyPaid" class="badge bg-warning text-dark">Not Fully Paid</span>
-            </div>
+            </div> -->
           </div>
         </div>
         <h5 class="mt-4 mb-3 fw-bold text-dark">Sold Products & Return Details</h5>

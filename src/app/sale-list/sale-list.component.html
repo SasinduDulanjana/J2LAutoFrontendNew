@@ -30,6 +30,7 @@
               <th>Net Total</th>
               <th>Created At</th>
               <th>Products</th>
+              <th>Outstanding</th>
           <th>Payment Details</th>
             </tr>
           </thead>
@@ -45,6 +46,14 @@
               <td>{{ sale.saleDate }}</td>
               <td>
                 <button (click)="openProductListPopupForSale(sale)" cButton color="light" style="min-width: 100px;">Products</button>
+              </td>
+              <td>
+                <span *ngIf="sale.outstandingBalance > 0" class="badge bg-danger" style="font-size: 1rem; padding: 0.5em 1em;">
+                  {{ sale.outstandingBalance }}
+                </span>
+                <span *ngIf="sale.outstandingBalance === 0" class="badge bg-success" style="font-size: 1rem; padding: 0.5em 1em;">
+                  {{ sale.outstandingBalance }}
+                </span>
               </td>
               <td>
                 <button (click)="goToPaymentDetails(sale)" cButton color="info" style="min-width: 120px;">Payment Details</button>
