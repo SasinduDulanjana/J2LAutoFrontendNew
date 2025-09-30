@@ -35,20 +35,20 @@
               <span class="fw-bold text-dark">Total Amount</span>
               <div class="fw-bold text-success">{{ purchase.totalCost | number:'1.2-2' }}</div>
             </div>
-            <div class="col-md-2">
+            <!-- <div class="col-md-2">
               <span class="fw-bold text-dark">Paid Amount</span>
               <div class="fw-bold text-primary">{{ purchase.paidAmount | number:'1.2-2' }}</div>
-            </div>
+            </div> -->
             <!-- <div class="col-md-2">
               <span class="fw-bold text-dark">Payment Type</span>
               <span class="badge bg-secondary ms-1">{{ purchase.paymentType || 'N/A' }}</span>
             </div> -->
-            <div class="col-md-2">
+            <!-- <div class="col-md-2">
               <span class="fw-bold text-dark">Payment Status</span>
               <span class="badge" [ngClass]="purchase.isFullyPaid ? 'bg-success' : 'bg-warning text-dark'">
                 {{ purchase.isFullyPaid ? 'Fully Paid' : 'Partially Paid' }}
               </span>
-            </div>
+            </div> -->
           </div>
         </div>
         <h5 class="mt-4 mb-3 fw-bold text-dark">Purchased Products & Return Details</h5>

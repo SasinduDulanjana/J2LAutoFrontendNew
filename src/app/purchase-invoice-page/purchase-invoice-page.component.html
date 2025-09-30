@@ -1,0 +1,63 @@
+<div class="bill-popup-container">
+  <div class="bill-popup-header">
+    <div class="company-info">
+      <div class="company-name">SmartPOS Solutions Pvt Ltd</div>
+      <div class="company-address">123 Main Street, Colombo, Sri Lanka</div>
+      <div class="company-contact">Tel: +94 11 123 4567 | Email: info@smartpos.lk</div>
+    </div>
+    <div class="bill-title">Sale Invoice</div>
+    <div class="bill-meta">
+      <div><span class="meta-label">Invoice No:</span> <span class="meta-value">{{ invoiceData.invoiceNumber }}</span></div>
+      <div><span class="meta-label">Date:</span> <span class="meta-value">{{ invoiceData.currentDate }}</span></div>
+      <!-- <div><span class="meta-label">Customer:</span> <span class="meta-value">{{ invoiceData.selectedCustomerName }}</span></div> -->
+      <!-- <div><span class="meta-label">User:</span> <span class="meta-value">{{ invoiceData.loggedUserName }}</span></div> -->
+    </div>
+  </div>
+
+  <table class="bill-popup-table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Product Name</th>
+        <th>Batch</th>
+        <th>Qty</th>
+        <th>Unit Price</th>
+        <th>Discount (%)</th>
+        <th>Discount</th>
+        <th>Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let item of invoiceData.saleItems; let i = index">
+        <td>{{ i + 1 }}</td>
+        <td>{{ item.productName }}</td>
+        <td>{{ item.batchNo }}</td>
+        <td>{{ item.remainingQty }}</td>
+        <td>{{ item.retailPrice | currency: 'LKR ' }}</td>
+        <td>{{ item.discountPercentage ?? 0 }}%</td>
+        <td>{{ ((item.discountPercentage ?? 0) / 100 * (item.retailPrice ?? 0) * (item.remainingQty ?? 0)) | currency: 'LKR ' }}</td>
+        <td>{{ ((item.remainingQty ?? 0) * (item.retailPrice ?? 0) - ((item.discountPercentage ?? 0) / 100 * (item.retailPrice ?? 0) * (item.remainingQty ?? 0))) | currency: 'LKR ' }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="bill-popup-summary">
+    <div class="summary-row"><span>Subtotal:</span> <span>{{ invoiceData.subtotal | currency: 'LKR ' }}</span></div>
+    <div class="summary-row"><span>Line Wise Discount Total:</span> <span>{{ invoiceData.totalDiscount | currency: 'LKR ' }}</span></div>
+    <div class="summary-row"><span>Bill Wise Discount (%):</span> <span>{{ invoiceData.billWiseDiscountPercentage }}%</span></div>
+    <div class="summary-row"><span>Bill Wise Discount Total:</span> <span>{{ invoiceData.billWiseDiscountTotal | currency: 'LKR ' }}</span></div>
+    <div class="summary-row net-total"><span>Net Total:</span> <span>{{ invoiceData.netTotal | currency: 'LKR ' }}</span></div>
+    <div class="summary-row"><span>Paid Amount:</span> <span>{{ invoiceData.saleItem.paidAmount | currency: 'LKR ' }}</span></div>
+    <div class="summary-row"><span>Status:</span> <span class="status-value" [ngClass]="{'paid': invoiceData.saleItem.isFullyPaid, 'unpaid': !invoiceData.saleItem.isFullyPaid}">{{ invoiceData.saleItem.isFullyPaid ? 'Fully Paid' : 'Partially Paid' }}</span></div>
+  </div>
+
+  <div class="bill-popup-actions">
+    <button (click)="printBill()" class="btn btn-success"><i class="fa fa-print"></i> Print Bill</button>
+    <button (click)="startNewTransaction()" class="btn btn-success" style="margin-left: 12px;"><i class="fa fa-plus"></i> New Transaction</button>
+  </div>
+
+  <div class="bill-popup-footer">
+    <div class="thank-you">Thank you for your business!</div>
+    <div class="footer-note">This is a system generated invoice. If you have any questions, contact us at info@smartpos.lk</div>
+  </div>
+</div>

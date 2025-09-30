@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { PurchaseService } from '../services/purchase.service'; // Correct path to the service
 import { Purchase } from '../models/purchase.model'; // Correct path to the model
 import { Product } from '../models/product.model';
@@ -7,9 +8,12 @@ import { ProductService } from '../services/product.service';
 import { Supplier } from '../models/supplier.model'; // Correct path to the model
 import { Batch } from '../models/batch.model';
 import { MatDialog } from '@angular/material/dialog';
+import { PaymentDialogComponent } from '../payment-dialog/payment-dialog.component';
 import { QuantityInputComponent } from '../quantity-input/quantity-input.component';
 import { CreateSupplierComponent } from '../create-supplier/create-supplier.component';
 import { SuccessDialogComponent } from '../success-dialog/success-dialog.component';
+import { BillDialogComponent } from '../bill/bill-dialog.component';
+import { FailureDialogComponent } from '../failure-dialog/failure-dialog.component';
 
 
 @Component({
@@ -17,8 +21,8 @@ import { SuccessDialogComponent } from '../success-dialog/success-dialog.compone
   templateUrl: './create-purchase.component.html',
   styleUrls: ['./create-purchase.component.scss']
 })
-export class CreatePurchaseComponent implements OnInit{
-
+export class CreatePurchaseComponent implements OnInit {
+  isLoadingInvoice: boolean = false;
   suppliers: Supplier[] = [];
   selectedSupplierId: number = 0;
   purchase: Purchase = new Purchase(0,'', '', '', '', '', [], 0, 0, false); // Initialize with empty values or defaults
@@ -27,11 +31,19 @@ export class CreatePurchaseComponent implements OnInit{
   allProducts: Product[] = []; // Holds the complete list of products
   batchNumbers: { [sku: string]: Batch[] } = {};
   selectedTab: number = 1;
-  paidAmount: number = 0; // New field for paid amount
+  paidAmount: number = 0;
   paymentType: string = '';
   chequeNumber: string = '';
+  bankName: string = '';
+  chequeDate: string = '';
 
-  constructor(private purchaseService: PurchaseService,private productService: ProductService, private supplierService: SupplierService,private dialog: MatDialog) { }
+  constructor(
+    private purchaseService: PurchaseService,
+    private productService: ProductService,
+    private supplierService: SupplierService,
+    private dialog: MatDialog,
+    private router: Router
+  ) { }
 
   // Handler for adding a new batch for a product
   addNewBatch(product: Product): void {
@@ -54,17 +66,35 @@ export class CreatePurchaseComponent implements OnInit{
     this.purchase.invoiceDate = today.toISOString().slice(0, 10);
   }
 
-  createPurchase(): void {
-    // Calculate total cost
+  openPaymentDialog(): void {
     const totalCost = this.calculateTotalCost();
-    // Use the paidAmount entered by the user
+    const dialogRef = this.dialog.open(PaymentDialogComponent, {
+      width: '400px',
+      data: {
+        maxAmount: totalCost,
+        paidAmount: this.paidAmount
+      }
+    });
+    dialogRef.afterClosed().subscribe((result: any) => {
+      if (result) {
+        this.paidAmount = result.paymentAmount;
+        this.paymentType = result.paymentType;
+        this.chequeNumber = result.chequeNumber || '';
+        this.bankName = result.bankName || '';
+        this.chequeDate = result.chequeDate || '';
+          this.createPurchase(); // Start loading
+        // Navigation to invoice page will now happen only on successful API response inside createPurchase()
+      }
+    });
+  }
+
+  createPurchase(): void {
+      this.isLoadingInvoice = true; // Set loading state
+    const totalCost = this.calculateTotalCost();
     const paidAmount = this.paidAmount;
     const paymentType = this.paymentType;
-    // Determine if fully paid
     const isFullyPaid = paidAmount >= totalCost;
-    // Set paymentStatus automatically
     const paymentStatus = isFullyPaid ? 'Paid' : 'Unpaid';
-
     const newPurchase: any = {
       purchaseName: this.purchase.purchaseName,
       invoiceNumber: this.purchase.invoiceNumber,
@@ -76,31 +106,64 @@ export class CreatePurchaseComponent implements OnInit{
       supId: this.selectedSupplierId,
       totalCost: totalCost,
       paidAmount: paidAmount,
-      isFullyPaid: isFullyPaid
+      isFullyPaid: isFullyPaid,
+      chequeNumber: this.chequeNumber,
+      bankName: this.bankName,
+      chequeDate: this.chequeDate
     };
-    if (paymentType === 'Cheque') {
-      newPurchase.chequeNumber = this.chequeNumber;
-    }
-
-    console.log(newPurchase);
-
     this.purchaseService.createPurchase(newPurchase)
       .subscribe(response => {
-        console.log('Purchase created:', response);
-        const dialogRef = this.dialog.open(SuccessDialogComponent, {
-          data: { message: 'Purchase created successfully!' }
-        });
-        dialogRef.afterClosed().subscribe(() => {
-          // Preserve invoice date when resetting the form
-          const currentInvoiceDate = this.purchase.invoiceDate;
-          this.purchase = new Purchase(0, '', '', '', '', '', [], 0, 0, false);
-          this.purchase.invoiceDate = currentInvoiceDate;
-          this.selectedSupplierId = 0;
-          this.paidAmount = 0;
-          this.paymentType = '';
-        });
+        // Only reset form if not navigating to invoice
+        // Navigation to invoice is now handled here on success
+        const token = localStorage.getItem('token');
+        let loggedUserName = '';
+        if (token) {
+          try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            loggedUserName = payload.sub || '';
+          } catch {}
+        }
+        const invoiceData = {
+          invoiceNumber: this.purchase.invoiceNumber,
+          currentDate: this.purchase.invoiceDate,
+          selectedCustomerName: this.suppliers.find(s => s.supId === this.selectedSupplierId)?.name || '',
+          loggedUserName,
+          saleItems: this.purchase.products,
+          billWiseDiscountPercentage: 0,
+          saleItem: {
+            paidAmount: this.paidAmount,
+            isFullyPaid: this.paidAmount >= this.calculateTotalCost()
+          },
+          subtotal: this.calculateTotalCost(),
+          totalDiscount: 0,
+          billWiseDiscountTotal: 0,
+          netTotal: this.calculateTotalCost()
+        };
+        this.router.navigate(['/purchase-invoice'], { state: { invoiceData } });
+          this.isLoadingInvoice = false; // Reset loading state
+        // Reset form after navigation
+        const currentInvoiceDate = this.purchase.invoiceDate;
+        this.purchase = new Purchase(0, '', '', '', '', '', [], 0, 0, false);
+        this.purchase.invoiceDate = currentInvoiceDate;
+        this.selectedSupplierId = 0;
+        this.paidAmount = 0;
+        this.paymentType = '';
+        this.chequeNumber = '';
+        this.bankName = '';
+        this.chequeDate = '';
       }, error => {
+        this.dialog.open(FailureDialogComponent, {
+          data: { message: 'Error creating purchase ' }
+        });
         console.error('Error creating purchase:', error);
+          this.isLoadingInvoice = false; // Reset loading state on error
+        // Reset payment fields so dialog starts fresh after failure
+        this.paidAmount = 0;
+        this.paymentType = '';
+        this.chequeNumber = '';
+        this.bankName = '';
+        this.chequeDate = '';
+        // Do NOT navigate to invoice page on error
       });
   }
 

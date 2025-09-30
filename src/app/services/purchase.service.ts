@@ -62,9 +62,30 @@ export class PurchaseService {
     return this.http.get<Purchase>(url);
   }
 
-  // ...other methods...
+  // ...existing code...
 
-    savePurchaseReturn(data: any): Observable<any> {
-      return this.http.post<any>(`${this.baseUrl}/purchaseReturn`, data);
-    }
+  /**
+   * Fetch payment details by purchaseId
+   */
+  getPaymentDetailsByPurchaseId(purchaseId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/getPaymentDetailsByPurchaseId/${purchaseId}`);
+  }
+
+  /**
+   * Create payment details for a purchase
+   */
+  createPaymentDetails(payload: {
+    paymentId: number;
+    method: string;
+    amount: number;
+    chequeNo?: string;
+    bankName?: string;
+    chequeDate?: string;
+  }): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/createPaymentDetails`, payload);
+  }
+
+  savePurchaseReturn(data: any): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/purchaseReturn`, data);
+  }
 }

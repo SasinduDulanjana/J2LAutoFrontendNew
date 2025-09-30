@@ -36,6 +36,12 @@ import { ViewProductsDialogComponent } from './view-products-dialog.component';
   styleUrls: ['./purchase-list.component.scss']
 })
 export class PurchaseListComponent implements OnInit {
+  loadingProducts: boolean = false;
+  loading: boolean = false;
+  goToPaymentDetails(purchase: PurchaseListItem) {
+    const id = purchase.purchaseId ?? purchase.supId ?? 0;
+    this.router.navigate(['/purchase-payment-details', id]);
+  }
   purchases: PurchaseListItem[] = [];
   filteredPurchases: PurchaseListItem[] = [];
   searchQuery: string = '';
@@ -49,8 +55,9 @@ export class PurchaseListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Fetch suppliers first
-    this.supplierService.findAllSuppliers().subscribe({
+  this.loading = true;
+  // Fetch suppliers first
+  this.supplierService.findAllSuppliers().subscribe({
       next: (suppliers: Supplier[]) => {
         console.log('Suppliers loaded:', suppliers);
         this.suppliers = suppliers;
@@ -80,14 +87,17 @@ export class PurchaseListComponent implements OnInit {
             });
             console.log('Mapped purchases:', this.purchases);
             this.filteredPurchases = [...this.purchases];
+            this.loading = false;
           },
           error: err => {
             console.error('Error loading purchases:', err);
+            this.loading = false;
           }
         });
       },
       error: err => {
         console.error('Error loading suppliers:', err);
+        this.loading = false;
       }
     });
   }
@@ -115,6 +125,7 @@ export class PurchaseListComponent implements OnInit {
   }
 
   viewProducts(purchase: PurchaseListItem) {
+    this.loadingProducts = true;
     const id = purchase.purchaseId ?? purchase.supId ?? 0;
     this.purchaseService.getPurchaseById(id).subscribe({
       next: (fullPurchase: any) => {
@@ -128,6 +139,7 @@ export class PurchaseListComponent implements OnInit {
               purchaseId: fullPurchase.purchaseId ?? fullPurchase.id,
             }
           });
+          this.loadingProducts = false;
         } else if (Array.isArray(fullPurchase.products) && fullPurchase.products.length > 0) {
           // If products is an array of IDs, fetch each product
           const productRequests = fullPurchase.products.map((id: number) =>
@@ -139,6 +151,7 @@ export class PurchaseListComponent implements OnInit {
                 width: '700px',
                 data: { products: products as any[] }
               });
+              this.loadingProducts = false;
             },
             (err) => {
               console.error('Failed to load products for purchase', err);
@@ -146,6 +159,7 @@ export class PurchaseListComponent implements OnInit {
                 width: '700px',
                 data: { products: [] }
               });
+              this.loadingProducts = false;
             }
           );
         } else {
@@ -154,6 +168,7 @@ export class PurchaseListComponent implements OnInit {
             width: '700px',
             data: { products: [] }
           });
+          this.loadingProducts = false;
         }
       },
       error: err => {
@@ -162,6 +177,7 @@ export class PurchaseListComponent implements OnInit {
           width: '700px',
           data: { products: [] }
         });
+        this.loadingProducts = false;
       }
     });
   }

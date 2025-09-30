@@ -77,6 +77,11 @@ const routes: Routes = [
         data: { title: 'Inventory List' }
       },
       {
+        path: 'purchase-invoice',
+        loadChildren: () => import('./purchase-invoice-page/purchase-invoice-page.module').then(m => m.PurchaseInvoicePageModule),
+        data: { title: 'Purchase Invoice' }
+      },
+      {
         path: 'invoice',
         loadChildren: () => import('./invoice-page/invoice-page.module').then(m => m.InvoicePageModule),
         data: { title: 'Sale Invoice' }
