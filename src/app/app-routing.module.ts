@@ -39,6 +39,7 @@ import { ProductReportComponent } from './product-report/product-report.componen
 import { CustomerReportComponent } from './customer-report/customer-report.component';
 import { CustomerOutstandingReportComponent } from './customer-outstanding-report/customer-outstanding-report.component';
 import { SupplierOutstandingReportComponent } from './supplier-outstanding-report/supplier-outstanding-report.component';
+import { ChequeManagementComponent } from './cheque-management/cheque-management.component';
 import { SupplierReportComponent } from './supplier-report/supplier-report.component';
 import { ProfitLossComponent } from './profit-loss/profit-loss.component';
 import { SalesReturnComponent } from './views/sales-return/sales-return.component';
@@ -321,6 +322,13 @@ const routes: Routes = [
           title: 'Profit and Loss'
         }
       },
+        {
+          path: 'cheque-management',
+          component: ChequeManagementComponent,
+          data: {
+            title: 'Cheque Management'
+          }
+        },
       {
         path: 'sales-return',
         component: SalesReturnComponent,

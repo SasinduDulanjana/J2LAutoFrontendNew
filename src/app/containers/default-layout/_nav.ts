@@ -177,7 +177,6 @@ export const navItems: INavDataWithRoles[] = [
         name: 'Inventory Report',
         url: '/inventory-report'
       },
-
       {
         name: 'Customer Report',
         url: '/customer-report'
@@ -189,6 +188,10 @@ export const navItems: INavDataWithRoles[] = [
       {
         name: 'Profit and Loss',
         url: '/profit-loss'
+      },
+      {
+        name: 'Cheque Management',
+        url: '/cheque-management'
       }
     ]
   },

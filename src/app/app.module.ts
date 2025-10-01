@@ -103,6 +103,8 @@ import { CustomerReportComponent } from './customer-report/customer-report.compo
 import { SupplierReportComponent } from './supplier-report/supplier-report.component';
 import { CustomerOutstandingReportComponent } from './customer-outstanding-report/customer-outstanding-report.component';
 import { SupplierOutstandingReportComponent } from './supplier-outstanding-report/supplier-outstanding-report.component';
+import { ChequeManagementComponent } from './cheque-management/cheque-management.component';
+import { PaymentService } from './services/payment.service';
 import { ProfitLossComponent } from './profit-loss/profit-loss.component';
 import { InventoryListComponent } from './inventory-list/inventory-list.component';
 import { SalesReturnComponent } from './views/sales-return/sales-return.component';
@@ -120,7 +122,7 @@ const APP_CONTAINERS = [
 ];
 
 @NgModule({
-  declarations: [AppComponent, ...APP_CONTAINERS, CreateCustomerComponent, LoginComponent, CustomerListComponent, EditCustomerComponent, CreateSupplierComponent, EditSupplierComponent, SupplierListComponent, ProductListComponent, CategoryListComponent, CreateProductComponent, EditProductComponent, EditCategoryComponent, CreateCategoryComponent, CreatePurchaseComponent, PurchaseListComponent, ViewProductsDialogComponent, CreateSaleComponent, SaleListComponent, PopupCustomerListComponent, SuccessDialogComponent, FailureDialogComponent, QuantityInputComponent, BatchSelectionComponent, DiscountInputComponent, DiscountBillWiseComponent, PaymentDialogComponent, DeletedSaleListComponent, HoldSaleListComponent, PartiallyPaidSaleListComponent, ProductListPopupComponent, RolesComponent, UsersComponent, SaleReportComponent, PurchaseReportComponent, InventoryReportComponent, ProductReportComponent, CustomerReportComponent, SupplierReportComponent, ProfitLossComponent, SalesReturnComponent, PurchaseReturnComponent, SalesReturnListComponent, PurchaseReturnListComponent, RolePermissionsComponent, BillComponent, BillDialogComponent, InventoryListComponent, LoadingDialogComponent, CustomerOutstandingReportComponent, PaymentHistoryComponent, SupplierOutstandingReportComponent],
+  declarations: [AppComponent, ...APP_CONTAINERS, CreateCustomerComponent, LoginComponent, CustomerListComponent, EditCustomerComponent, CreateSupplierComponent, EditSupplierComponent, SupplierListComponent, ProductListComponent, CategoryListComponent, CreateProductComponent, EditProductComponent, EditCategoryComponent, CreateCategoryComponent, CreatePurchaseComponent, PurchaseListComponent, ViewProductsDialogComponent, CreateSaleComponent, SaleListComponent, PopupCustomerListComponent, SuccessDialogComponent, FailureDialogComponent, QuantityInputComponent, BatchSelectionComponent, DiscountInputComponent, DiscountBillWiseComponent, PaymentDialogComponent, DeletedSaleListComponent, HoldSaleListComponent, PartiallyPaidSaleListComponent, ProductListPopupComponent, RolesComponent, UsersComponent, SaleReportComponent, PurchaseReportComponent, InventoryReportComponent, ProductReportComponent, CustomerReportComponent, SupplierReportComponent, ProfitLossComponent, SalesReturnComponent, PurchaseReturnComponent, SalesReturnListComponent, PurchaseReturnListComponent, RolePermissionsComponent, BillComponent, BillDialogComponent, InventoryListComponent, LoadingDialogComponent, CustomerOutstandingReportComponent, PaymentHistoryComponent, SupplierOutstandingReportComponent, ChequeManagementComponent],
   imports: [
     BrowserModule,
     CommonModule,
@@ -173,7 +175,8 @@ const APP_CONTAINERS = [
     CustomerService,
     AuthService,
   AuthGuard,
-  SupplierService
+  SupplierService,
+  PaymentService
   ],
   bootstrap: [AppComponent],
 })
