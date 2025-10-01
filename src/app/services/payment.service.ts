@@ -7,6 +7,12 @@ import { BASE_URL } from '../base-url';
   providedIn: 'root'
 })
 export class PaymentService {
+  editChequeStatus(chequeNo: string, status: string): Observable<any> {
+    return this.http.put(
+      `${BASE_URL}/payments/api/updateChequeStatus/${encodeURIComponent(chequeNo)}/${encodeURIComponent(status)}`,
+      {}
+    );
+  }
   constructor(private http: HttpClient) {}
 
   getAllChequeDetails(): Observable<any[]> {
