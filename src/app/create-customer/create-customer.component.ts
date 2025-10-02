@@ -13,7 +13,9 @@ import { FailureDialogComponent } from '../failure-dialog/failure-dialog.compone
   styleUrls: ['./create-customer.component.scss']
 })
 export class CreateCustomerComponent {
+  companyName: string = '';
   customer: Customer = new Customer('', '', '', ''); // Initialize with empty values or defaults
+  countryCode: string = '+94';
   phoneExists: boolean = false;
   loading: boolean = false;
 
@@ -32,7 +34,13 @@ export class CreateCustomerComponent {
       return;
     }
     this.loading = true;
-    this.customerService.createCustomer(this.customer)
+    // Concatenate company name with customer name, and country code with phone before sending
+    const payload = {
+      ...this.customer,
+      name: this.companyName ? `${this.companyName} ${this.customer.name}` : this.customer.name,
+      phone: `${this.countryCode}${this.customer.phone}`
+    };
+    this.customerService.createCustomer(payload)
       .subscribe(response => {
         this.loading = false;
         console.log('Customer created:', response);
@@ -43,6 +51,8 @@ export class CreateCustomerComponent {
         dialogRef.afterClosed().subscribe(() => {
           // Reset the form fields
           this.customer = new Customer('', '', '', '');
+          this.companyName = '';
+          this.countryCode = '+94';
         });
       }, error => {
         this.loading = false;

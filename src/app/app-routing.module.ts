@@ -46,20 +46,13 @@ import { SalesReturnComponent } from './views/sales-return/sales-return.componen
 import { PurchaseReturnComponent } from './views/purchase-return/purchase-return.component';
 import { RolePermissionsComponent } from './role-permissions/role-permissions.component';
 import { InventoryListComponent } from './inventory-list/inventory-list.component';
+import { CustomerSaleViewComponent } from './customer-sale-view/customer-sale-view.component';
 
 const routes: Routes = [
-  {
-    path: '',
-    redirectTo: 'login',
-    pathMatch: 'full'
-  },
-  {
-    path: 'login',
-    component: LoginComponent,
-    data: {
-      title: 'Login Page'
-    },
-  },
+  // Public customer sale view route (standalone, no admin layout)
+  { path: 'public/sale/:id', component: CustomerSaleViewComponent },
+
+  // Admin routes (protected, with layout)
   {
     path: '',
     component: DefaultLayoutComponent,

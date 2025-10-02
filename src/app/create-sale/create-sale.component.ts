@@ -495,11 +495,10 @@ export class CreateSaleComponent implements OnInit {
           this.saleService.createSale(this.saleItem).subscribe({
             next: response => {
               this.loadingDialogRef.close();
-              console.log('ssss', response);
               if (response.statusCode == 201) {
                 this.invoiceNumber = response.invoiceNumber;
-                console.log('Sale created with Invoice Number:', this.invoiceNumber);
-                console.log('Sale created successfully:', response);
+                // Call SMS API after sale creation
+                this.saleService.sendSaleDetailsSms(response.saleId || response.id).subscribe();
                 // Prepare invoice data for navigation
                 const invoiceData = {
                   invoiceNumber: this.invoiceNumber,

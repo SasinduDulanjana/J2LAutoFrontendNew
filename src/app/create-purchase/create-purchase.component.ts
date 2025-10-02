@@ -53,17 +53,19 @@ export class CreatePurchaseComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.supplierService.findAllSuppliers().subscribe(data => {
-      this.suppliers = data;
-    });
-
+    this.fetchSuppliers();
     this.productService.getAllProducts().subscribe(data => {
       this.allProducts = data;
     });
-
     // Set invoice date to current date (YYYY-MM-DD)
     const today = new Date();
     this.purchase.invoiceDate = today.toISOString().slice(0, 10);
+  }
+
+  fetchSuppliers(): void {
+    this.supplierService.findAllSuppliers().subscribe(data => {
+      this.suppliers = data;
+    });
   }
 
   openPaymentDialog(): void {
@@ -260,15 +262,15 @@ export class CreatePurchaseComponent implements OnInit {
 
   openCreateSupplierPopup() {
     const dialogRef = this.dialog.open(CreateSupplierComponent, {
-      width: '800px', // Adjust the width as needed
-      data: {} // You can pass data to the dialog here if needed
+      width: '800px',
+      data: {}
     });
-  
+
     dialogRef.afterClosed().subscribe(result => {
+      // If result is truthy, assume supplier was created and refresh supplier list
       if (result) {
-        // Handle any actions after the dialog closes, if necessary
-        console.log('The dialog was closed', result);
-        // Optionally, you can refresh the supplier list or perform other actions
+        this.fetchSuppliers();
+        console.log('Supplier created, refreshed supplier list');
       }
     });
   }

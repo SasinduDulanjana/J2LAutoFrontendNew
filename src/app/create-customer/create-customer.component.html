@@ -12,7 +12,11 @@
     </div>
     <div class="card-body">
       <form (ngSubmit)="createCustomer()" #customerForm="ngForm" cForm class="row g-4">
-        <c-col [md]="12">
+        <c-col [md]="6">
+          <label cLabel for="companyName">Company Name</label>
+          <input cFormControl id="companyName" type="text" [(ngModel)]="companyName" name="companyName" minlength="2" />
+        </c-col>
+        <c-col [md]="6">
           <label cLabel for="name">Customer Name</label>
           <input cFormControl id="name" type="text" [(ngModel)]="customer.name" name="name" required #name="ngModel" minlength="2" />
           <div *ngIf="name.invalid && (name.dirty || name.touched)" class="text-danger small">
@@ -30,10 +34,19 @@
         </c-col>
         <c-col [md]="6">
           <label cLabel for="phone">Phone Number</label>
-          <input cFormControl id="phone" type="text" [(ngModel)]="customer.phone" name="phone" required #phone="ngModel" pattern="^[0-9]{10,15}$" (ngModelChange)="onPhoneChange($event)" />
+          <div class="input-group">
+            <select class="form-select" style="max-width:110px; min-width:90px; text-align:left; padding-right:1.5em;" name="countryCode" required>
+              <option value="+94">+94&nbsp;&nbsp;LK</option>
+              <option value="+91">+91&nbsp;&nbsp;IN</option>
+              <option value="+1">+1&nbsp;&nbsp;US</option>
+              <option value="+44">+44&nbsp;&nbsp;UK</option>
+              <!-- Add more country codes as needed -->
+            </select>
+            <input cFormControl id="phone" type="text" [(ngModel)]="customer.phone" name="phone" required #phone="ngModel" pattern="^[0-9]{7,15}$" (ngModelChange)="onPhoneChange($event)" class="form-control" />
+          </div>
           <div *ngIf="phone.invalid && (phone.dirty || phone.touched)" class="text-danger small">
             <div *ngIf="phone.errors?.['required']">Phone number is required.</div>
-            <div *ngIf="phone.errors?.['pattern']">Phone number must be 10-15 digits.</div>
+            <div *ngIf="phone.errors?.['pattern']">Phone number must be 7-15 digits.</div>
           </div>
           <div *ngIf="phoneExists" class="text-danger small">Phone number already exists!</div>
         </c-col>

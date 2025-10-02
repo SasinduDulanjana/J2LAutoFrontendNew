@@ -8,6 +8,7 @@ export class SaleProduct {
   discountAmount: number;
   retailPrice: number;
   batchNo?: string;
+  productDeliveryStatus?: string;
 
   constructor(
     product: Product,

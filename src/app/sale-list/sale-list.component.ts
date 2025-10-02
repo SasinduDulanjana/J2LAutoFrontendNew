@@ -14,6 +14,7 @@ import { CustomerService } from '../services/customer.service';
   styleUrls: ['./sale-list.component.scss']
 })
 export class SaleListComponent {
+  productLoadingIndex: number|null = null;
   goToPaymentDetails(sale: any): void {
     const invoiceNumber = sale.invoiceNumber;
     this.router.navigate(['/payment-history', invoiceNumber]);
@@ -38,10 +39,10 @@ export class SaleListComponent {
   ngOnInit(): void {
     this.loading = true;
     this.saleService.findAllSales().subscribe(data => {
-      // Sort by invoiceNumber ascending
+      // Sort by invoiceNumber descending
       data.sort((a: any, b: any) => {
-        if (a.invoiceNumber < b.invoiceNumber) return -1;
-        if (a.invoiceNumber > b.invoiceNumber) return 1;
+        if (a.invoiceNumber < b.invoiceNumber) return 1;
+        if (a.invoiceNumber > b.invoiceNumber) return -1;
         return 0;
       });
       this.sales = data;
@@ -114,20 +115,21 @@ export class SaleListComponent {
     this.router.navigate(['/partiallyPaid-sale-list']);
   }
 
-  openProductListPopupForSale(sale: any): void {
-    // Use sale.saleId if available, otherwise fallback to sale.id
-    const saleId = sale.saleId || sale.id;
-    if (!saleId) {
-      alert('Sale ID not found!');
-      return;
-    }
-    this.saleService.getProductsForSale(saleId).subscribe(products => {
-      this.dialog.open(ProductListPopupComponent, {
-        width: 'auto',
-        maxWidth: 'none',
-        data: { products }
+  openProductListPopupForSale(sale: any, index: number): void {
+    this.productLoadingIndex = index;
+    setTimeout(() => {
+      const saleId = sale.saleId || sale.id;
+      if (!saleId) {
+        alert('Sale ID not found!');
+        return;
+      }
+      this.saleService.getProductsForSale(saleId).subscribe(products => {
+        this.dialog.open(ProductListPopupComponent, {
+          width: '700px',
+          data: { products }
+        });
+        this.productLoadingIndex = null;
       });
-    });
+    }, 500); // Simulate loading, adjust as needed
   }
-  
 }

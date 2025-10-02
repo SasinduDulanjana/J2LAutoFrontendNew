@@ -8,6 +8,22 @@ import { BASE_URL } from '../base-url';
   providedIn: 'root'
 })
 export class SaleService {
+  updateProductStatus(payload: { saleId: number, productId: number, batchNo: string, status: string }): Observable<any> {
+    return this.http.post(`${BASE_URL}/sale/api/updateProductStatus`, payload);
+  }
+  fetchSaleProductsOfCustomerView(saleId: string): Observable<any[]> {
+    return this.http.get<any[]>(`${BASE_URL}/sale/api/fetchSaleProductsOfCustomerView/${saleId}`);
+  }
+  sendSaleDetailsSms(saleId: string): Observable<any> {
+    return this.http.post(`${BASE_URL}/sale/api/sendSaleDetailsSms/${saleId}`, {});
+  }
+  getSaleDetails(saleId: string): Observable<any> {
+    return this.http.get(`${BASE_URL}/sales/api/getSaleDetails/${saleId}`);
+  }
+
+  markItemReceived(saleId: string, productId: string): Observable<any> {
+    return this.http.put(`${BASE_URL}/sales/api/markItemReceived/${saleId}/${productId}`, {});
+  }
   createPaymentDetails(payload: any): Observable<any> {
     return this.http.post<any>(`${this.baseUrl}/createPaymentDetails`, payload);
   }

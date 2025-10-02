@@ -10,6 +10,7 @@
         <th>Total Price</th>
         <th>Discount Percentage</th>
         <th>Discount Amount</th>
+        <th>Status</th>
       </tr>
     </thead>
     <tbody>
@@ -21,6 +22,7 @@
         <td>{{ product.discountedTotal }}</td>
         <td>{{ product.discountPercentage }}%</td>
         <td>{{ product.discountAmount }}</td>
+        <td>{{ product.productDeliveryStatus || '-' }}</td>
       </tr>
     </tbody>
   </table>

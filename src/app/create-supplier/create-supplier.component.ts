@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, Injector } from '@angular/core';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { Router } from '@angular/router';
 import { Supplier } from '../models/supplier.model'; // Correct path to the model
 import { SupplierService } from '../services/supplier.service'; // Correct path to the service
-import { MatDialog } from '@angular/material/dialog';
 import { SuccessDialogComponent } from '../success-dialog/success-dialog.component';
 import { FailureDialogComponent } from '../failure-dialog/failure-dialog.component';
 
@@ -15,7 +16,21 @@ export class CreateSupplierComponent {
   phoneExists: boolean = false;
   loading: boolean = false;
 
-  constructor(private supplierService: SupplierService, private dialog: MatDialog) { }
+  dialogRef: MatDialogRef<any> | null = null;
+
+  constructor(
+    private supplierService: SupplierService,
+    private dialog: MatDialog,
+    private router: Router,
+    private injector: Injector
+  ) {
+    // Try to get MatDialogRef if available
+    try {
+      this.dialogRef = this.injector.get(MatDialogRef, null);
+    } catch (e) {
+      this.dialogRef = null;
+    }
+  }
 
   createSupplier(): void {
     if (this.phoneExists) {
@@ -30,13 +45,18 @@ export class CreateSupplierComponent {
       .subscribe(response => {
         this.loading = false;
         console.log('Supplier created:', response);
-        const dialogRef = this.dialog.open(SuccessDialogComponent, {
+        const successDialogRef = this.dialog.open(SuccessDialogComponent, {
           width: '350px',
           data: { message: 'Supplier created successfully!' }
         });
-        dialogRef.afterClosed().subscribe(() => {
-          // Reset the form fields
-          this.supplier = new Supplier('', '', '', '');
+        successDialogRef.afterClosed().subscribe(() => {
+          // If opened as a dialog, close and return true
+          if (this.dialogRef) {
+            this.dialogRef.close(true);
+          } else {
+            // If opened as a page, navigate to supplier list
+            this.router.navigate(['/supplier-list']);
+          }
         });
       }, error => {
         this.loading = false;

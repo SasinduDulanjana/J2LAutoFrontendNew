@@ -45,7 +45,10 @@
               <td>{{ sale.totalAmount}}</td>
               <td>{{ sale.saleDate }}</td>
               <td>
-                <button (click)="openProductListPopupForSale(sale)" cButton color="light" style="min-width: 100px;">Products</button>
+                <button *ngIf="productLoadingIndex !== i" (click)="openProductListPopupForSale(sale, i)" cButton color="light" style="min-width: 100px;">Products</button>
+                <button *ngIf="productLoadingIndex === i" cButton color="light" style="min-width: 100px;" disabled>
+                  <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Loading...
+                </button>
               </td>
               <td>
                 <span *ngIf="sale.outstandingBalance > 0" class="badge bg-danger" style="font-size: 1rem; padding: 0.5em 1em;">
