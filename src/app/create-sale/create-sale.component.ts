@@ -31,9 +31,30 @@ import { InventoryListComponent } from '../inventory-list/inventory-list.compone
   styleUrls: ['./create-sale.component.scss']
 })
 export class CreateSaleComponent implements OnInit {
+  onDiscountAmountChange(item: any): void {
+    // Only update percentage if retailPrice and remainingQty are valid
+    const total = (item?.retailPrice ?? 0) * (item?.remainingQty ?? 0);
+    if (total > 0 && typeof item.discountAmount === 'number' && !isNaN(item.discountAmount)) {
+      item.discountPercentage = Math.round((item.discountAmount / total) * 100 * 100) / 100; // round to 2 decimals
+    } else {
+      item.discountPercentage = 0;
+    }
+  }
   getMaxQty(batchNo: string): number {
     const batch = this.batchList.find(b => b.batchNumber === batchNo);
     return batch && typeof batch.qty === 'number' ? batch.qty : 1;
+  }
+
+  getDiscountAmount(item: any): number {
+    // If discountAmount is set and is a number, use it; otherwise calculate from percentage
+    if (typeof item.discountAmount === 'number' && !isNaN(item.discountAmount)) {
+      return item.discountAmount;
+    }
+    return ((item?.discountPercentage ?? 0) / 100 * (item?.retailPrice ?? 0) * (item?.remainingQty ?? 0));
+  }
+
+  getNetTotal(item: any): number {
+    return ((item?.remainingQty ?? 0) * (item?.retailPrice ?? 0)) - this.getDiscountAmount(item);
   }
     qtyError: { [key: string]: string } = {};
     onQtyChange(item: any): void {
@@ -53,11 +74,12 @@ export class CreateSaleComponent implements OnInit {
       } else {
         this.qtyError[item.batchNo] = '';
       }
-      // Recalculate totals
-      this.saleItem.subTotal = this.getSubtotal();
-      this.saleItem.totalAmount = this.getTotal();
-      this.saleItem.lineWiseDiscountTotalAmount = this.getTotalDiscount();
-      this.saleItem.billWiseDiscountTotalAmount = this.getTotalBillWiseDiscount();
+  // Recalculate totals
+  this.saleItem.subTotal = this.getSubtotal();
+  this.saleItem.totalAmount = this.getTotal();
+  this.saleItem.lineWiseDiscountTotalAmount = this.getTotalDiscount();
+  this.saleItem.billWiseDiscountTotalAmount = this.getTotalBillWiseDiscount();
+  // If discountAmount is manually set, keep it
     }
 
     onQtyBlur(item: any): void {
@@ -68,10 +90,10 @@ export class CreateSaleComponent implements OnInit {
       if (item.remainingQty > maxQty) {
         item.remainingQty = maxQty;
         this.qtyError[item.batchNo] = `Quantity was adjusted to available stock (${maxQty})`;
-        this.saleItem.subTotal = this.getSubtotal();
-        this.saleItem.totalAmount = this.getTotal();
-        this.saleItem.lineWiseDiscountTotalAmount = this.getTotalDiscount();
-        this.saleItem.billWiseDiscountTotalAmount = this.getTotalBillWiseDiscount();
+  this.saleItem.subTotal = this.getSubtotal();
+  this.saleItem.totalAmount = this.getTotal();
+  this.saleItem.lineWiseDiscountTotalAmount = this.getTotalDiscount();
+  this.saleItem.billWiseDiscountTotalAmount = this.getTotalBillWiseDiscount();
       } else if (isNaN(item.remainingQty) || item.remainingQty < 1) {
         this.qtyError[item.batchNo] = 'Quantity must be at least 1';
       } else {
@@ -106,7 +128,8 @@ export class CreateSaleComponent implements OnInit {
   selectedBatch: Batch | null = null;
   saleQty: number = 1;
   saleItem: Sale;
-  saleItems: Product[] = [];
+  saleItems: any[] = [];
+
   batchList: Batch[] = [];
   showBatchSelection: boolean = false;
   currentDate: string = "";
@@ -184,7 +207,8 @@ export class CreateSaleComponent implements OnInit {
         ...sp.product,
         batchNo: sp.batchNo,
         remainingQty: sp.quantity,
-        retailPrice: sp.discountedTotal / sp.quantity // fallback, adjust as needed
+        retailPrice: sp.discountedTotal / sp.quantity, // fallback, adjust as needed
+        discountAmount: sp.discountAmount ?? 0
       })) : [];
       this.selectedCustomerId = holdSale.custId;
       this.currentDate = holdSale.saleDate;
@@ -317,7 +341,8 @@ export class CreateSaleComponent implements OnInit {
           batchNo: selectedBatch.batchNumber,
           batch: selectedBatch, // Store batch object directly
           remainingQty: 1,
-          retailPrice: selectedBatch.retailPrice
+          retailPrice: selectedBatch.retailPrice,
+          discountAmount: 0
         };
         this.saleItems.push(newProduct);
       }
@@ -405,7 +430,9 @@ export class CreateSaleComponent implements OnInit {
 
     // Map saleItems (which are Products) into SaleProduct model
     const soldProducts: SaleProduct[] = this.saleItems.map(product => {
-      const discountAmount = (product.discountPercentage || 0) / 100 * product.retailPrice * product.remainingQty;
+      const discountAmount = (typeof product.discountAmount === 'number' && !isNaN(product.discountAmount))
+        ? product.discountAmount
+        : (product.discountPercentage || 0) / 100 * product.retailPrice * product.remainingQty;
       const discountedTotal = (product.retailPrice * product.remainingQty) - discountAmount;
       const saleProduct = new SaleProduct(
         product,

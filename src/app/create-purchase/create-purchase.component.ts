@@ -60,6 +60,13 @@ export class CreatePurchaseComponent implements OnInit {
     // Set invoice date to current date (YYYY-MM-DD)
     const today = new Date();
     this.purchase.invoiceDate = today.toISOString().slice(0, 10);
+
+    // Set default invoice number if not provided
+    if (!this.purchase.invoiceNumber || this.purchase.invoiceNumber.trim() === '') {
+      const pad = (n: number) => n.toString().padStart(2, '0');
+      const invoiceNum = `INV-${pad(today.getHours())}${pad(today.getMinutes())}${pad(today.getSeconds())}`;
+      this.purchase.invoiceNumber = invoiceNum;
+    }
   }
 
   fetchSuppliers(): void {
