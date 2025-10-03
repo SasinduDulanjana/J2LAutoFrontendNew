@@ -1,7 +1,7 @@
 <app-widgets-dropdown 
   [totalSales]="totalSales" 
   [totalPurchases]="totalPurchases" 
-  [totalDiscounts]="totalDiscounts" 
+  [totalCogs]="totalCogs" 
   [netProfit]="netProfit">
 </app-widgets-dropdown>
 <!-- <c-card class="mb-4">
@@ -388,32 +388,33 @@
           <thead cTableColor="light">
             <tr>
               <th>INV ID</th>
+              <th>User</th>
               <th>Customer</th>
-              <th>Grand Total</th>
-              <th>Paid</th>
-              <th>Due</th>
+              <th>Line Discounts</th>
+              <th>Sub Total</th>
+              <th>Bill Discounts</th>
+              <th>Net Total</th>
+              <th>Created At</th>
+              <th>Outstanding</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let sale of sales; index as i">
+              <td>{{ sale.invoiceNumber }}</td>
+              <td>{{ sale.user?.username || '-' }}</td>
+              <td>{{ sale.customer?.name || '-' }}</td>
+              <td>{{ sale.lineWiseDiscountTotalAmount }}</td>
+              <td>{{ sale.subTotal }}</td>
+              <td>{{ sale.billWiseDiscountTotalAmount }}</td>
+              <td>{{ sale.totalAmount }}</td>
+              <td>{{ sale.saleDate }}</td>
               <td>
-                <div>{{ sale.saleID }}</div>
-              </td>
-              <td>
-                <div class="d-flex justify-content-between">
-                  <div class="float-start">
-                    <strong>{{ sale.customer }}</strong>
-                  </div>
-                </div>
-              </td>
-              <td>
-                <div>{{ sale.grandTotal }}</div>
-              </td>
-              <td>
-                <div>{{ sale.paid }}</div>
-              </td>
-              <td>
-                <div class="fw-semibold text-nowrap">{{ sale.due }}</div>
+                <span *ngIf="sale.outstandingBalance > 0" class="badge bg-danger" style="font-size: 1rem; padding: 0.5em 1em;">
+                  {{ sale.outstandingBalance }}
+                </span>
+                <span *ngIf="sale.outstandingBalance === 0" class="badge bg-success" style="font-size: 1rem; padding: 0.5em 1em;">
+                  {{ sale.outstandingBalance }}
+                </span>
               </td>
             </tr>
           </tbody>

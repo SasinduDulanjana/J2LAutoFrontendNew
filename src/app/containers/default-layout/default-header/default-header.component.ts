@@ -1,4 +1,6 @@
 import { Component, Input, OnInit, OnDestroy } from '@angular/core';
+import { Router } from '@angular/router';
+import { AuthService } from '../../../services/auth.service';
 import { ClassToggleService, HeaderComponent } from '@coreui/angular';
 
 @Component({
@@ -15,8 +17,19 @@ export class DefaultHeaderComponent extends HeaderComponent implements OnInit, O
 
   private clockInterval: any;
 
-  constructor(private classToggler: ClassToggleService) {
+  constructor(
+    private classToggler: ClassToggleService,
+    private router: Router,
+    private authService: AuthService
+  ) {
     super();
+  }
+    goToPOS(): void {
+      this.router.navigate(['/create-sale']);
+    }
+  logoutAndRedirect(): void {
+    this.authService.logout();
+    this.router.navigate(['/login']);
   }
 
   ngOnInit(): void {

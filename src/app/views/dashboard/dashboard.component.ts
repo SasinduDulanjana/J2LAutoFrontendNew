@@ -13,6 +13,15 @@ import { BASE_URL } from '../../base-url';
   styleUrls: ['dashboard.component.scss']
 })
 export class DashboardComponent implements OnInit {
+  openProductListPopupForSale(sale: any, index: number): void {
+    // TODO: Implement popup logic or navigation as needed
+    console.log('Open product list for sale:', sale, index);
+  }
+
+  goToPaymentDetails(sale: any): void {
+    // TODO: Implement payment details navigation or popup
+    console.log('Go to payment details for sale:', sale);
+  }
   public sales: any[] = [];
   public loading: boolean = true;
   // Removed customerMap, will use customer name from sale response
@@ -23,7 +32,7 @@ export class DashboardComponent implements OnInit {
   });
   public totalSales: number = 0;
   public totalPurchases: number = 0;
-  public totalDiscounts: number = 0;
+  public totalCogs: number = 0;
   public netProfit: number = 0;
 
   constructor(
@@ -51,13 +60,13 @@ export class DashboardComponent implements OnInit {
       next: (data) => {
         this.totalSales = data.totalSales || 0;
         this.totalPurchases = data.totalPurchases || 0;
-        this.totalDiscounts = data.totalDiscounts || 0;
+        this.totalCogs = data.totalCogs || 0;
         this.netProfit = data.netProfit || 0;
       },
       error: (err) => {
         this.totalSales = 0;
         this.totalPurchases = 0;
-        this.totalDiscounts = 0;
+        this.totalCogs = 0;
         this.netProfit = 0;
       }
     });
@@ -77,18 +86,22 @@ export class DashboardComponent implements OnInit {
     this.loading = true;
     this.saleService.findAllSales().subscribe({
       next: (sales: any[]) => {
-        // Sort by INV_ID (saleID) descending and take the latest 8
+        // Map all fields needed for the dashboard table
         const mappedSales = (sales || []).map(sale => ({
-          saleID: sale.invoiceNumber || sale.id,
-          customer: sale.customer?.name || sale.customerName || sale.custName || sale.custId || '-',
-          grandTotal: sale.totalAmount,
-          paid: sale.paidAmount,
-          due: (sale.totalAmount || 0) - (sale.paidAmount || 0)
+          invoiceNumber: sale.invoiceNumber || sale.id,
+          user: sale.user || { username: sale.username || '-' },
+          customer: sale.customer || { name: sale.customerName || sale.custName || sale.custId || '-' },
+          lineWiseDiscountTotalAmount: sale.lineWiseDiscountTotalAmount || 0,
+          subTotal: sale.subTotal || sale.subtotal || 0,
+          billWiseDiscountTotalAmount: sale.billWiseDiscountTotalAmount || 0,
+          totalAmount: sale.totalAmount || 0,
+          saleDate: sale.saleDate || sale.createdAt || sale.date || '-',
+          outstandingBalance: sale.outstandingBalance || ((sale.totalAmount || 0) - (sale.paidAmount || 0)),
         }));
         const sorted = mappedSales.sort((a, b) => {
-          // If saleID is numeric, sort numerically; otherwise, lexically
-          const aId = isNaN(Number(a.saleID)) ? a.saleID : Number(a.saleID);
-          const bId = isNaN(Number(b.saleID)) ? b.saleID : Number(b.saleID);
+          // If invoiceNumber is numeric, sort numerically; otherwise, lexically
+          const aId = isNaN(Number(a.invoiceNumber)) ? a.invoiceNumber : Number(a.invoiceNumber);
+          const bId = isNaN(Number(b.invoiceNumber)) ? b.invoiceNumber : Number(b.invoiceNumber);
           if (aId < bId) return 1;
           if (aId > bId) return -1;
           return 0;

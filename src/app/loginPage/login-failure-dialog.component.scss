@@ -1,0 +1,56 @@
+.login-failure-dialog {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2.2rem 2.5rem 1.5rem 2.5rem;
+  border-radius: 1.2rem;
+  background: linear-gradient(135deg, #fff 0%, #f8fafc 100%);
+  box-shadow: 0 8px 32px rgba(244,67,54,0.10);
+}
+
+.login-failure-icon-bg {
+  background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
+  border-radius: 50%;
+  padding: 0.7rem;
+  margin-bottom: 1.1rem;
+  box-shadow: 0 4px 16px rgba(244,67,54,0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-failure-icon {
+  font-size: 2.8rem;
+  color: #fff;
+}
+
+.login-failure-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #d32f2f;
+  margin-bottom: 0.6rem;
+  letter-spacing: 0.01em;
+}
+
+.login-failure-message {
+  color: #b71c1c;
+  font-size: 1.13rem;
+  font-weight: 500;
+  margin-bottom: 1.3rem;
+  text-align: center;
+}
+
+.login-failure-close-btn {
+  background: linear-gradient(90deg, #f44336 0%, #d32f2f 100%);
+  color: #fff;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  padding: 0.7rem 2.2rem;
+  font-size: 1.08rem;
+  box-shadow: 0 2px 8px rgba(244,67,54,0.10);
+  border: none;
+  transition: background 0.2s;
+}
+.login-failure-close-btn:hover {
+  background: linear-gradient(90deg, #d32f2f 0%, #b71c1c 100%);
+}

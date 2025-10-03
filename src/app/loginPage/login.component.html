@@ -6,8 +6,16 @@
           <c-card class="p-4">
             <c-card-body>
               <form (ngSubmit)="login()">
-                <h1>Login</h1>
-                <p class="text-medium-emphasis">Sign In to your account</p>
+                <div class="login-title-container modern">
+                  <div class="login-title-bg">
+                    <svg cIcon name="cilLockLocked" class="login-title-icon"></svg>
+                  </div>
+                  <div>
+                    <h1 class="login-title">Welcome to True Enterprises</h1>
+                    <span class="login-subtitle">Sign in to access your dashboard</span>
+                  </div>
+                </div>
+                <!-- <p class="text-medium-emphasis">Sign In to your account</p> -->
                 <c-input-group class="mb-3">
                   <span cInputGroupText>
                     <svg cIcon name="cilUser"></svg>

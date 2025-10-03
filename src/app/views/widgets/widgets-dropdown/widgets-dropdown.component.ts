@@ -20,7 +20,7 @@ import { ChartjsComponent } from '@coreui/angular-chartjs';
 export class WidgetsDropdownComponent implements OnInit, AfterContentInit {
   @Input() totalSales: number = 0;
   @Input() totalPurchases: number = 0;
-  @Input() totalDiscounts: number = 0;
+  @Input() totalCogs: number = 0;
   @Input() netProfit: number = 0;
 
   constructor(

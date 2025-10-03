@@ -21,11 +21,11 @@
       <!-- <c-nav-item>
         <a cNavLink routerLink="/users" routerLinkActive="active">Users</a>
       </c-nav-item> -->
-      <c-nav-item>
+      <!-- <c-nav-item>
         <a cNavLink routerLink="/settings" routerLinkActive="active">
           Settings
         </a>
-      </c-nav-item>
+      </c-nav-item> -->
     </c-header-nav>
 
     <c-header-nav class="d-none d-lg-flex ms-auto align-items-center">
@@ -33,12 +33,9 @@
         <span class="h6 text-primary fw-bold me-3" id="realtime-clock"></span>
       </c-nav-item>
       <c-nav-item>
-        <a routerLink="/create-sale" cNavLink>
-          <button cButton color="transparent" class="ms-2 border border-primary text-primary px-4 py-2 d-flex align-items-center gap-2" style="min-width: 120px;">
-            <!-- Removed cil-cart icon -->
-            <span>POS</span>
-          </button>
-        </a>
+        <button cButton class="pos-header-btn ms-2" (click)="goToPOS()">
+          <span>POS</span>
+        </button>
       </c-nav-item>
     </c-header-nav>
     <c-header-nav class="ms-3">
@@ -115,7 +112,7 @@
         <h6 cDropdownHeader class="bg-light fw-semibold py-2">Account</h6>
       </li>
       <li></li>
-      <li>
+      <!-- <li>
         <a routerLink="./" cDropdownItem>
           <svg cIcon class="me-2" name="cilUser"></svg>
           Profile
@@ -135,7 +132,7 @@
             42
           </c-badge>
         </a>
-      </li>
+      </li> -->
       <!-- <li>
         <a routerLink="./" cDropdownItem>
           <svg cIcon class="me-2" name="cilFile"></svg>
@@ -145,13 +142,13 @@
           </c-badge>
         </a>
       </li> -->
-      <li>
+      <!-- <li>
         <hr cDropdownDivider/>
-      </li>
+      </li> -->
       <li>
-        <a routerLink="./" cDropdownItem>
-          <svg cIcon class="me-2" name="cilLockLocked"></svg>
-          Lock Account
+        <a (click)="logoutAndRedirect()" cDropdownItem style="cursor:pointer;">
+          <!-- <svg cIcon class="me-2" name="cilAccountLogout"></svg> -->
+          Logout
         </a>
       </li>
       <li></li>
