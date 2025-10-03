@@ -14,15 +14,47 @@ import { Supplier } from '../models/supplier.model';
 export class PurchaseReportComponent {
   purchases: any[] = [];
   filteredPurchases: any[] = [];
+  suppliers: any[] = [];
   searchQuery: string = '';
   startDate: string = '';
   endDate: string = '';
   loading: boolean = false;
   error: string = '';
-  constructor(private purchaseService: PurchaseService) {}
+  constructor(private purchaseService: PurchaseService, private supplierService: SupplierService) {}
 
   ngOnInit(): void {
-    this.filteredPurchases = this.purchases;
+    this.loading = true;
+    this.supplierService.findAllSuppliers().subscribe({
+      next: (suppliers: any[]) => {
+        this.suppliers = suppliers;
+        this.purchaseService.getAllPurchases().subscribe({
+          next: (data: any[]) => {
+            this.purchases = data.map(p => {
+              const supId = p.supplierId ?? p.supId ?? null;
+              return {
+                ...p,
+                supplierName: supId ? this.getSupplierName(supId) : ''
+              };
+            });
+            this.filteredPurchases = this.purchases;
+            this.loading = false;
+          },
+          error: err => {
+            this.error = 'Failed to fetch purchases.';
+            this.loading = false;
+          }
+        });
+      },
+      error: err => {
+        this.error = 'Failed to fetch suppliers.';
+        this.loading = false;
+      }
+    });
+  }
+
+  getSupplierName(supplierId: number): string {
+    const supplier = this.suppliers.find((s: any) => s.supId === supplierId);
+    return supplier ? supplier.name : '';
   }
 
   exportToPDF(): void {
@@ -37,7 +69,7 @@ export class PurchaseReportComponent {
       'Paid',
       'Status'
     ]];
-    const data = (this.purchases || []).map((purchase: any) => [
+    const data = (this.filteredPurchases || []).map((purchase: any) => [
       purchase.invoiceDate ? formatDateForExport(purchase.invoiceDate) : '',
       purchase.invoiceNumber || '',
       purchase.supplierName || '',
@@ -47,12 +79,10 @@ export class PurchaseReportComponent {
     ]);
 
     function formatDateForExport(date: string): string {
-      const d = new Date(date);
-      if (isNaN(d.getTime())) return date;
-      const year = d.getFullYear();
-      const month = String(d.getMonth() + 1).padStart(2, '0');
-      const day = String(d.getDate()).padStart(2, '0');
-      return `${year}-${month}-${day}`;
+      // Parse 'dd-MM-yyyy HH:mm:ss' or 'dd-MM-yyyy'
+      const [datePart] = date.split(' ');
+      const [day, month, year] = datePart.split('-').map(Number);
+      return `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
     }
 
     autoTable(doc, {
@@ -69,14 +99,34 @@ export class PurchaseReportComponent {
 
   onSearch(): void {
     const query = this.searchQuery.toLowerCase().trim();
+    let filtered = this.purchases;
+    // Apply date filter if dates are selected
+    if (this.startDate && this.endDate) {
+      const start = new Date(this.startDate);
+      const end = new Date(this.endDate);
+      end.setHours(23, 59, 59, 999);
+      filtered = filtered.filter(purchase => {
+        // Parse invoiceDate in 'dd-MM-yyyy HH:mm:ss' or 'dd-MM-yyyy' format
+        const dateStr = purchase.invoiceDate;
+        if (!dateStr) return false;
+        const [datePart, timePart] = dateStr.split(' ');
+        const [day, month, year] = datePart.split('-').map(Number);
+        let hours = 0, minutes = 0, seconds = 0;
+        if (timePart) {
+          [hours, minutes, seconds] = timePart.split(':').map(Number);
+        }
+        const purchaseDate = new Date(year, month - 1, day, hours, minutes, seconds);
+        return purchaseDate >= start && purchaseDate <= end;
+      });
+    }
+    // Apply search filter
     if (query) {
-      this.filteredPurchases = this.purchases.filter(purchase =>
+      filtered = filtered.filter(purchase =>
         (purchase.invoiceNumber && purchase.invoiceNumber.toLowerCase().includes(query)) ||
         (purchase.supplierName && purchase.supplierName.toLowerCase().includes(query))
       );
-    } else {
-      this.filteredPurchases = this.purchases;
     }
+    this.filteredPurchases = filtered;
   }
 
   fetchPurchasesByDateRange() {
@@ -85,29 +135,6 @@ export class PurchaseReportComponent {
       return;
     }
     this.error = '';
-    this.loading = true;
-
-    const formatDate = (dateStr: string): string => {
-      const date = new Date(dateStr);
-      const day = String(date.getDate()).padStart(2, '0');
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const year = date.getFullYear();
-      return `${day}-${month}-${year}`;
-    };
-    const formattedStart = formatDate(this.startDate);
-    const formattedEnd = formatDate(this.endDate);
-
-    this.purchaseService.getPurchasesByDateRange(formattedStart, formattedEnd).subscribe({
-      next: (data: any[]) => {
-        this.purchases = data;
-        this.filteredPurchases = data;
-        this.onSearch();
-        this.loading = false;
-      },
-      error: err => {
-        this.error = 'Failed to fetch purchases.';
-        this.loading = false;
-      }
-    });
+    this.onSearch();
   }
 }

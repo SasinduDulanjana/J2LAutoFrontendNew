@@ -37,24 +37,15 @@ export class InventoryReportComponent {
 
   fetchCategoriesAndInventory(): void {
     this.loading = true;
-    this.categoryService.getAllCategories().subscribe({
-      next: (cats: Category[]) => {
-        this.categories = cats;
-        this.productService.getAllProductsByBatchWise().subscribe({
-          next: (products: any[]) => {
-            this.inventory = products;
-            this.filteredInventory = products;
-            this.dropdownOpen = new Array(products.length).fill(false);
-            this.loading = false;
-          },
-          error: err => {
-            this.error = 'Failed to fetch inventory.';
-            this.loading = false;
-          }
-        });
+    this.productService.getAllProductsByBatchWise().subscribe({
+      next: (products: any[]) => {
+        this.inventory = products;
+        this.filteredInventory = products;
+        this.dropdownOpen = new Array(products.length).fill(false);
+        this.loading = false;
       },
       error: err => {
-        this.error = 'Failed to fetch categories.';
+        this.error = 'Failed to fetch inventory.';
         this.loading = false;
       }
     });
@@ -77,10 +68,13 @@ export class InventoryReportComponent {
   onSearch(): void {
     const query = this.searchQuery.toLowerCase().trim();
     if (query) {
-      this.filteredInventory = this.inventory.filter(item =>
-        (item.productName && item.productName.toLowerCase().includes(query)) ||
-        (item.sku && item.sku.toLowerCase().includes(query))
-      );
+      this.filteredInventory = this.inventory.filter(item => {
+        const productMatch = item.productName && item.productName.toLowerCase().includes(query);
+        const skuMatch = item.sku && item.sku.toLowerCase().includes(query);
+        const categoryName = item.category?.name || this.getCategoryName(item.catId);
+        const categoryMatch = categoryName && categoryName.toLowerCase().includes(query);
+        return productMatch || skuMatch || categoryMatch;
+      });
     } else {
       this.filteredInventory = this.inventory;
     }
@@ -116,12 +110,13 @@ export class InventoryReportComponent {
     ]];
     let data: any[] = [];
     (this.filteredInventory || []).forEach((item: any) => {
+      const categoryName = item.category?.name || this.getCategoryName(item.catId);
       if (Array.isArray(item.batchQuantities) && item.batchQuantities.length > 0) {
         item.batchQuantities.forEach((batch: any) => {
           data.push([
             item.productName || '',
             item.sku || '',
-            this.getCategoryName(item.catId),
+            categoryName,
             batch.batchNo ?? '',
             batch.qty ?? 0,
             batch.cost !== undefined ? Number(batch.cost).toFixed(2) : '-',
@@ -134,7 +129,7 @@ export class InventoryReportComponent {
         data.push([
           item.productName || '',
           item.sku || '',
-          this.getCategoryName(item.catId),
+          categoryName,
           '-',
           '-',
           '-',

@@ -22,20 +22,28 @@ export class SaleReportComponent {
     doc.setFontSize(16);
     doc.text('Sale Report', 14, 16);
     const head = [[
-      'Date',
-      'Invoice',
+      'Inv. No',
+      'User',
       'Customer',
-      'Total',
-      'Paid',
-      'Status'
+      'Line Discounts',
+      'Sub Total',
+      'Bill Discounts',
+      'Net Total',
+      'Created At',
+      'Outstanding',
+      'Paid'
     ]];
-    const data = (this.sales || []).map((sale: any) => [
-      sale.orderDate ? formatDateForExport(sale.orderDate) : (sale.saleDate || ''),
+    const data = (this.filteredSales || []).map((sale: any) => [
       sale.invoiceNumber || '',
-      sale.customerName || sale.custId || '',
-      sale.totalAmount != null ? sale.totalAmount.toFixed(2) : '',
-      sale.paidAmount != null ? sale.paidAmount.toFixed(2) : '',
-      sale.isFullyPaid ? 'Paid' : 'Unpaid'
+      sale.user?.username || '-',
+      sale.customer?.name || '-',
+      sale.lineWiseDiscountTotalAmount != null ? sale.lineWiseDiscountTotalAmount : '',
+      sale.subTotal != null ? sale.subTotal : '',
+      sale.billWiseDiscountTotalAmount != null ? sale.billWiseDiscountTotalAmount : '',
+      sale.totalAmount != null ? sale.totalAmount : '',
+      sale.saleDate || '',
+      sale.outstandingBalance != null ? sale.outstandingBalance : '',
+      sale.paidAmount != null ? sale.paidAmount.toFixed(2) : ''
     ]);
 
     // Helper to format orderDate for export (yyyy-MM-dd)
@@ -62,49 +70,11 @@ export class SaleReportComponent {
   constructor(private saleService: SaleService) {}
 
   ngOnInit(): void {
-    this.filteredSales = this.sales;
-  }
-
-  onSearch(): void {
-    const query = this.searchQuery.toLowerCase().trim();
-    if (query) {
-      this.filteredSales = this.sales.filter(sale =>
-        (sale.invoiceNumber && sale.invoiceNumber.toLowerCase().includes(query)) ||
-        (sale.customerName && sale.customerName.toLowerCase().includes(query)) ||
-        (sale.custId && sale.custId.toString().includes(query))
-      );
-    } else {
-      this.filteredSales = this.sales;
-    }
-  }
-
-  fetchSalesByDateRange() {
-    console.log('fetchSalesByDateRange called', this.startDate, this.endDate);
-    if (!this.startDate || !this.endDate) {
-      this.error = 'Please select both start and end dates.';
-      return;
-    }
-    this.error = '';
     this.loading = true;
-
-    // Format dates as 'dd-MM-yyyy' for the API
-    const formatDate = (dateStr: string): string => {
-      const date = new Date(dateStr);
-      const day = String(date.getDate()).padStart(2, '0');
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const year = date.getFullYear();
-      return `${day}-${month}-${year}`;
-    };
-    const formattedStart = formatDate(this.startDate);
-    const formattedEnd = formatDate(this.endDate);
-    console.log('Formatted dates:', formattedStart, formattedEnd);
-
-    this.saleService.getSalesByDateRange(formattedStart, formattedEnd).subscribe({
+    this.saleService.findAllSales().subscribe({
       next: (data: any[]) => {
-        console.log('Fetched sales data:', data);
         this.sales = data;
         this.filteredSales = data;
-        this.onSearch();
         this.loading = false;
       },
       error: err => {
@@ -112,5 +82,47 @@ export class SaleReportComponent {
         this.loading = false;
       }
     });
+  }
+
+  onSearch(): void {
+    const query = this.searchQuery.toLowerCase().trim();
+    let filtered = this.sales;
+    // Apply date filter if dates are selected
+    if (this.startDate && this.endDate) {
+      const start = new Date(this.startDate);
+      const end = new Date(this.endDate);
+      end.setHours(23, 59, 59, 999);
+      filtered = filtered.filter(sale => {
+        // Parse saleDate in 'dd-MM-yyyy HH:mm:ss' format
+        const dateStr = (sale.orderDate || sale.saleDate);
+        if (!dateStr) return false;
+        const [datePart, timePart] = dateStr.split(' ');
+        const [day, month, year] = datePart.split('-').map(Number);
+        let hours = 0, minutes = 0, seconds = 0;
+        if (timePart) {
+          [hours, minutes, seconds] = timePart.split(':').map(Number);
+        }
+        const saleDate = new Date(year, month - 1, day, hours, minutes, seconds);
+        return saleDate >= start && saleDate <= end;
+      });
+    }
+    // Apply search filter
+    if (query) {
+      filtered = filtered.filter(sale =>
+        (sale.invoiceNumber && sale.invoiceNumber.toLowerCase().includes(query)) ||
+        (sale.customerName && sale.customerName.toLowerCase().includes(query)) ||
+        (sale.custId && sale.custId.toString().includes(query))
+      );
+    }
+    this.filteredSales = filtered;
+  }
+
+  fetchSalesByDateRange() {
+    if (!this.startDate || !this.endDate) {
+      this.error = 'Please select both start and end dates.';
+      return;
+    }
+    this.error = '';
+    this.onSearch();
   }
 }

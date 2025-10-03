@@ -1,4 +1,7 @@
-
+<div *ngIf="loading" class="loading-overlay">
+  <div class="spinner"></div>
+  <span>Loading Purchase data...</span>
+</div>
 <div class="container py-4">
   <div class="card shadow-sm mb-4">
     <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
@@ -23,33 +26,42 @@
         <input type="text" placeholder="Search by invoice or supplier" [(ngModel)]="searchQuery" (input)="onSearch()" />
       </div>
       <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
-      <div *ngIf="loading" class="text-center my-4">
-        <span class="spinner-border spinner-border-sm"></span> Loading...
-      </div>
+
       <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">
           <thead class="table-light">
             <tr>
-              <th>Date</th>
-              <th>Invoice</th>
+              <th>Invoice Number</th>
               <th>Supplier</th>
-              <th>Total</th>
-              <th>Paid</th>
-              <th>Status</th>
+              <th>Invoice Date</th>
+              <th>Total Cost</th>
+              <th>Paid Amount</th>
+              <!-- Payment Status column removed -->
+              <th>Outstanding</th>
+              <!-- Payment Details column removed -->
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let purchase of filteredPurchases">
-              <td>{{ purchase.invoiceDate ? (purchase.invoiceDate | date:'yyyy-MM-dd') : '' }}</td>
               <td>{{ purchase.invoiceNumber }}</td>
               <td>{{ purchase.supplierName }}</td>
+              <td>
+                <ng-container *ngIf="purchase.invoiceDate">
+                  {{ purchase.invoiceDate.split(' ')[0] }} {{ purchase.invoiceDate.split(' ')[1] }}
+                </ng-container>
+              </td>
               <td>{{ purchase.totalCost | number:'1.2-2' }}</td>
               <td>{{ purchase.paidAmount | number:'1.2-2' }}</td>
+              <!-- Payment Status cell removed -->
               <td>
-                <span [ngClass]="{'text-success': purchase.isFullyPaid, 'text-danger': !purchase.isFullyPaid}">
-                  {{ purchase.isFullyPaid ? 'Paid' : 'Unpaid' }}
+                <span *ngIf="(purchase.totalCost - purchase.paidAmount) > 0" class="badge bg-danger" style="font-size: 1rem; padding: 0.5em 1em;">
+                  {{ purchase.totalCost - purchase.paidAmount | number:'1.2-2' }}
+                </span>
+                <span *ngIf="(purchase.totalCost - purchase.paidAmount) === 0" class="badge bg-success" style="font-size: 1rem; padding: 0.5em 1em;">
+                  0.00
                 </span>
               </td>
+              <!-- Payment Details cell removed -->
             </tr>
             <tr *ngIf="filteredPurchases.length === 0">
               <td colspan="6" class="text-center text-muted">No purchases found.</td>

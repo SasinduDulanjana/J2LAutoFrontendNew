@@ -43,10 +43,9 @@
               <td>{{ purchase.invoiceNumber }}</td>
               <td>{{ purchase.supplierName }}</td>
               <td>
-                <ng-container *ngIf="isValidDate(purchase['invoiceDate']); else rawDate">
-                  {{ purchase['invoiceDate'] | date:'yyyy-MM-dd' }}
+                <ng-container *ngIf="purchase['invoiceDate']">
+                  {{ purchase['invoiceDate'].split(' ')[0] }} {{ purchase['invoiceDate'].split(' ')[1] }}
                 </ng-container>
-                <ng-template #rawDate>{{ purchase['invoiceDate'] }}</ng-template>
               </td>
               <td>{{ purchase['totalCost'] | number:'1.2-2' }}</td>
               <td>{{ purchase['paidAmount'] | number:'1.2-2' }}</td>
