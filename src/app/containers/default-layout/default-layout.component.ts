@@ -23,37 +23,31 @@ export class DefaultLayoutComponent {
     private featurePerms: FeaturePermissionsService,
     private rolePermService: RolePermissionsService
   ) {
-    // Try to use cached permissions from localStorage
-    const cached = localStorage.getItem('rolePermissions');
-    if (cached) {
-      try {
-        const perms = JSON.parse(cached);
-        this.rolePermService.setLocalPermissions(perms);
-        this.filterNavItems();
-      } catch {
-        this.loadAndFilterNavItems();
-      }
-    } else {
-      this.loadAndFilterNavItems();
-    }
+    // Always load permissions fresh from backend
+    this.loadAndFilterNavItems();
   }
 
   private loadAndFilterNavItems() {
     this.rolePermService.loadPermissions().subscribe((perms: any) => {
       this.rolePermService.setLocalPermissions(perms);
-      localStorage.setItem('rolePermissions', JSON.stringify(perms));
       this.filterNavItems();
     });
   }
 
   private filterNavItems() {
+    const userRoles = this.authService.getUserRoles();
+    console.log('Sidebar filter: userRoles', userRoles);
     this.navItems = navItems.filter(item => {
-      if (item.feature && !this.featurePerms.can(item.feature)) {
-        return false;
+      if (item.feature) {
+        const canAccess = this.featurePerms.can(item.feature);
+        console.log(`Feature check for '${item.feature}':`, canAccess);
+        if (!canAccess) return false;
       }
       if (item.roles) {
-        const roles = this.authService.getUserRoles();
-        return item.roles.some((role: string) => roles.includes(role));
+        const roles = userRoles;
+        const hasRole = item.roles.some((role: string) => roles.includes(role));
+        console.log(`Role check for '${item.name}':`, hasRole, 'Required:', item.roles, 'User:', roles);
+        return hasRole;
       }
       return true;
     });

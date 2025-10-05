@@ -47,6 +47,10 @@ export class RolePermissionsService {
   }
 
   setLocalPermissions(perms: RolePermission[]) {
-    this.permissions = perms;
+    this.permissions = perms.map(p => ({
+      ...p,
+      enabled: Boolean(p.enabled)
+    }));
+    console.log('Normalized permissions:', this.permissions);
   }
 }

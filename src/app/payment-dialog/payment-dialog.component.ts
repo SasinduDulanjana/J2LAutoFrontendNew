@@ -20,6 +20,7 @@ export class PaymentDialogComponent {
     @Inject(MAT_DIALOG_DATA) data: { maxAmount: number, paidAmount: number }
   ) {
     this.data = data;
+    this.checkAmount(); // Initialize confirm button state
   }
 
   closeDialog(): void {
@@ -28,7 +29,17 @@ export class PaymentDialogComponent {
 
     // Check if the entered payment amount is valid
     checkAmount(): void {
-      this.isConfirmDisabled = this.paymentAmount > this.data.maxAmount || this.paymentAmount <= 0;
+      // Confirm allowed for 0 or >0 amount, but only if valid
+      if (this.paymentAmount === 0) {
+        this.isConfirmDisabled = false;
+        return;
+      }
+      // For >0, payment type required
+      if (this.paymentAmount > 0 && !this.paymentType) {
+        this.isConfirmDisabled = true;
+        return;
+      }
+      this.isConfirmDisabled = this.paymentAmount > this.data.maxAmount || this.paymentAmount < 0;
     }
   
     confirmPayment(): void {

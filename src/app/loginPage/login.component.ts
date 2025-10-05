@@ -13,12 +13,15 @@ import { LoginFailureDialogComponent } from './login-failure-dialog.component';
 export class LoginComponent {
   username: string = '';
   password: string = '';
+  loading: boolean = false;
 
   constructor(private authService: AuthService, private router: Router, private dialog: MatDialog) { }
 
   login(): void {
+    this.loading = true;
     this.authService.login(this.username, this.password).subscribe(
       response => {
+        this.loading = false;
         if (response && response.token) {
           localStorage.setItem('token', response.token);
           this.router.navigate(['/dashboard']);
@@ -30,6 +33,7 @@ export class LoginComponent {
         }
       },
       error => {
+        this.loading = false;
         console.error('Error logging in:', error);
         this.dialog.open(LoginFailureDialogComponent, {
           data: { message: 'Invalid username or password' },

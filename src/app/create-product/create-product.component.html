@@ -40,11 +40,14 @@
         <c-col [md]="6">
           <label cLabel for="vehicleModel">Compatible Vehicle Models</label>
           <div class="d-flex align-items-center mb-2">
-            <select id="vehicleModelSelect" [(ngModel)]="selectedVehicleId" name="vehicleModelSelect" class="form-select me-2" style="max-width: 70%;">
+            <select id="vehicleModelSelect" [(ngModel)]="selectedVehicleId" name="vehicleModelSelect" class="form-select me-2" style="max-width: 60%;">
               <option value="" disabled selected>Select Vehicle Model</option>
               <option *ngFor="let model of vehicleModels" [ngValue]="model.id">{{ model.make }} {{ model.model }} {{ model.year }}</option>
             </select>
-            <button cButton color="primary" type="button" (click)="addVehicle()" [disabled]="!selectedVehicleId">Add</button>
+            <button cButton color="primary" type="button" (click)="addVehicle()" [disabled]="!selectedVehicleId">Select</button>
+            <button cButton color="success" type="button" style="margin-left:8px;" (click)="openCreateVehiclePopup()">
+              <svg cIcon name="cil-plus" style="margin-right:2px;"></svg> New Vehicle
+            </button>
           </div>
           <div class="mb-2">
             <strong *ngIf="selectedVehicles.length > 0" style="display:block;margin-bottom:4px;">Selected Vehicles:</strong>

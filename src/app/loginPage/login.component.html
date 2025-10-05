@@ -37,12 +37,16 @@
                 </c-input-group>
                 <c-row>
                   <c-col xs="6">
-                    <button type="submit" cButton class="px-4" color="primary">
-                      Login
+                    <button type="submit" cButton class="px-4" color="primary" [disabled]="loading">
+                      <ng-container *ngIf="!loading">Login</ng-container>
+                      <ng-container *ngIf="loading">
+                        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        Logging in...
+                      </ng-container>
                     </button>
                   </c-col>
                   <c-col class="text-right" xs="6">
-                    <button cButton class="px-0" color="link">
+                    <button cButton class="px-0" color="link" [disabled]="loading">
                       Forgot password?
                     </button>
                   </c-col>

@@ -73,8 +73,13 @@ export class CreateSupplierComponent {
   }
 
   onPhoneChange(phone: string): void {
-    this.supplierService.findAllSuppliers().subscribe((suppliers: Supplier[]) => {
-      this.phoneExists = suppliers.some((s: Supplier) => s.phone.trim() === phone.trim());
-    });
+    // Only check if phone is at least 10 digits
+    if (/^\d{10,15}$/.test(phone.trim())) {
+      this.supplierService.findAllSuppliers().subscribe((suppliers: Supplier[]) => {
+        this.phoneExists = suppliers.some((s: Supplier) => s.phone.trim() === phone.trim());
+      });
+    } else {
+      this.phoneExists = false;
+    }
   }
 }

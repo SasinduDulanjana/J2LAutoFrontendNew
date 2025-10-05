@@ -99,8 +99,29 @@ export class PaymentHistoryComponent implements OnInit {
                     return dateA - dateB;
                   });
             } else {
-              this.sale = null;
-              this.paymentHistory = [];
+              // No payments, fetch sale info separately
+              this.saleService.getSaleByInvoiceNumber(this.invoiceNumber).subscribe(
+                (saleData: any) => {
+                  this.sale = {
+                    invoiceNumber: saleData.invoiceNumber || '',
+                    customer: saleData.customer || { name: '' },
+                    totalAmount: saleData.totalAmount || 0,
+                    paidAmount: saleData.paidAmount || 0
+                  };
+                  this.paymentHistory = [];
+                  this.loading = false;
+                },
+                error => {
+                  this.sale = {
+                    invoiceNumber: this.invoiceNumber,
+                    customer: { name: '' },
+                    totalAmount: 0,
+                    paidAmount: 0
+                  };
+                  this.paymentHistory = [];
+                  this.loading = false;
+                }
+              );
             }
             this.loading = false;
           },
@@ -125,65 +146,79 @@ export class PaymentHistoryComponent implements OnInit {
       if (result) {
         // Build payload for API
         let paymentId = 0;
-        if (this.paymentHistory.length > 0 && this.paymentHistory[this.paymentHistory.length - 1].payment && this.paymentHistory[this.paymentHistory.length - 1].payment.paymentId) {
-          paymentId = this.paymentHistory[this.paymentHistory.length - 1].payment.paymentId;
-        }
-        const payload = {
-          paymentId: paymentId,
-          method: result.paymentType,
-          amount: result.paymentAmount,
-          chequeNo: result.chequeNumber || null,
-          bankName: result.bankName || null,
-          chequeDate: result.chequeDate || null,
-        };
-        this.saleService.createPaymentDetails(payload).subscribe(
-          (resp) => {
-            console.log('Payment created:', resp);
-            // Refresh payment history after successful payment
-            this.loading = true;
-            this.saleService.getPaymentsByInvoiceNumber(this.invoiceNumber).subscribe(
-              (data: any) => {
-                if (Array.isArray(data) && data.length > 0) {
-                  const first = data[0];
-                  this.sale = {
-                    invoiceNumber: first.payment.referenceId || '',
-                    customer: first.payment.customer || { name: '' },
-                    totalAmount: first.payment.totalAmount || 0,
-                    paidAmount: data.reduce((sum: number, item: any) => sum + (item.amount || 0), 0)
-                  };
-                  this.paymentHistory = data
-                    .map((item: any) => ({
-                      date: item.paymentDate || item.payment?.paymentDate,
-                      chequeNo: item.chequeNo,
-                      bankName: item.bankName,
-                      chequeDate: item.chequeDate,
-                      amount: item.amount,
-                      status: item.paymentStatus || item.payment?.status || 'Unknown',
-                      method: item.paymentMethod,
-                      payment: item.payment
-                    }))
-                    .sort((a: any, b: any) => {
-                      const dateA = new Date(a.date).getTime();
-                      const dateB = new Date(b.date).getTime();
-                      return dateA - dateB;
-                    });
-                } else {
+        const proceedWithPayment = (paymentId: number) => {
+          const payload = {
+            paymentId: paymentId,
+            method: result.paymentType,
+            amount: result.paymentAmount,
+            chequeNo: result.chequeNumber || null,
+            bankName: result.bankName || null,
+            chequeDate: result.chequeDate || null,
+          };
+          this.saleService.createPaymentDetails(payload).subscribe(
+            (resp: any) => {
+              console.log('Payment created:', resp);
+              // Refresh payment history after successful payment
+              this.loading = true;
+              this.saleService.getPaymentsByInvoiceNumber(this.invoiceNumber).subscribe(
+                (data: any) => {
+                  if (Array.isArray(data) && data.length > 0) {
+                    const first = data[0];
+                    this.sale = {
+                      invoiceNumber: first.payment.referenceId || '',
+                      customer: first.payment.customer || { name: '' },
+                      totalAmount: first.payment.totalAmount || 0,
+                      paidAmount: data.reduce((sum: number, item: any) => sum + (item.amount || 0), 0)
+                    };
+                    this.paymentHistory = data
+                      .map((item: any) => ({
+                        date: item.paymentDate || item.payment?.paymentDate,
+                        chequeNo: item.chequeNo,
+                        bankName: item.bankName,
+                        chequeDate: item.chequeDate,
+                        amount: item.amount,
+                        status: item.paymentStatus || item.payment?.status || 'Unknown',
+                        method: item.paymentMethod,
+                        payment: item.payment
+                      }))
+                      .sort((a: any, b: any) => {
+                        const dateA = new Date(a.date).getTime();
+                        const dateB = new Date(b.date).getTime();
+                        return dateA - dateB;
+                      });
+                  } else {
+                    this.sale = null;
+                    this.paymentHistory = [];
+                  }
+                  this.loading = false;
+                },
+                error => {
+                  this.loading = false;
                   this.sale = null;
                   this.paymentHistory = [];
                 }
-                this.loading = false;
-              },
-              error => {
-                this.loading = false;
-                this.sale = null;
-                this.paymentHistory = [];
-              }
-            );
-          },
-          (err) => {
-            console.error('Payment creation failed:', err);
-          }
-        );
+              );
+            },
+            (err: any) => {
+              console.error('Payment creation failed:', err);
+            }
+          );
+        };
+        if (this.paymentHistory.length > 0 && this.paymentHistory[this.paymentHistory.length - 1].payment && this.paymentHistory[this.paymentHistory.length - 1].payment.paymentId) {
+          paymentId = this.paymentHistory[this.paymentHistory.length - 1].payment.paymentId;
+          proceedWithPayment(paymentId);
+        } else {
+          // Fetch paymentId using new API if no payment details exist
+          this.saleService.fetchPaymentByInvoiceNumber(this.invoiceNumber).subscribe(
+            (resp: any) => {
+              paymentId = resp?.paymentId || 0;
+              proceedWithPayment(paymentId);
+            },
+            (err) => {
+              proceedWithPayment(0);
+            }
+          );
+        }
       }
     });
   }

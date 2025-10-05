@@ -1,0 +1,47 @@
+<div class="container py-3">
+  <div *ngIf="loading" class="loading-overlay">
+    <div class="spinner-border text-primary mb-3" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <div style="font-size:1.1rem;color:#0d6efd;font-weight:500;">Creating vehicle...</div>
+  </div>
+  <div class="card shadow-sm">
+    <div class="card-header bg-primary text-white d-flex align-items-center">
+      <!-- <svg cIcon name="cil-car" class="me-2"></svg> -->
+      <h5 class="mb-0">Create Vehicle</h5>
+    </div>
+    <div class="card-body">
+      <form (ngSubmit)="createVehicle()" #vehicleForm="ngForm" cForm class="row g-3">
+        <c-col [md]="4">
+          <label cLabel for="make">Make</label>
+          <input cFormControl id="make" type="text" [(ngModel)]="make" name="make" required #makeCtrl="ngModel" minlength="2" />
+          <div *ngIf="makeCtrl.invalid && (makeCtrl.dirty || makeCtrl.touched)" class="text-danger small">
+            <div *ngIf="makeCtrl.errors?.['required']">Make is required.</div>
+            <div *ngIf="makeCtrl.errors?.['minlength']">Make must be at least 2 characters.</div>
+          </div>
+        </c-col>
+        <c-col [md]="4">
+          <label cLabel for="model">Model</label>
+          <input cFormControl id="model" type="text" [(ngModel)]="model" name="model" required #modelCtrl="ngModel" minlength="2" />
+          <div *ngIf="modelCtrl.invalid && (modelCtrl.dirty || modelCtrl.touched)" class="text-danger small">
+            <div *ngIf="modelCtrl.errors?.['required']">Model is required.</div>
+            <div *ngIf="modelCtrl.errors?.['minlength']">Model must be at least 2 characters.</div>
+          </div>
+        </c-col>
+        <c-col [md]="4">
+          <label cLabel for="year">Year</label>
+          <input cFormControl id="year" type="text" [(ngModel)]="year" name="year" required #yearCtrl="ngModel" pattern="^[0-9]{4}$" />
+          <div *ngIf="yearCtrl.invalid && (yearCtrl.dirty || yearCtrl.touched)" class="text-danger small">
+            <div *ngIf="yearCtrl.errors?.['required']">Year is required.</div>
+            <div *ngIf="yearCtrl.errors?.['pattern']">Year must be a 4-digit number.</div>
+          </div>
+        </c-col>
+        <c-col [md]="12" class="text-end">
+          <button cButton color="primary" type="submit" [disabled]="!vehicleForm.form.valid || loading">
+            <svg cIcon name="cil-save" class="me-2"></svg>Save Vehicle
+          </button>
+        </c-col>
+      </form>
+    </div>
+  </div>
+</div>

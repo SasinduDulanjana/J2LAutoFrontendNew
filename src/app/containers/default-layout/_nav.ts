@@ -27,12 +27,12 @@ export const navItems: INavDataWithRoles[] = [
       },
       {
         name: 'Sales Return',
-        feature: 'salesReturn',
+        // feature: 'salesReturn',
         url: '/sales-return'
       },
       {
         name: 'Sales Return List',
-        feature: 'salesReturnList',
+        // feature: 'salesReturnList',
         url: '/sales-return-list'
       },
       // Removed Payment History from sidebar
@@ -73,12 +73,12 @@ export const navItems: INavDataWithRoles[] = [
       {
         name: 'Create Supplier',
         url: '/create-supplier',
-        feature: 'createSupplier'
+        // feature: 'createSupplier'
       },
       {
         name: 'Supplier List',
         url: '/supplier-list',
-        feature: 'viewSupplierList'
+        // feature: 'viewSupplierList'
       }
     ]
   },
@@ -128,12 +128,12 @@ export const navItems: INavDataWithRoles[] = [
         {
           name: 'Purchase Return',
           url: '/purchase-return',
-          feature: 'purchaseReturn'
+          // feature: 'purchaseReturn'
         },
         {
           name: 'Purchase Return List',
           url: '/purchase-return-list',
-          feature: 'purchaseReturnList'
+          // feature: 'purchaseReturnList'
         }
     ]
   },
@@ -145,18 +145,18 @@ export const navItems: INavDataWithRoles[] = [
       {
         name: 'Roles',
         url: '/roles',
-        feature: 'rolesPage'
+        // feature: 'rolesPage'
       },
       {
         name: 'Users',
         url: '/users',
-        feature: 'usersPage'
+        // feature: 'usersPage'
       }
       ,
       {
         name: 'Role Permissions',
         url: '/role-permissions',
-        feature: 'rolePermissionsPage'
+        // feature: 'rolePermissionsPage'
       }
     ]
   },

@@ -12,10 +12,12 @@ export class RolePermissionsComponent implements OnInit {
   features: Feature[] = [];
   selectedRole: string = '';
   permissions: { [feature: string]: boolean } = {};
+  loading: boolean = true;
 
   constructor(private permService: RolePermissionsService, private featureService: FeatureService) {}
 
   ngOnInit() {
+    this.loading = true;
     this.featureService.getFeatures().subscribe(features => {
       this.features = features;
       this.permService.loadPermissions().subscribe(perms => {
@@ -24,8 +26,9 @@ export class RolePermissionsComponent implements OnInit {
         if (this.roles.length > 0) {
           this.selectRole(this.roles[0]);
         }
-      });
-    });
+        this.loading = false;
+      }, () => { this.loading = false; });
+    }, () => { this.loading = false; });
   }
 
   selectRole(role: string) {

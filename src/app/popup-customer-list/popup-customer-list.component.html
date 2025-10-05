@@ -11,9 +11,12 @@
     <span style="font-size:1.1rem;color:#1976d2;font-weight:500;">Loading customers...</span>
   </div>
   <div *ngIf="!loading">
-    <div class="search-container">
+    <div class="search-container d-flex align-items-center mb-2">
       <input type="text" placeholder="Search Customers" [(ngModel)]="searchQuery" (input)="onSearch()"
         class="form-control search-input" />
+      <button cButton color="success" size="sm" style="margin-left:8px;vertical-align:middle;" (click)="openAddCustomerDialog()">
+        <svg cIcon name="cil-user-follow" style="margin-right:4px;"></svg> Add Customer
+      </button>
     </div>
     <table class="table">
       <thead>
@@ -23,8 +26,13 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let customer of filteredCustomers" (click)="selectCustomer(customer)">
-          <td>{{ customer.name }}</td>
+        <tr *ngFor="let customer of filteredCustomers" (click)="selectCustomer(customer)" [ngClass]="{'table-success': customer.id === 0}">
+          <td>
+            <ng-container *ngIf="customer.id === 0; else normalCustomer">
+              <strong>Walk-in Customer</strong>
+            </ng-container>
+            <ng-template #normalCustomer>{{ customer.name }}</ng-template>
+          </td>
           <td>{{ customer.phone }}</td>
         </tr>
       </tbody>

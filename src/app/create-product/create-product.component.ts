@@ -17,6 +17,24 @@ import { FailureDialogComponent } from '../failure-dialog/failure-dialog.compone
   styleUrls: ['./create-product.component.scss']
 })
 export class CreateProductComponent implements OnInit{
+  openCreateVehiclePopup(): void {
+    const dialogRef = this.dialog.open(
+      // @ts-ignore
+      (window as any).ng?.components?.CreateVehicleComponent || (window as any).CreateVehicleComponent || require('../create-vehicle/create-vehicle.component').CreateVehicleComponent,
+      {
+        width: '500px',
+        disableClose: false
+      }
+    );
+    dialogRef.afterClosed().subscribe((result: any) => {
+      if (result && result.vehicle) {
+        // Optionally refresh vehicle list or add to vehicleModels
+        this.vehicleService.getAllVehicles().subscribe(data => {
+          this.vehicleModels = data;
+        });
+      }
+    });
+  }
   selectedVehicleId: number | null = null;
   selectedVehicles: any[] = [];
   // skuExists already declared below

@@ -26,11 +26,13 @@
       <c-col class="info-box">
         <label cLabel for="custId">Customer: </label>
         <label class="info-value">
-          <!-- <div *ngIf="selectedCustomerName" (click)="openCustomerListPopup()">{{ selectedCustomerName }}</div> -->
           <span *ngIf="selectedCustomerName" class="clickable-customer" (click)="openCustomerListPopup()"
             style="cursor: pointer;">
             {{ selectedCustomerName }}
           </span>
+          <!-- <button cButton color="success" size="sm" style="margin-left:8px;vertical-align:middle;" (click)="openAddCustomerDialog()">
+            <svg cIcon name="cil-user-follow" style="margin-right:4px;"></svg> Add Customer
+          </button> -->
         </label>
       </c-col>
       <!-- User ID -->

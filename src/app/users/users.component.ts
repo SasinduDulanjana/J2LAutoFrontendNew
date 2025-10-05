@@ -17,28 +17,31 @@ export class UsersComponent implements OnInit {
   newUser: User = { username: '', email: '', roles: [], status: 1 };
   repeatPassword: string = '';
   editingUser: User | null = null;
+  loading: boolean = true;
 
   constructor(private userService: UserService, private roleService: RoleService, private dialog: MatDialog) {}
 
   ngOnInit() {
+    this.loading = true;
     this.loadUsers();
     this.loadRoles();
   }
 
   loadUsers() {
+    this.loading = true;
     this.userService.getUsers().subscribe({
       next: users => {
-        console.log('Loaded users:', users); // Debug log for backend response
-        // Map status to number for all possible backend values
         this.users = users.map(u => ({
           ...u,
           status: typeof u.status === 'string'
             ? (u.status === 'Active' || u.status === '1' ? 1 : u.status === 'Inactive' || u.status === '0' ? 0 : 0)
             : u.status === 1 ? 1 : u.status === 0 ? 0 : 0
         }));
+        this.loading = false;
       },
       error: err => {
         console.error('Error loading users:', err);
+        this.loading = false;
       }
     });
   }
@@ -62,18 +65,22 @@ export class UsersComponent implements OnInit {
   }
 
   addUser() {
+    this.loading = true;
     if (!this.newUser.username || !this.newUser.email || !this.newUser.password || !this.repeatPassword || !this.newUser.roles.length || !this.newUser.status) {
       alert('All fields are mandatory!');
+      this.loading = false;
       return;
     }
     // Email format validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(this.newUser.email)) {
       alert('Please enter a valid email address!');
+      this.loading = false;
       return;
     }
     if (this.newUser.password !== this.repeatPassword) {
       alert('Passwords do not match!');
+      this.loading = false;
       return;
     }
     if (this.editingUser && this.editingUser.id) {
@@ -83,11 +90,13 @@ export class UsersComponent implements OnInit {
           this.loadUsers();
           this.editingUser = null;
           this.resetNewUser();
+          this.loading = false;
           this.dialog.open(SuccessDialogComponent, {
             data: { message: 'User updated successfully!' },
           });
         },
         error: err => {
+          this.loading = false;
           console.error('Error updating user:', err);
         }
       });
@@ -97,11 +106,13 @@ export class UsersComponent implements OnInit {
         next: () => {
           this.loadUsers();
           this.resetNewUser();
+          this.loading = false;
           this.dialog.open(SuccessDialogComponent, {
             data: { message: 'User created successfully!' },
           });
         },
         error: err => {
+          this.loading = false;
           let message = 'Error adding user: ' + (err.error?.message || err.message || 'Unknown error');
           if (err && err.error && typeof err.error === 'string') {
             if (err.error.includes('username')) {

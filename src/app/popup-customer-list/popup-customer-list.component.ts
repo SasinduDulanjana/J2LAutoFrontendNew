@@ -2,6 +2,8 @@ import { Component, Inject } from '@angular/core';
 import { CustomerService } from '../services/customer.service';
 import { Router } from '@angular/router';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MatDialog } from '@angular/material/dialog';
+import { CreateCustomerComponent } from '../create-customer/create-customer.component';
 
 @Component({
   selector: 'app-popup-customer-list',
@@ -16,8 +18,33 @@ export class PopupCustomerListComponent {
   // selectedCustomers: number[] = []; // Array to store selected customer IDs
   // selectAll: boolean = false;
 
-  constructor(private customerService: CustomerService, private router: Router,public dialogRef: MatDialogRef<PopupCustomerListComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any,) { }
+  constructor(
+    private customerService: CustomerService,
+    private router: Router,
+    public dialogRef: MatDialogRef<PopupCustomerListComponent>,
+    private dialog: MatDialog,
+    @Inject(MAT_DIALOG_DATA) public data: any
+  ) {}
+  openAddCustomerDialog(): void {
+    const addDialog = this.dialog.open(CreateCustomerComponent, {
+      width: '600px',
+      disableClose: false
+    });
+    addDialog.afterClosed().subscribe((result: any) => {
+      if (result && result.customer) {
+        // Add new customer to list and select
+        this.customers.push(result.customer);
+        this.filteredCustomers = this.customers;
+        this.dialogRef.close(result.customer);
+      } else {
+        // Optionally refresh customer list
+        this.customerService.findAllCustomers().subscribe(customers => {
+          this.customers = customers;
+          this.filteredCustomers = customers;
+        });
+      }
+    });
+  }
 
   ngOnInit(): void {
     this.loading = true;

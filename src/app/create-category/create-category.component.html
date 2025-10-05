@@ -33,11 +33,7 @@
         </c-col> -->
         <c-col [md]="6">
           <label cLabel for="catDesc">Description</label>
-          <textarea cFormControl id="catDesc" [(ngModel)]="category.catDesc" name="catDesc" rows="4" required #catDesc="ngModel" minlength="3" class="form-control"></textarea>
-          <div *ngIf="catDesc.invalid && (catDesc.dirty || catDesc.touched)" class="text-danger small">
-            <div *ngIf="catDesc.errors?.['required']">Description is required.</div>
-            <div *ngIf="catDesc.errors?.['minlength']">Description must be at least 3 characters.</div>
-          </div>
+          <textarea cFormControl id="catDesc" [(ngModel)]="category.catDesc" name="catDesc" rows="4" class="form-control"></textarea>
         </c-col>
         <c-col [md]="12" class="text-end">
           <button cButton color="primary" type="submit" [disabled]="!categoryForm.form.valid || categoryNameExists">

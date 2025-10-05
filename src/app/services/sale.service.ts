@@ -11,6 +11,7 @@ export class SaleService {
   updateProductStatus(payload: { saleId: number, productId: number, batchNo: string, status: string }): Observable<any> {
     return this.http.post(`${BASE_URL}/sale/api/updateProductStatus`, payload);
   }
+
   fetchSaleProductsOfCustomerView(saleId: string): Observable<any[]> {
     return this.http.get<any[]>(`${BASE_URL}/sale/api/fetchSaleProductsOfCustomerView/${saleId}`);
   }
@@ -48,6 +49,10 @@ export class SaleService {
 
 
   constructor(private http: HttpClient) { }
+
+  fetchPaymentByInvoiceNumber(invoiceNumber: string): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/fetchPaymentByInvoiceNumber/${invoiceNumber}`);
+  }
 
   getSalesByDateRange(startDate: string, endDate: string): Observable<any[]> {
     const url = `${this.baseUrl}/getSalesByDateRange?startDate=${startDate}&endDate=${endDate}`;

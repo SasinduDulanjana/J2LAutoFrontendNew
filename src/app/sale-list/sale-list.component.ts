@@ -39,11 +39,12 @@ export class SaleListComponent {
   ngOnInit(): void {
     this.loading = true;
     this.saleService.findAllSales().subscribe(data => {
-      // Sort by invoiceNumber descending
+      // Sort by transaction date and time descending (latest first)
       data.sort((a: any, b: any) => {
-        if (a.invoiceNumber < b.invoiceNumber) return 1;
-        if (a.invoiceNumber > b.invoiceNumber) return -1;
-        return 0;
+        // Try to use the most precise field available
+        const dateA = new Date((a.saleDate));
+        const dateB = new Date((b.saleDate));
+        return dateB.getTime() - dateA.getTime();
       });
       this.sales = data;
       this.filteredSales = data;

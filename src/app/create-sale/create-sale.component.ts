@@ -8,6 +8,7 @@ import { SaleProduct } from '../models/sale-product.model';
 import { CustomerService } from '../services/customer.service';
 // import { MatDialog } from '@angular/material/dialog';
 import { PopupCustomerListComponent } from '../popup-customer-list/popup-customer-list.component';
+import { CreateCustomerComponent } from '../create-customer/create-customer.component';
 import { SuccessDialogComponent } from '../success-dialog/success-dialog.component';
 import { FailureDialogComponent } from '../failure-dialog/failure-dialog.component';
 import { BillDialogComponent } from '../bill/bill-dialog.component';
@@ -31,6 +32,25 @@ import { InventoryListComponent } from '../inventory-list/inventory-list.compone
   styleUrls: ['./create-sale.component.scss']
 })
 export class CreateSaleComponent implements OnInit {
+  openAddCustomerDialog(): void {
+    const dialogRef = this.dialog.open(CreateCustomerComponent, {
+      width: '600px',
+      disableClose: true
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result && result.customer) {
+        // Add new customer to list and select
+        this.customers.push(result.customer);
+        this.selectedCustomerName = result.customer.name;
+        this.selectedCustomerId = result.customer.custId;
+      } else {
+        // Optionally refresh customer list
+        this.customerService.findAllCustomers().subscribe(customers => {
+          this.customers = customers;
+        });
+      }
+    });
+  }
   onDiscountAmountChange(item: any): void {
     // Only update percentage if retailPrice and remainingQty are valid
     const total = (item?.retailPrice ?? 0) * (item?.remainingQty ?? 0);
@@ -177,8 +197,12 @@ export class CreateSaleComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    // Auto-generate a temporary invoice number on page open
+  const shortNum = (Date.now() % 1000000).toString().padStart(6, '0');
+  this.invoiceNumber = `INV-${shortNum}`;
+  this.saleItem.invoiceNumber = this.invoiceNumber;
     // Check for hold sale data in router state or browser history
-  let holdSale: any = undefined;
+    let holdSale: any = undefined;
     const nav = this.router.getCurrentNavigation();
     if (nav && nav.extras && nav.extras.state && nav.extras.state['holdSale']) {
       holdSale = nav.extras.state['holdSale'];
@@ -212,7 +236,7 @@ export class CreateSaleComponent implements OnInit {
       })) : [];
       this.selectedCustomerId = holdSale.custId;
       this.currentDate = holdSale.saleDate;
-      this.getInvoiceNumber(); // Always fetch a new invoice number
+  // Removed getInvoiceNumber API call
 
       // Fetch customers and users if not already loaded
       this.customerService.findAllCustomers().subscribe(customers => {
@@ -231,7 +255,7 @@ export class CreateSaleComponent implements OnInit {
       const formattedDate = now.toISOString().slice(0, 10); // Format as YYYY-MM-DD for display
       // Store it in a variable
       this.currentDate = formattedDate;
-      this.getInvoiceNumber();
+  // Removed getInvoiceNumber API call
       this.fetchCategories();
       this.loggedUserName = this.getLoggedUserName();
       // Load all products for search bar
@@ -473,7 +497,7 @@ export class CreateSaleComponent implements OnInit {
           if (response.statusCode == 201) {
             this.invoiceNumber = response.invoiceNumber;
             this.clearForm();
-            this.getInvoiceNumber();
+            // Removed getInvoiceNumber API call
             if (onHoldSaved) onHoldSaved();
           } else {
             this.openFailureDialog(response.message);
@@ -546,7 +570,7 @@ export class CreateSaleComponent implements OnInit {
                 this.openFailureDialog(response.message);
               }
               this.clearForm();
-              this.getInvoiceNumber();
+              // Removed getInvoiceNumber API call
             },
             error: error => {
               this.loadingDialogRef.close();
@@ -613,19 +637,7 @@ export class CreateSaleComponent implements OnInit {
     return totalDiscount; // Return total discount for display
   }
 
-  getInvoiceNumber(): void {
-    this.saleService.getInvoiceNumber()
-      .subscribe(
-        (data: string) => {
-          console.log('Invoice Number fetched: ', data);
-          this.invoiceNumber = data; // Assign the response to a component variable
-          this.saleItem.invoiceNumber = this.invoiceNumber;
-        },
-        (error) => {
-          console.error('Error fetching invoice number', error);
-        }
-      );
-  }
+  // Removed getInvoiceNumber method and API call
 
   openCustomerListPopup() {
     const dialogRef = this.dialog.open(PopupCustomerListComponent, {

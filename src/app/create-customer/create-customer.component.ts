@@ -69,8 +69,13 @@ export class CreateCustomerComponent {
   }
 
   onPhoneChange(phone: string): void {
-    this.customerService.findAllCustomers().subscribe((customers: Customer[]) => {
-      this.phoneExists = customers.some((c: Customer) => c.phone.trim() === phone.trim());
-    });
+    // Only check if phone is exactly 9 digits
+    if (/^\d{9}$/.test(phone.trim())) {
+      this.customerService.findAllCustomers().subscribe((customers: Customer[]) => {
+        this.phoneExists = customers.some((c: Customer) => c.phone.trim() === phone.trim());
+      });
+    } else {
+      this.phoneExists = false;
+    }
   }
 }

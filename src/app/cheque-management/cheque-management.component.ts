@@ -96,8 +96,8 @@ export class ChequeManagementComponent implements OnInit {
       const toDateOk = !this.filter.toDate || cheque.issueDate <= this.filter.toDate;
       // Status filter
       const statusOk = !this.filter.status || cheque.status === this.filter.status;
-      // Type filter
-      const typeOk = !this.filter.type || cheque.type === this.filter.type;
+  // Type filter (case-insensitive, allow 'Received'/'Issued' in filter)
+  const typeOk = !this.filter.type || cheque.type.toLowerCase() === this.filter.type.toLowerCase();
       // Party filter
       const partyOk = !this.filter.party || cheque.party === this.filter.party;
       // Search filter (Cheque No or Bank Name)

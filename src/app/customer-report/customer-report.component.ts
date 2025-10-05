@@ -21,8 +21,8 @@ export class CustomerReportComponent implements OnInit {
   constructor(private customerService: CustomerService, private router: Router) {}
   goToOutstandingReport(customer: any): void {
     const id = customer?.id ?? customer?.custId;
-    if (customer && id) {
-      console.log('Navigating to customer-outstanding-report with id:', id);
+    // Allow navigation for Walk in Customer (custId 0)
+    if (customer && id !== undefined && id !== null) {
       this.router.navigate(['/customer-outstanding-report', id]);
     } else {
       console.warn('Customer or customer.id/custId missing:', customer);

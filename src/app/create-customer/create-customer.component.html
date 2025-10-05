@@ -14,7 +14,11 @@
       <form (ngSubmit)="createCustomer()" #customerForm="ngForm" cForm class="row g-4">
         <c-col [md]="6">
           <label cLabel for="companyName">Company Name</label>
-          <input cFormControl id="companyName" type="text" [(ngModel)]="companyName" name="companyName" minlength="2" />
+          <input cFormControl id="companyName" type="text" [(ngModel)]="companyName" name="companyName" minlength="2" required #companyNameCtrl="ngModel" />
+          <div *ngIf="companyNameCtrl.invalid && (companyNameCtrl.dirty || companyNameCtrl.touched)" class="text-danger small">
+            <div *ngIf="companyNameCtrl.errors?.['required']">Company Name is required.</div>
+            <div *ngIf="companyNameCtrl.errors?.['minlength']">Company Name must be at least 2 characters.</div>
+          </div>
         </c-col>
         <c-col [md]="6">
           <label cLabel for="name">Customer Name</label>
@@ -26,9 +30,8 @@
         </c-col>
         <c-col [md]="6">
           <label cLabel for="email">Email</label>
-          <input cFormControl id="email" type="email" [(ngModel)]="customer.email" name="email" required #email="ngModel" email />
+          <input cFormControl id="email" type="email" [(ngModel)]="customer.email" name="email" #email="ngModel" email />
           <div *ngIf="email.invalid && (email.dirty || email.touched)" class="text-danger small">
-            <div *ngIf="email.errors?.['required']">Email is required.</div>
             <div *ngIf="email.errors?.['email']">Invalid email format.</div>
           </div>
         </c-col>
@@ -42,21 +45,21 @@
               <option value="+44">+44&nbsp;&nbsp;UK</option>
               <!-- Add more country codes as needed -->
             </select>
-            <input cFormControl id="phone" type="text" [(ngModel)]="customer.phone" name="phone" required #phone="ngModel" pattern="^[0-9]{7,15}$" (ngModelChange)="onPhoneChange($event)" class="form-control" />
+            <input cFormControl id="phone" type="text" [(ngModel)]="customer.phone" name="phone" required #phone="ngModel" pattern="^[0-9]{9}$" (ngModelChange)="onPhoneChange($event)" class="form-control" />
           </div>
           <div *ngIf="phone.invalid && (phone.dirty || phone.touched)" class="text-danger small">
             <div *ngIf="phone.errors?.['required']">Phone number is required.</div>
-            <div *ngIf="phone.errors?.['pattern']">Phone number must be 7-15 digits.</div>
+            <div *ngIf="phone.errors?.['pattern']">Phone number must be exactly 9 digits (without country code).</div>
           </div>
           <div *ngIf="phoneExists" class="text-danger small">Phone number already exists!</div>
         </c-col>
         <c-col [md]="12">
           <label cLabel for="address">Address</label>
           <input cFormControl id="address" type="text" [(ngModel)]="customer.address" name="address" required #address="ngModel" minlength="3" />
-          <div *ngIf="address.invalid && (address.dirty || address.touched)" class="text-danger small">
-            <div *ngIf="address.errors?.['required']">Address is required.</div>
-            <div *ngIf="address.errors?.['minlength']">Address must be at least 3 characters.</div>
-          </div>
+          <!-- <div *ngIf="address.invalid && (address.dirty || address.touched)" class="text-danger small"> -->
+            <!-- <div *ngIf="address.errors?.['required']">Address is required.</div> -->
+            <!-- <div *ngIf="address.errors?.['minlength']">Address must be at least 3 characters.</div> -->
+          <!-- </div> -->
         </c-col>
         <c-col [md]="12" class="text-end">
           <button cButton color="primary" type="submit" [disabled]="!customerForm.form.valid || phoneExists">
