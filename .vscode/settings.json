@@ -1,0 +1,8 @@
+{
+    "appService.zipIgnorePattern": [
+        "node_modules{,/**}",
+        ".vscode{,/**}"
+    ],
+    "appService.defaultWebAppToDeploy": "/subscriptions/2855bd6e-410e-4adb-8303-f856c3ca81c1/resourceGroups/trueenterprisesresource/providers/Microsoft.Web/sites/truefrontend",
+    "appService.deploySubpath": "dist"
+}
