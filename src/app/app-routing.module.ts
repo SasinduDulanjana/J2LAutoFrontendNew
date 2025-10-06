@@ -422,7 +422,64 @@ const routes: Routes = [
       title: 'Login Page'
     }
   },
-  { path: '**', redirectTo: 'dashboard' }
+   //Customer Routings
+  { path: 'create-customer', component: CreateCustomerComponent },
+  { path: '', redirectTo: '/create-customer', pathMatch: 'full' }, // Optional: Redirect to create-customer by default
+  { path: 'customer-list', component: CustomerListComponent },
+  { path: '', redirectTo: '/customer-list', pathMatch: 'full' }, // Optional: Redirect to create-customer by default
+  { path: 'edit-customer/:custId', component: EditCustomerComponent },
+  { path: '', redirectTo: '/edit-customer', pathMatch: 'full' }, // Optional: Redirect to create-customer by default
+
+  //Supplier Routings
+  { path: 'create-supplier', component: CreateSupplierComponent },
+  { path: '', redirectTo: '/create-supplier', pathMatch: 'full' }, // Optional: Redirect to create-supplier by default
+  { path: 'supplier-list', component: SupplierListComponent },
+  { path: '', redirectTo: '/supplier-list', pathMatch: 'full' }, // Optional: Redirect to create-supplier by default
+  { path: 'edit-supplier/:id', component: EditSupplierComponent },
+  { path: '', redirectTo: '/supplier', pathMatch: 'full' }, // Optional: Redirect to create-supplier by default
+
+  //Product Routings
+  { path: 'create-product', component: CreateProductComponent },
+  { path: '', redirectTo: '/create-product', pathMatch: 'full' }, // Optional: Redirect to create-supplier by default
+  { path: 'product-list', component: ProductListComponent },
+  { path: '', redirectTo: '/product-list', pathMatch: 'full' }, // Optional: Redirect to create-supplier by default
+  { path: 'edit-product/:id', component: EditProductComponent },
+  { path: '', redirectTo: '/product', pathMatch: 'full' }, // Optional: Redirect to create-supplier by default
+
+  //Category Routings
+  { path: 'create-category', component: CreateCategoryComponent },
+  { path: '', redirectTo: '/create-category', pathMatch: 'full' }, // Optional: Redirect to create-supplier by default
+  { path: 'category-list', component: CategoryListComponent },
+  { path: '', redirectTo: '/category-list', pathMatch: 'full' }, // Optional: Redirect to create-supplier by default
+  { path: 'edit-category/:id', component: EditCategoryComponent },
+  { path: '', redirectTo: '/category', pathMatch: 'full' }, // Optional: Redirect to create-supplier by default
+
+    //Purchase Routings
+  { path: 'create-purchase', component: CreatePurchaseComponent },
+  { path: '', redirectTo: '/create-purchase', pathMatch: 'full' }, // Optional: Redirect to create-supplier by default
+  { path: 'purchase-list', component: PurchaseListComponent },
+  { path: '', redirectTo: '/purchase-list', pathMatch: 'full' }, // Optional: Redirect to create-supplier by default
+
+   //Sale Routings
+  { path: 'create-sale', component: CreateSaleComponent },
+  { path: '', redirectTo: '/create-sale', pathMatch: 'full' }, // Optional: Redirect to create-supplier by default
+  { path: 'sale-list', component: SaleListComponent },
+  { path: '', redirectTo: '/sale-list', pathMatch: 'full' }, // Optional: Redirect to create-supplier by default
+  { path: 'deleted-sale-list', component: DeletedSaleListComponent },
+  { path: '', redirectTo: '/deleted-sale-list', pathMatch: 'full' }, // Optional: Redirect to create-supplier by default
+  { path: 'hold-sale-list', component: HoldSaleListComponent },
+  { path: '', redirectTo: '/hold-sale-list', pathMatch: 'full' }, // Optional: Redirect to create-supplier by default
+  { path: 'dashboard', component: DashboardComponent}, // Dashboard route (home page)
+  { path: 'orders', component: SaleListComponent }, // Sales route
+
+  {
+    path: 'register',
+    component: RegisterComponent,
+    data: {
+      title: 'Register Page'
+    }
+  },
+  {path: '**', redirectTo: 'dashboard'}
 ];
 // ...existing code...
 @NgModule({

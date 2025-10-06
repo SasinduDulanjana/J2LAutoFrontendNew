@@ -23,8 +23,15 @@ export class DefaultLayoutComponent {
     private featurePerms: FeaturePermissionsService,
     private rolePermService: RolePermissionsService
   ) {
-    // Always load permissions fresh from backend
-    this.loadAndFilterNavItems();
+    // Only load permissions from backend if not cached
+    const cached = localStorage.getItem('rolePermissions');
+    if (!cached) {
+      this.loadAndFilterNavItems();
+    } else {
+      this.rolePermService.setLocalPermissions(JSON.parse(cached));
+      this.filterNavItems();
+    }
+    
   }
 
   private loadAndFilterNavItems() {
