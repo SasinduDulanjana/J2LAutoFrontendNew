@@ -91,13 +91,25 @@ export class ChequeManagementComponent implements OnInit {
 
   applyFilters() {
     this.cheques = this.allCheques.filter(cheque => {
-      // Date range filter
-      const fromDateOk = !this.filter.fromDate || cheque.issueDate >= this.filter.fromDate;
-      const toDateOk = !this.filter.toDate || cheque.issueDate <= this.filter.toDate;
+      // Date range filter (compare as dates, not strings)
+      let issueDate: Date | null = null;
+      if (cheque.issueDate) {
+        if (/^\d{2}-\d{2}-\d{4}$/.test(cheque.issueDate)) {
+          const [dd, mm, yyyy] = cheque.issueDate.split('-');
+          issueDate = new Date(Number(yyyy), Number(mm) - 1, Number(dd));
+        } else {
+          issueDate = new Date(cheque.issueDate);
+        }
+      }
+      let fromDate: Date | null = this.filter.fromDate ? new Date(this.filter.fromDate) : null;
+      let toDate: Date | null = this.filter.toDate ? new Date(this.filter.toDate) : null;
+      const fromDateOk = !fromDate || (issueDate && issueDate >= fromDate);
+      const toDateOk = !toDate || (issueDate && issueDate <= toDate);
+
       // Status filter
       const statusOk = !this.filter.status || cheque.status === this.filter.status;
-  // Type filter (case-insensitive, allow 'Received'/'Issued' in filter)
-  const typeOk = !this.filter.type || cheque.type.toLowerCase() === this.filter.type.toLowerCase();
+      // Type filter (case-insensitive, allow 'Received'/'Issued' in filter)
+      const typeOk = !this.filter.type || cheque.type.toLowerCase() === this.filter.type.toLowerCase();
       // Party filter
       const partyOk = !this.filter.party || cheque.party === this.filter.party;
       // Search filter (Cheque No or Bank Name)

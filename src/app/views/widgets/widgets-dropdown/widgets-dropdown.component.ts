@@ -22,6 +22,7 @@ export class WidgetsDropdownComponent implements OnInit, AfterContentInit {
   @Input() totalPurchases: number = 0;
   @Input() totalCogs: number = 0;
   @Input() netProfit: number = 0;
+  @Input() totalExpenses: number = 0;
 
   constructor(
     private changeDetectorRef: ChangeDetectorRef

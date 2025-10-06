@@ -1,0 +1,80 @@
+
+
+<div class="container py-4" style="max-width: 1200px;">
+  <div *ngIf="loading" class="loading-overlay" style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:9999;background:rgba(255,255,255,0.6);display:flex;flex-direction:column;align-items:center;justify-content:center;">
+    <div class="spinner-border text-primary mb-3" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <div style="font-size:1.2rem;color:#0d6efd;font-weight:500;">Saving expense...</div>
+  </div>
+  <div class="card shadow-sm" *ngIf="!loading">
+    <div class="card-header bg-primary text-white d-flex align-items-center">
+      <svg cIcon name="cil-money" class="me-2"></svg>
+      <h4 class="mb-0">Create Expense</h4>
+    </div>
+    <div class="card-body">
+      <div *ngIf="loading" class="d-flex justify-content-center align-items-center" style="min-height: 120px;">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+      <form *ngIf="!loading" [formGroup]="expenseForm" (ngSubmit)="onSubmit()" class="row g-4">
+        <div class="col-md-4">
+          <label for="expenseType" class="form-label">Expense Type</label>
+          <select id="expenseType" class="form-control" formControlName="expenseType" required>
+            <option value="">Select Type</option>
+            <option value="Sale Commision">Sale Commision</option>
+            <option value="Purchase Commision">Purchase Commision</option>
+            <option value="Transport">Transport</option>
+            <option value="Courier">Courier</option>
+          </select>
+          <div *ngIf="submitted && expenseForm.controls['expenseType'].invalid" class="text-danger small">Expense type is required.</div>
+        </div>
+        <div class="col-md-4">
+          <label for="amount" class="form-label">Amount</label>
+          <input id="amount" type="number" class="form-control" formControlName="amount" required min="0.01" step="0.01">
+          <div *ngIf="submitted && expenseForm.controls['amount'].invalid" class="text-danger small">Valid amount is required.</div>
+        </div>
+        <div class="col-md-4">
+          <label for="paymentMethod" class="form-label">Payment Method</label>
+          <select id="paymentMethod" class="form-control" formControlName="paymentMethod" required>
+            <option value="">Select Method</option>
+            <option value="Cash">Cash</option>
+            <option value="Cheque">Cheque</option>
+            <option value="Card">Card</option>
+            <option value="Bank Transfer">Bank Transfer</option>
+          </select>
+          <div *ngIf="submitted && expenseForm.controls['paymentMethod'].invalid" class="text-danger small">Payment method is required.</div>
+        </div>
+        <div class="col-md-4" *ngIf="expenseForm.get('paymentMethod')?.value === 'Cheque'">
+          <label for="bankName" class="form-label">Bank Name</label>
+          <input id="bankName" type="text" class="form-control" formControlName="bankName" required>
+          <div *ngIf="submitted && expenseForm.controls['bankName'].invalid" class="text-danger small">Bank name is required.</div>
+        </div>
+        <div class="col-md-4" *ngIf="expenseForm.get('paymentMethod')?.value === 'Cheque'">
+          <label for="chequeDate" class="form-label">Cheque Date</label>
+          <input id="chequeDate" type="date" class="form-control" formControlName="chequeDate" required>
+          <div *ngIf="submitted && expenseForm.controls['chequeDate'].invalid" class="text-danger small">Cheque date is required.</div>
+        </div>
+        <div class="col-md-4" *ngIf="expenseForm.get('paymentMethod')?.value === 'Cheque'">
+          <label for="chequeNumber" class="form-label">Cheque Number</label>
+          <input id="chequeNumber" type="text" class="form-control" formControlName="chequeNumber" required>
+          <div *ngIf="submitted && expenseForm.controls['chequeNumber'].invalid" class="text-danger small">Cheque number is required.</div>
+        </div>
+        <div class="col-md-4">
+          <label for="reference" class="form-label">Reference</label>
+          <input id="reference" type="text" class="form-control" formControlName="reference">
+        </div>
+        <div class="col-md-12">
+          <label for="description" class="form-label">Description</label>
+          <textarea id="description" class="form-control" formControlName="description" rows="3"></textarea>
+        </div>
+        <div class="col-md-12 text-end">
+          <button type="submit" class="btn btn-primary text-white">
+            <svg cIcon name="cil-save" class="me-2"></svg>Save Expense
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,90 @@
+<div class="container py-4">
+  <div class="card shadow-sm">
+    <div class="card-header bg-primary text-white d-flex align-items-center">
+      <svg cIcon name="cil-list" class="me-2"></svg>
+      <h4 class="mb-0">Expense List</h4>
+    </div>
+    <div class="card-body">
+      <!-- Filter UI -->
+  <form class="row g-2 mb-3 align-items-end">
+        <div class="col-md-2">
+          <label for="fromDate" class="form-label">From Date</label>
+          <input type="date" id="fromDate" class="form-control" [(ngModel)]="filterFromDate" name="fromDate" (ngModelChange)="applyFilters()">
+        </div>
+        <div class="col-md-2">
+          <label for="toDate" class="form-label">To Date</label>
+          <input type="date" id="toDate" class="form-control" [(ngModel)]="filterToDate" name="toDate" (ngModelChange)="applyFilters()">
+        </div>
+        <div class="col-md-2">
+          <label for="expenseType" class="form-label">Expense Type</label>
+          <select id="expenseType" class="form-select" [(ngModel)]="filterExpenseType" name="expenseType" (ngModelChange)="applyFilters()">
+            <option value="">All</option>
+            <option *ngFor="let type of expenseTypes" [value]="type">{{ type }}</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <label for="paymentMethod" class="form-label">Payment Method</label>
+          <select id="paymentMethod" class="form-select" [(ngModel)]="filterPaymentMethod" name="paymentMethod" (ngModelChange)="applyFilters()">
+            <option value="">All</option>
+            <option *ngFor="let method of paymentMethods" [value]="method">{{ method }}</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label for="search" class="form-label">Search</label>
+          <input type="text" id="search" class="form-control" [(ngModel)]="filterSearch" name="search" placeholder="Description or Reference" (ngModelChange)="applyFilters()">
+        </div>
+        <div class="col-md-1 d-flex align-items-end">
+          <button type="button" class="btn btn-outline-secondary w-100" (click)="clearFilters()">Clear</button>
+        </div>
+      </form>
+      <!-- Totals Summary -->
+      <div class="mb-3 d-flex flex-wrap gap-3">
+        <span class="fw-bold">
+          💰 Total Expenses: <span class="text-warning">LKR {{ getTotalExpenses() | number:'1.0-0' }}</span>
+        </span>
+        <span *ngFor="let type of visibleExpenseTypes" class="fw-bold">
+          {{ type }} Total: <span class="text-info">LKR {{ getTotalByType(type) | number:'1.0-0' }}</span>
+        </span>
+      </div>
+
+      <div *ngIf="loading" class="d-flex justify-content-center align-items-center" style="min-height: 120px;">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+      <table *ngIf="!loading && filteredExpenses.length" class="table table-bordered table-hover">
+        <thead class="table-light">
+          <tr>
+            <th>ID</th>
+            <th>Date</th>
+            <th>Expense Type</th>
+            <th>Amount</th>
+            <th>Reference</th>
+            <th>Payment Method</th>
+            <th>Bank Name</th>
+            <th>Cheque Date</th>
+            <th>Cheque Number</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let expense of filteredExpenses; let i = index">
+            <td>{{ expense.id != null ? expense.id : '-' }}</td>
+            <td>{{ expense.date || '-' }}</td>
+            <td>{{ expense.expenseType || '-' }}</td>
+            <td>{{ expense.amount != null && expense.amount !== '' ? expense.amount : '-' }}</td>
+            <td>{{ expense.reference || '-' }}</td>
+            <td>{{ expense.paymentMethod || '-' }}</td>
+            <td>{{ expense.bankName || '-' }}</td>
+            <td>{{ expense.chequeDate || '-' }}</td>
+            <td>{{ expense.chequeNumber || '-' }}</td>
+            <td>{{ expense.description || '-' }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <div *ngIf="!loading && !filteredExpenses.length" class="text-center text-muted py-4">
+        No expenses found.
+      </div>
+    </div>
+  </div>
+</div>

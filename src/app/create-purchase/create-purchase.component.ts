@@ -72,6 +72,9 @@ export class CreatePurchaseComponent implements OnInit {
   fetchSuppliers(): void {
     this.supplierService.findAllSuppliers().subscribe(data => {
       this.suppliers = data;
+      if (this.suppliers.length > 0) {
+        this.selectedSupplierId = this.suppliers[0].supId ?? 0;
+      }
     });
   }
 
@@ -191,38 +194,33 @@ export class CreatePurchaseComponent implements OnInit {
   }
 
   addProductToPurchase(product: Product): void {
-    // Open a professional popup for quantity input
-    const dialogRef = this.dialog.open(QuantityInputComponent, {
-      width: '350px',
-      data: { productName: product.productName }
-    });
-
-    dialogRef.afterClosed().subscribe((qty: number) => {
-      if (qty && qty > 0) {
-        if (!this.purchase.products.some(p => p.productId === product.productId)) {
-          product.remainingQty = qty;
-          product.wholeSalePrice = 0; // Set default wholesale price to 0
-          // Ensure retail price is set from product or batch
-          if (typeof product.retailPrice === 'undefined' || product.retailPrice === null) {
-            product.retailPrice = product.salePrice || 0;
-          }
-          this.purchase.products.push(product);
-
-          // Fetch batch numbers for the product
-          if (!product.sku) return;
-          this.productService.getBatchNumbersForProduct(product.sku).subscribe(batches => {
-            this.batchNumbers[product.sku || 0] = batches;
-            console.log('BATCHES', batches);
-          });
-
-          console.log('Product added. Updated products:', this.purchase.products);
-        } else {
-          console.log('Product already in list, not adding:', product);
-        }
-        this.searchResults = [];
-        this.productSearchTerm = '';
+    if (!this.purchase.products.some(p => p.productId === product.productId)) {
+      product.remainingQty = 1;
+      product.wholeSalePrice = 0;
+      // You may want to set product.cost and product.retailPrice from UI fields or defaults here
+      if (typeof product.retailPrice === 'undefined' || product.retailPrice === null) {
+        product.retailPrice = product.salePrice || 0;
       }
-    });
+      if (!product.sku) return;
+      this.productService.getBatchNumbersForProduct(product.sku).subscribe(batches => {
+        this.batchNumbers[product.sku || 0] = batches;
+        // Find existing batch
+        const found = batches.find(batch => batch.unitCost === product.cost && batch.retailPrice === product.retailPrice);
+        if (found) {
+          product.batchNo = found.batchNumber;
+        } else {
+          const namePart = (product.productName || '').replace(/[^A-Za-z]/g, '').toUpperCase().slice(0, 3);
+          const randPart = Math.floor(1000 + Math.random() * 9000); // 4-digit random number
+          product.batchNo = namePart + randPart;
+        }
+        this.purchase.products.push(product);
+        console.log('Product added. Updated products:', this.purchase.products);
+      });
+    } else {
+      console.log('Product already in list, not adding:', product);
+    }
+    this.searchResults = [];
+    this.productSearchTerm = '';
   }
   
 
@@ -233,6 +231,7 @@ export class CreatePurchaseComponent implements OnInit {
   onBatchChange(batchNumber: string, index: number): void {
     this.purchase.products[index].batchNo = batchNumber;
   }
+
 
   getBatchNumbers(product: Product): Batch[] {
     return this.batchNumbers[product.sku || 0] || [];
@@ -281,6 +280,20 @@ export class CreatePurchaseComponent implements OnInit {
       }
     });
   }
-  
-  
+
+
+  validateBatch(product: Product): void {
+    if (!product.sku) return;
+    this.productService.getBatchNumbersForProduct(product.sku).subscribe((batches: Batch[]) => {
+      this.batchNumbers[product.sku || 0] = batches;
+      const found = batches.find((batch: Batch) => batch.unitCost === product.cost && batch.retailPrice === product.retailPrice);
+      if (found) {
+        product.batchNo = found.batchNumber;
+      } else {
+  const namePart = (product.productName || '').replace(/[^A-Za-z]/g, '').toUpperCase().slice(0, 3);
+  const randPart = Math.floor(1000 + Math.random() * 9000); // 4-digit random number
+  product.batchNo = namePart + randPart;
+      }
+    });
+  }
 }

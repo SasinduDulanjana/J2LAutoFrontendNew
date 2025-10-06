@@ -10,6 +10,7 @@ interface ProfitLossRow {
   sales: number;
   cogs: number;
   netProfit: number;
+  expenses?: number;
 }
 
 @Component({
@@ -70,7 +71,8 @@ export class ProfitLossComponent implements OnInit {
         month: row.month,
         sales: row.sales ?? 0,
         cogs: row.cogs ?? 0,
-        netProfit: row.netProfit ?? 0
+        netProfit: row.netProfit ?? 0,
+        expenses: row.expenses ?? 0 // fallback to cogs if no expenses field
       }));
       this.calculateSummary();
     });
@@ -78,7 +80,7 @@ export class ProfitLossComponent implements OnInit {
 
   calculateSummary(): void {
     this.totalRevenue = this.profitLossRows.reduce((sum, row) => sum + row.sales, 0);
-    this.totalExpenses = this.profitLossRows.reduce((sum, row) => sum + row.cogs, 0);
+    this.totalExpenses = this.profitLossRows.reduce((sum, row) => sum + (row.expenses !== undefined ? row.expenses : row.cogs), 0);
     this.netProfit = this.profitLossRows.reduce((sum, row) => sum + row.netProfit, 0);
   }
 
@@ -108,13 +110,15 @@ export class ProfitLossComponent implements OnInit {
       'Month',
       'Sales',
       'COGS',
+      'Total Expenses',
       'Net Profit'
     ]];
     const data = (this.profitLossRows || []).map(row => [
-      row.month,
-      row.sales.toFixed(2),
-      row.cogs.toFixed(2),
-      row.netProfit.toFixed(2)
+      String(row.month ?? ''),
+      row.sales !== undefined ? row.sales.toFixed(2) : '0.00',
+      row.cogs !== undefined ? row.cogs.toFixed(2) : '0.00',
+      (row.expenses !== undefined && row.expenses !== 0 ? row.expenses.toFixed(2) : (row.cogs !== undefined ? row.cogs.toFixed(2) : '0.00')),
+      row.netProfit !== undefined ? row.netProfit.toFixed(2) : '0.00'
     ]);
     autoTable(doc, {
       head,

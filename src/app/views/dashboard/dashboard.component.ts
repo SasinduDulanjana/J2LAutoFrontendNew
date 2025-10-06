@@ -34,6 +34,7 @@ export class DashboardComponent implements OnInit {
   public totalPurchases: number = 0;
   public totalCogs: number = 0;
   public netProfit: number = 0;
+  public totalExpenses: number = 0;
 
   constructor(
     private chartsData: DashboardChartsData,
@@ -58,10 +59,11 @@ export class DashboardComponent implements OnInit {
     // Fetch from backend API using Angular HttpClient
   this.http.get<any>(BASE_URL + '/financialSummary/totalSummary').subscribe({
       next: (data) => {
-        this.totalSales = data.totalSales || 0;
-        this.totalPurchases = data.totalPurchases || 0;
-        this.totalCogs = data.totalCogs || 0;
-        this.netProfit = data.netProfit || 0;
+  this.totalSales = data.totalSales || 0;
+  this.totalPurchases = data.totalPurchases || 0;
+  this.totalCogs = data.totalCogs || 0;
+  this.netProfit = data.netProfit || 0;
+  this.totalExpenses = data.totalExpenses || data.totalCogs || 0;
       },
       error: (err) => {
         this.totalSales = 0;

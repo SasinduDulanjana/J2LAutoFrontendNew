@@ -1,0 +1,17 @@
+@import '../../scss/_variables.scss';
+
+.container {
+  max-width: 600px;
+}
+.card {
+  border-radius: 0.75rem;
+}
+.card-header {
+  font-size: 1.25rem;
+}
+.btn-success {
+  min-width: 120px;
+}
+.text-danger {
+  font-size: 0.95rem;
+}

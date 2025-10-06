@@ -29,7 +29,6 @@ export class PurchasePaymentDetailsComponent implements OnInit {
       this.loading = true;
       this.purchaseService.getPaymentDetailsByPurchaseId(this.purchaseId).subscribe({
         next: (response: any[]) => {
-          // Map purchase details from first payment item
           if (Array.isArray(response) && response.length > 0) {
             const first = response[0];
             const payment = first.payment || {};
@@ -42,26 +41,56 @@ export class PurchasePaymentDetailsComponent implements OnInit {
               paidAmount: response.reduce((sum: number, item: any) => sum + (item.amount || 0), 0),
               paymentStatus: first.paymentStatus || payment.paymentStatus || '-',
             };
+            this.paymentHistory = response.map((item: any) => ({
+              date: item.paymentDate || (item.payment && item.payment.paymentDate) || '',
+              chequeNo: item.chequeNo,
+              bankName: item.bankName,
+              chequeDate: item.chequeDate,
+              amount: item.amount,
+              status: item.paymentStatus || (item.payment && item.payment.paymentStatus) || 'Unknown',
+              method: item.paymentMethod || '-',
+              payment: item.payment
+            }));
+            this.loading = false;
           } else {
-            this.purchase = null;
+            // No payment details, fetch purchase info
+            this.purchaseService.getPurchaseById(this.purchaseId).subscribe({
+              next: (purchase: any) => {
+                this.purchase = {
+                  purchaseId: purchase.purchaseId || '-',
+                  invoiceNumber: purchase.invoiceNumber || '-',
+                  supplierName: purchase.supplierName || '-',
+                  totalCost: purchase.totalCost || 0,
+                  paidAmount: 0,
+                  paymentStatus: '-',
+                };
+                this.paymentHistory = [];
+                this.loading = false;
+              },
+              error: () => {
+                this.purchase = {
+                  purchaseId: '-',
+                  invoiceNumber: '-',
+                  supplierName: '-',
+                  totalCost: 0,
+                  paidAmount: 0,
+                  paymentStatus: '-',
+                };
+                this.paymentHistory = [];
+                this.loading = false;
+              }
+            });
           }
-          // Map payment history from response array
-          this.paymentHistory = Array.isArray(response)
-            ? response.map((item: any) => ({
-                date: item.paymentDate || (item.payment && item.payment.paymentDate) || '',
-                chequeNo: item.chequeNo,
-                bankName: item.bankName,
-                chequeDate: item.chequeDate,
-                amount: item.amount,
-                status: item.paymentStatus || (item.payment && item.payment.paymentStatus) || 'Unknown',
-                method: item.paymentMethod || '-',
-                payment: item.payment
-              }))
-            : [];
-          this.loading = false;
         },
         error: () => {
-          this.purchase = null;
+          this.purchase = {
+            purchaseId: '-',
+            invoiceNumber: '-',
+            supplierName: '-',
+            totalCost: 0,
+            paidAmount: 0,
+            paymentStatus: '-',
+          };
           this.paymentHistory = [];
           this.loading = false;
         }
@@ -80,62 +109,74 @@ export class PurchasePaymentDetailsComponent implements OnInit {
     });
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        // Build payload for API
-        const lastPayment = this.paymentHistory.length > 0 ? this.paymentHistory[this.paymentHistory.length - 1] : null;
-        const paymentId = lastPayment && lastPayment.payment && lastPayment.payment.paymentId ? lastPayment.payment.paymentId : null;
-        const payload = {
-          paymentId: paymentId,
-          method: result.paymentType,
-          amount: result.paymentAmount,
-          chequeNo: result.chequeNumber || '',
-          bankName: result.bankName || '',
-          chequeDate: result.chequeDate || ''
-        };
-        this.loading = true;
-        this.purchaseService.createPaymentDetails(payload).subscribe({
-          next: () => {
-            // Refresh payment details after successful payment
-            this.purchaseService.getPaymentDetailsByPurchaseId(this.purchaseId).subscribe({
-              next: (response: any[]) => {
-                if (Array.isArray(response) && response.length > 0) {
-                  const first = response[0];
-                  const payment = first.payment || {};
-                  const supplier = payment.supplier || {};
-                  this.purchase = {
-                    invoiceNumber: payment.remarks || '-',
-                    supplierName: supplier.name || '-',
-                    totalCost: payment.totalAmount || 0,
-                    paidAmount: response.reduce((sum: number, item: any) => sum + (item.amount || 0), 0),
-                    paymentStatus: first.paymentStatus || payment.paymentStatus || '-',
-                  };
-                } else {
+        const setPaymentAndProceed = (paymentId: number | null) => {
+          const payload = {
+            paymentId: paymentId ?? 0,
+            method: result.paymentType,
+            amount: result.paymentAmount,
+            chequeNo: result.chequeNumber || '',
+            bankName: result.bankName || '',
+            chequeDate: result.chequeDate || ''
+          };
+          this.loading = true;
+          this.purchaseService.createPaymentDetails(payload).subscribe({
+            next: () => {
+              // Refresh payment details after successful payment
+              this.purchaseService.getPaymentDetailsByPurchaseId(this.purchaseId).subscribe({
+                next: (response: any[]) => {
+                  if (Array.isArray(response) && response.length > 0) {
+                    const first = response[0];
+                    const payment = first.payment || {};
+                    const supplier = payment.supplier || {};
+                    this.purchase = {
+                      invoiceNumber: payment.remarks || '-',
+                      supplierName: supplier.name || '-',
+                      totalCost: payment.totalAmount || 0,
+                      paidAmount: response.reduce((sum: number, item: any) => sum + (item.amount || 0), 0),
+                      paymentStatus: first.paymentStatus || payment.paymentStatus || '-',
+                    };
+                  } else {
+                    this.purchase = null;
+                  }
+                  this.paymentHistory = Array.isArray(response)
+                    ? response.map((item: any) => ({
+                        date: item.paymentDate || (item.payment && item.payment.paymentDate) || '',
+                        chequeNo: item.chequeNo,
+                        bankName: item.bankName,
+                        chequeDate: item.chequeDate,
+                        amount: item.amount,
+                        status: item.paymentStatus || (item.payment && item.payment.paymentStatus) || 'Unknown',
+                        method: item.paymentMethod || '-',
+                        payment: item.payment
+                      }))
+                    : [];
+                  this.loading = false;
+                },
+                error: () => {
                   this.purchase = null;
+                  this.paymentHistory = [];
+                  this.loading = false;
                 }
-                this.paymentHistory = Array.isArray(response)
-                  ? response.map((item: any) => ({
-                      date: item.paymentDate || (item.payment && item.payment.paymentDate) || '',
-                      chequeNo: item.chequeNo,
-                      bankName: item.bankName,
-                      chequeDate: item.chequeDate,
-                      amount: item.amount,
-                      status: item.paymentStatus || (item.payment && item.payment.paymentStatus) || 'Unknown',
-                      method: item.paymentMethod || '-',
-                      payment: item.payment
-                    }))
-                  : [];
-                this.loading = false;
-              },
-              error: () => {
-                this.purchase = null;
-                this.paymentHistory = [];
-                this.loading = false;
-              }
-            });
-          },
-          error: () => {
-            this.loading = false;
-          }
-        });
+              });
+            },
+            error: () => {
+              this.loading = false;
+            }
+          });
+        };
+        // If payment history exists, use last paymentId; else fetch using API
+        if (this.paymentHistory.length > 0 && this.paymentHistory[this.paymentHistory.length - 1].payment && this.paymentHistory[this.paymentHistory.length - 1].payment.paymentId) {
+          setPaymentAndProceed(this.paymentHistory[this.paymentHistory.length - 1].payment.paymentId);
+        } else {
+          this.purchaseService.fetchPaymentByPurchaseId(this.purchaseId).subscribe({
+            next: (resp: any) => {
+              setPaymentAndProceed(resp?.paymentId || null);
+            },
+            error: () => {
+              setPaymentAndProceed(null);
+            }
+          });
+        }
       }
     });
   }

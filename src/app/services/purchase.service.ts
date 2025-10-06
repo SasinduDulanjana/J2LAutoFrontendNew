@@ -15,6 +15,13 @@ export class PurchaseService {
   constructor(private http: HttpClient) {}
 
   /**
+   * Fetch paymentId by purchaseId
+   */
+  fetchPaymentByPurchaseId(purchaseId: number): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/fetchPaymentByPurchaseId/${purchaseId}`);
+  }
+
+  /**
    * Fetch product batch details for a purchase
    * @param purchaseId purchase id
    */

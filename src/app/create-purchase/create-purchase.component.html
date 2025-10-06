@@ -33,7 +33,6 @@
             <label cLabel for="supplier">Supplier</label>
             <div class="d-flex align-items-center gap-2">
               <select cFormControl id="supplier" [(ngModel)]="selectedSupplierId" name="supplier" required class="form-select" #supplierId="ngModel">
-                <option value="" disabled selected hidden>Select supplier</option>
                 <option *ngFor="let supplier of suppliers" [value]="supplier.supId">{{ supplier.name }}</option>
               </select>
               <button cButton type="button" color="primary" (click)="openCreateSupplierPopup()">
@@ -101,11 +100,12 @@
                   <td>{{ product.sku }}</td>
                   <td>
                     <div class="input-group">
-                    <input type="text" [(ngModel)]="product.batchNo" name="batchNo-{{i}}" class="form-control" required #batchNo="ngModel" />
-                    <div *ngIf="batchNo.invalid && (batchNo.dirty || batchNo.touched)" class="text-danger small">Batch number is required.</div>
-                      <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                      <input type="text" [(ngModel)]="product.batchNo" name="batchNo-{{i}}" class="form-control" required #batchNo="ngModel" />
+                      <div *ngIf="batchNo.invalid && (batchNo.dirty || batchNo.touched)" class="text-danger small">Batch number is required.</div>
+                      <button type="button" class="btn btn-info ms-2" (click)="validateBatch(product)">Validate Batch</button>
+                      <!-- <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                         Select Batch
-                      </button>
+                      </button> -->
                       <ul class="dropdown-menu">
                         <li *ngFor="let batch of getBatchNumbers(product)"><a class="dropdown-item" (click)="selectBatch(product, batch)">{{ batch.batchNumber }}</a></li>
                         <li><a class="dropdown-item text-primary" (click)="addNewBatch(product)"><strong>+ Add New Batch</strong></a></li>

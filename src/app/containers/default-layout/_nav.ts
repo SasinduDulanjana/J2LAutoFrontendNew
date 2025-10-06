@@ -185,13 +185,32 @@ export const navItems: INavDataWithRoles[] = [
         name: 'Supplier Report',
         url: '/supplier-report'
       },
+      // Profit and Loss removed from Reports
+      // Cheque Management removed from Reports
+// ...existing code...
+    ]
+  },
+  {
+    name: 'Account Management',
+    iconComponent: { name: 'cil-credit-card' },
+    children: [
       {
-        name: 'Profit and Loss',
-        url: '/profit-loss'
+        name: 'Create Expense',
+        url: '/create-expense',
+        // iconComponent: { name: 'cil-plus' }
+      },
+      {
+        name: 'Expense List',
+        url: '/expense-list',
+        // iconComponent: { name: 'cil-list' }
       },
       {
         name: 'Cheque Management',
         url: '/cheque-management'
+      },
+      {
+        name: 'Profit and Loss',
+        url: '/profit-loss'
       }
     ]
   },

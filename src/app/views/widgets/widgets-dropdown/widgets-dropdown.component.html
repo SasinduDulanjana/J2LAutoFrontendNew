@@ -1,35 +1,31 @@
 <c-row>
   <c-col sm="6" xl="3">
-  <c-widget-stat-a class="mb-4 transparent-widget-card sales-bg">
+    <c-widget-stat-a class="mb-4 transparent-widget-card sales-bg">
       <div class="transparent-widget-value">
-        <!-- <svg cIcon name="cilMoney" class="transparent-widget-icon"></svg> -->
         <div class="transparent-widget-label">Sales</div>
         <div class="transparent-widget-amount">{{ totalSales | number:'1.0-2' }}</div>
       </div>
     </c-widget-stat-a>
   </c-col>
   <c-col sm="6" xl="3">
-  <c-widget-stat-a class="mb-4 transparent-widget-card purchases-bg">
+    <c-widget-stat-a class="mb-4 transparent-widget-card discounts-bg">
       <div class="transparent-widget-value">
-        <!-- <svg cIcon name="cilCart" class="transparent-widget-icon"></svg> -->
-        <div class="transparent-widget-label">Purchases</div>
-        <div class="transparent-widget-amount">{{ totalPurchases | number:'1.0-2' }}</div>
-      </div>
-    </c-widget-stat-a>
-  </c-col>
-  <c-col sm="6" xl="3">
-  <c-widget-stat-a class="mb-4 transparent-widget-card discounts-bg">
-      <div class="transparent-widget-value">
-        <!-- <svg cIcon name="cilTag" class="transparent-widget-icon"></svg> -->
         <div class="transparent-widget-label">COGS</div>
         <div class="transparent-widget-amount">{{ totalCogs | number:'1.0-2' }}</div>
       </div>
     </c-widget-stat-a>
   </c-col>
   <c-col sm="6" xl="3">
-  <c-widget-stat-a class="mb-4 transparent-widget-card profit-bg">
+    <c-widget-stat-a class="mb-4 transparent-widget-card expenses-bg">
       <div class="transparent-widget-value">
-        <!-- <svg cIcon name="cilDollar" class="transparent-widget-icon"></svg> -->
+        <div class="transparent-widget-label">Expenses</div>
+        <div class="transparent-widget-amount">{{ totalExpenses | number:'1.0-2' }}</div>
+      </div>
+    </c-widget-stat-a>
+  </c-col>
+  <c-col sm="6" xl="3">
+    <c-widget-stat-a class="mb-4 transparent-widget-card profit-bg">
+      <div class="transparent-widget-value">
         <div class="transparent-widget-label">Net Profit</div>
         <div class="transparent-widget-amount">{{ netProfit | number:'1.0-2' }}</div>
       </div>
