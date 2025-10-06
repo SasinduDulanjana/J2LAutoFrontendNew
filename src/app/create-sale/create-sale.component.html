@@ -85,9 +85,10 @@
                   <th>Name</th>
                   <th>Batch</th>
                   <th>Qty</th>
+                  <th>Unit Cost</th>
                   <th>U. Price</th>
-                  <th>Disc. %</th>
-                  <th>Disc.</th>
+                  <!-- <th>Disc. %</th>
+                  <th>Disc.</th> -->
                   <th>Total</th>
                   <th></th>
                 </tr>
@@ -106,13 +107,23 @@
                         </div>
                       </div>
                     </td>
-                  <td>{{ item.retailPrice}}</td>
-                  <td>
+                  <td style="text-align: center; vertical-align: middle;">
+                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                      <span>{{ item.unitCost }}</span>
+                    </div>
+                  </td>
+                  <td style="text-align: center; vertical-align: middle;">
+                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                      <input type="number" class="qty-input" min="0" [(ngModel)]="item.retailPrice" name="retailPrice_{{item.batchNo}}" [ngModelOptions]="{standalone: true}" [value]="item.retailPrice || 0" style="width: 80px;" (ngModelChange)="onRetailPriceChange(item)" />
+                    </div>
+                  </td>
+                  
+                  <!-- <td>
                     <label class="discount-label" (click)="openDiscountModal(item)" style="cursor: pointer;">
                       <span class="discount-value">{{ item.discountPercentage ?? 0 }}%</span>
                     </label>
-                  </td>
-                  <td>
+                  </td> -->
+                  <!-- <td>
                     <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
                       <input type="number" class="qty-input" min="0" [(ngModel)]="item.discountAmount" name="discountAmount_{{item.batchNo}}" [ngModelOptions]="{standalone: true}" [value]="item.discountAmount === undefined || item.discountAmount === null ? 0 : item.discountAmount" style="width: 80px;" (ngModelChange)="onDiscountAmountChange(item)" />
                       <div *ngIf="item.discountAmount < 0" class="qty-error-message">
@@ -120,8 +131,8 @@
                         <span style="color:#d32f2f;font-size:0.97em;font-weight:500;">Discount cannot be negative</span>
                       </div>
                     </div>
-                    <!-- Remove the 0 below the field, only show calculated value if needed -->
-                  </td>
+                   
+                  </td> -->
                   <td>{{ getNetTotal(item) }}</td>
                   <td>
                     <button (click)="removeSaleItem(item)" class="btn-close-rounded">&times;</button>
@@ -180,10 +191,10 @@
           <strong>Subtotal:</strong>
           <span>{{ getSubtotal() | currency: 'LKR ' }}</span>
         </div>
-        <div class="footer-row">
+        <!-- <div class="footer-row">
           <strong>Line Wise Discount Total:</strong>
           <span>{{ getTotalDiscount() | currency: 'LKR ' }}</span>
-        </div>
+        </div> -->
         <div class="footer-row">
           <strong>Bill Wise Discount: (%)</strong>
           <span class="discount-label" (click)="openBillWiseDiscountModal()" style="cursor: pointer;">

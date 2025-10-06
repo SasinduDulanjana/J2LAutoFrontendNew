@@ -1,17 +1,20 @@
 <div class="bill-popup-container">
-  <div class="bill-popup-header">
-    <div class="company-info">
-      <div class="company-name">SmartPOS Solutions Pvt Ltd</div>
-      <div class="company-address">123 Main Street, Colombo, Sri Lanka</div>
-      <div class="company-contact">Tel: +94 11 123 4567 | Email: info@smartpos.lk</div>
+  <div class="bill-popup-header" style="display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 18px; border-bottom: 2px solid #eaeaea; padding-bottom: 12px;">
+    <div style="margin-bottom: 8px;">
+      <img src="assets/img/True_Enterprises_Logo.jpg" alt="True_Enterprises_Logo" style="height:80px; max-width:120px; object-fit:contain; display: block; margin: 0 auto;" />
     </div>
-    <div class="bill-title">Sale Invoice</div>
-    <div class="bill-meta">
-      <div><span class="meta-label">Invoice No:</span> <span class="meta-value">{{ invoiceData.invoiceNumber }}</span></div>
-      <div><span class="meta-label">Date:</span> <span class="meta-value">{{ invoiceData.currentDate }}</span></div>
-      <div><span class="meta-label">Customer:</span> <span class="meta-value">{{ invoiceData.selectedCustomerName }}</span></div>
-      <div><span class="meta-label">User:</span> <span class="meta-value">{{ invoiceData.loggedUserName }}</span></div>
+    <div class="company-info" style="text-align: center;">
+      <div class="company-name">True Enterprises</div>
+      <div class="company-address">198 D Kossinna, Ganemulla Rd, Ganemulla</div>
+      <div class="company-contact">Tel: +94 76 557 9626 | Email: trueenterprises.lk@gmail.com</div>
     </div>
+  </div>
+  <div class="bill-title">Sale Invoice</div>
+  <div class="bill-meta">
+    <div><span class="meta-label">Invoice No:</span> <span class="meta-value">{{ invoiceData.invoiceNumber }}</span></div>
+    <div><span class="meta-label">Date:</span> <span class="meta-value">{{ invoiceData.currentDate }}</span></div>
+    <div><span class="meta-label">Customer:</span> <span class="meta-value">{{ invoiceData.selectedCustomerName }}</span></div>
+    <div><span class="meta-label">User:</span> <span class="meta-value">{{ invoiceData.loggedUserName }}</span></div>
   </div>
 
   <table class="bill-popup-table">
@@ -58,6 +61,6 @@
 
   <div class="bill-popup-footer">
     <div class="thank-you">Thank you for your business!</div>
-    <div class="footer-note">This is a system generated invoice. If you have any questions, contact us at info@smartpos.lk</div>
+    <div class="footer-note">This is a system generated invoice. If you have any questions, contact us at trueenterprises.lk@gmail.com</div>
   </div>
 </div>

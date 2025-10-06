@@ -6,6 +6,7 @@
                 <th>Batch Number</th>
                 <th>Unit Cost</th>
                 <th>Retail Price</th>
+                <th>Available Qty</th>
                 <th>Action</th>
             </tr>
         </thead>
@@ -14,6 +15,7 @@
                 <td>{{ batch.batchNumber }}</td>
                 <td>{{ batch.unitCost | currency: 'LKR ' }}</td>
                 <td>{{ batch.retailPrice | currency: 'LKR ' }}</td>
+                <td>{{ batch.qty }}</td>
                 <td>
                     <button (click)="selectBatch(batch)" class="btn btn-select">Select</button>
                 </td>

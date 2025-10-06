@@ -32,6 +32,11 @@ import { InventoryListComponent } from '../inventory-list/inventory-list.compone
   styleUrls: ['./create-sale.component.scss']
 })
 export class CreateSaleComponent implements OnInit {
+  onRetailPriceChange(item: any): void {
+    // Only handle retail price change, update totals if needed
+    // You can trigger recalculation of net total or other logic here
+    // Example: this.getNetTotal(item) or this.getTotal()
+  }
   openAddCustomerDialog(): void {
     const dialogRef = this.dialog.open(CreateCustomerComponent, {
       width: '600px',
@@ -366,6 +371,7 @@ export class CreateSaleComponent implements OnInit {
           batch: selectedBatch, // Store batch object directly
           remainingQty: 1,
           retailPrice: selectedBatch.retailPrice,
+          unitCost: selectedBatch.unitCost,
           discountAmount: 0
         };
         this.saleItems.push(newProduct);

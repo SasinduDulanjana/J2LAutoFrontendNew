@@ -1,6 +1,36 @@
 // Custom Theming for Angular Material
 // For more information: https://material.angular.io/guide/theming
 @use '@angular/material' as mat;
+
+@media print {
+  .header, .sidebar, .app-header, .app-sidebar, .default-header, .default-layout, .c-sidebar, .c-header,
+  app-default-header, app-default-footer, c-sidebar, c-header, .wrapper > app-default-header, .wrapper > app-default-footer {
+    display: none !important;
+  }
+  .body {
+    padding: 0 !important;
+  }
+  .min-vh-100 {
+    min-height: auto !important;
+  }
+  .bill-popup-container, .invoice-container, .invoice-page {
+    box-shadow: none !important;
+    margin: 0 !important;
+    width: 100vw !important;
+    position: static !important;
+  }
+  body {
+    background: #fff !important;
+  }
+  /* Hide any CoreUI branding text if present */
+  .c-header-nav, .c-header-divider, .c-breadcrumb-router, .pos-header-btn, #realtime-clock {
+    display: none !important;
+  }
+  /* Hide any element with class 'coreui-brand' or similar */
+  [class*="coreui-brand"], [class*="coreui-header"] {
+    display: none !important;
+  }
+}
 // Plus imports for other components in your app.
 
 // Include the common styles for Angular Material. We include this here so that you only

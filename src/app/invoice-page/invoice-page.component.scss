@@ -38,9 +38,25 @@
   font-family: 'Segoe UI', Arial, sans-serif;
   color: #222;
 }
+.bill-popup-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 18px;
+  border-bottom: 2px solid #eaeaea;
+  padding-bottom: 12px;
+}
+.bill-popup-header img {
+  height: 80px;
+  max-width: 120px;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto;
+}
 .company-info {
   text-align: center;
-  margin-bottom: 18px;
+  margin-bottom: 0;
 }
 .company-name {
   font-size: 1.4rem;
@@ -52,14 +68,6 @@
   font-size: 1rem;
   color: #555;
   margin-bottom: 2px;
-}
-.bill-popup-header {
-  border-bottom: 2px solid #eaeaea;
-  margin-bottom: 18px;
-  padding-bottom: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
 }
 .bill-title {
   font-size: 2rem;
