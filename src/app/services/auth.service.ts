@@ -55,6 +55,7 @@ export class AuthService {
   localStorage.removeItem('rolePermissions');
   }
 
+  
   isAuthenticated(): boolean {
     return !!localStorage.getItem('token');
   }
