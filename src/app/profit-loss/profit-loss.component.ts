@@ -1,4 +1,3 @@
-
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import jsPDF from 'jspdf';
@@ -20,7 +19,7 @@ interface ProfitLossRow {
 })
 export class ProfitLossComponent implements OnInit {
   filterYear: string = '';
-  // ...existing code...
+  isLoading: boolean = true;
   // Filter fields
   filterMonth: string = '';
   filterSalesMin: number | null = null;
@@ -55,8 +54,9 @@ export class ProfitLossComponent implements OnInit {
   constructor(private http: HttpClient) {}
 
   ngOnInit(): void {
+    this.isLoading = true;
     // Fetch financial summary for summary boxes
-  this.http.get<any>(BASE_URL + '/financialSummary/totalSummary').subscribe(summary => {
+    this.http.get<any>(BASE_URL + '/financialSummary/totalSummary').subscribe(summary => {
       this.totalPurchases = summary.totalPurchases ?? 0;
       this.totalSales = summary.totalSales ?? 0;
       this.totalCogs = summary.totalCogs ?? 0;
@@ -66,7 +66,7 @@ export class ProfitLossComponent implements OnInit {
     });
 
     // Fetch monthly financial summary for table
-  this.http.get<any[]>(BASE_URL + '/financialSummary/monthly').subscribe(monthlyRows => {
+    this.http.get<any[]>(BASE_URL + '/financialSummary/monthly').subscribe(monthlyRows => {
       this.profitLossRows = (monthlyRows || []).map(row => ({
         month: row.month,
         sales: row.sales ?? 0,
@@ -75,6 +75,9 @@ export class ProfitLossComponent implements OnInit {
         expenses: row.expenses ?? 0 // fallback to cogs if no expenses field
       }));
       this.calculateSummary();
+      this.isLoading = false;
+    }, () => {
+      this.isLoading = false;
     });
   }
 

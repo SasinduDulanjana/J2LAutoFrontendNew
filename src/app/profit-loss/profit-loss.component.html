@@ -10,106 +10,113 @@
       </div>
     </div>
     <div class="card-body">
-      <div class="row mb-4">
-        <div class="col-md-3 mb-3 mb-md-0">
-          <div class="summary-card bg-success text-white p-3 rounded shadow-sm">
-            <div class="fs-6">Total Sales</div>
-            <div class="fs-4 fw-bold">{{ totalSales | number:'1.2-2' }}</div>
-          </div>
-        </div>
-        <div class="col-md-3 mb-3 mb-md-0">
-          <div class="summary-card bg-secondary text-white p-3 rounded shadow-sm">
-            <div class="fs-6">Total COGS</div>
-            <div class="fs-4 fw-bold">{{ totalCogs | number:'1.2-2' }}</div>
-          </div>
-        </div>
-        <div class="col-md-3 mb-3 mb-md-0">
-          <div class="summary-card bg-warning text-white p-3 rounded shadow-sm">
-            <div class="fs-6">Total Expenses</div>
-            <div class="fs-4 fw-bold">{{ totalExpenses | number:'1.2-2' }}</div>
-          </div>
-        </div>
-        <div class="col-md-3 mb-3 mb-md-0">
-          <div class="summary-card bg-info text-white p-3 rounded shadow-sm">
-            <div class="fs-6">Net Profit</div>
-            <div class="fs-4 fw-bold">{{ netProfit | number:'1.2-2' }}</div>
-          </div>
+      <div *ngIf="isLoading" class="d-flex justify-content-center align-items-center" style="min-height: 200px;">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
         </div>
       </div>
-      <div class="row mb-4">
+      <div *ngIf="!isLoading">
+        <div class="row mb-4">
           <div class="col-md-3 mb-3 mb-md-0">
-          <div class="summary-card bg-primary text-white p-3 rounded shadow-sm">
-            <div class="fs-6">Total Purchases</div>
-            <div class="fs-4 fw-bold">{{ totalPurchases | number:'1.2-2' }}</div>
+            <div class="summary-card bg-success text-white p-3 rounded shadow-sm">
+              <div class="fs-6">Total Sales</div>
+              <div class="fs-4 fw-bold">{{ totalSales | number:'1.2-2' }}</div>
+            </div>
+          </div>
+          <div class="col-md-3 mb-3 mb-md-0">
+            <div class="summary-card bg-secondary text-white p-3 rounded shadow-sm">
+              <div class="fs-6">Total COGS</div>
+              <div class="fs-4 fw-bold">{{ totalCogs | number:'1.2-2' }}</div>
+            </div>
+          </div>
+          <div class="col-md-3 mb-3 mb-md-0">
+            <div class="summary-card bg-warning text-white p-3 rounded shadow-sm">
+              <div class="fs-6">Total Expenses</div>
+              <div class="fs-4 fw-bold">{{ totalExpenses | number:'1.2-2' }}</div>
+            </div>
+          </div>
+          <div class="col-md-3 mb-3 mb-md-0">
+            <div class="summary-card bg-info text-white p-3 rounded shadow-sm">
+              <div class="fs-6">Net Profit</div>
+              <div class="fs-4 fw-bold">{{ netProfit | number:'1.2-2' }}</div>
+            </div>
           </div>
         </div>
-        <div class="col-md-3 mb-3 mb-md-0">
-          <div class="summary-card bg-danger text-white p-3 rounded shadow-sm">
-            <div class="fs-6">Supplier Outstandings</div>
-            <div class="fs-4 fw-bold">{{ dueToPay | number:'1.2-2' }}</div>
+        <div class="row mb-4">
+            <div class="col-md-3 mb-3 mb-md-0">
+            <div class="summary-card bg-primary text-white p-3 rounded shadow-sm">
+              <div class="fs-6">Total Purchases</div>
+              <div class="fs-4 fw-bold">{{ totalPurchases | number:'1.2-2' }}</div>
+            </div>
+          </div>
+          <div class="col-md-3 mb-3 mb-md-0">
+            <div class="summary-card bg-danger text-white p-3 rounded shadow-sm">
+              <div class="fs-6">Supplier Outstandings</div>
+              <div class="fs-4 fw-bold">{{ dueToPay | number:'1.2-2' }}</div>
+            </div>
+          </div>
+          <div class="col-md-3 mb-3 mb-md-0">
+            <div class="summary-card bg-danger text-white p-3 rounded shadow-sm">
+              <div class="fs-6">Customer Outstandings</div>
+              <div class="fs-4 fw-bold">{{ dueToReceive | number:'1.2-2' }}</div>
+            </div>
+          </div>
+      
+        </div>
+        <!-- Filter Section (moved below header cards) -->
+        <div class="row mb-3">
+          <div class="col-md-3 mb-2">
+            <input type="text" class="form-control" placeholder="Filter by Year" [(ngModel)]="filterYear" />
+          </div>
+          <div class="col-md-3 mb-2">
+            <input type="text" class="form-control" placeholder="Filter by Month" [(ngModel)]="filterMonth" />
+          </div>
+          <div class="col-md-3 mb-2">
+            <input type="number" class="form-control" placeholder="Sales Min" [(ngModel)]="filterSalesMin" />
+          </div>
+          <div class="col-md-3 mb-2">
+            <input type="number" class="form-control" placeholder="COGS Min" [(ngModel)]="filterCOGSMin" />
+          </div>
+          <div class="col-md-3 mb-2">
+            <input type="number" class="form-control" placeholder="Net Profit Min" [(ngModel)]="filterNetProfitMin" />
+          </div>
+          <div class="col-md-3 mb-2">
+            <input type="number" class="form-control" placeholder="Sales Max" [(ngModel)]="filterSalesMax" />
+          </div>
+          <div class="col-md-3 mb-2">
+            <input type="number" class="form-control" placeholder="COGS Max" [(ngModel)]="filterCOGSMax" />
+          </div>
+          <div class="col-md-3 mb-2">
+            <input type="number" class="form-control" placeholder="Net Profit Max" [(ngModel)]="filterNetProfitMax" />
           </div>
         </div>
-        <div class="col-md-3 mb-3 mb-md-0">
-          <div class="summary-card bg-danger text-white p-3 rounded shadow-sm">
-            <div class="fs-6">Customer Outstandings</div>
-            <div class="fs-4 fw-bold">{{ dueToReceive | number:'1.2-2' }}</div>
-          </div>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Month</th>
+                <th>Sales</th>
+                <th>COGS</th>
+                <th>Total Expenses</th>
+                <th>Net Profit</th>
+                
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let row of filteredRows">
+                <td>{{ row.month }}</td>
+                <td>{{ row.sales | number:'1.2-2' }}</td>
+                <td>{{ row.cogs | number:'1.2-2' }}</td>
+                <td>{{ row.expenses | number:'1.2-2' }}</td>
+                <td>{{ row.netProfit | number:'1.2-2' }}</td>
+                
+              </tr>
+              <tr *ngIf="profitLossRows.length === 0">
+                <td colspan="5" class="text-center text-muted">No data available.</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-    
-      </div>
-      <!-- Filter Section (moved below header cards) -->
-      <div class="row mb-3">
-        <div class="col-md-3 mb-2">
-          <input type="text" class="form-control" placeholder="Filter by Year" [(ngModel)]="filterYear" />
-        </div>
-        <div class="col-md-3 mb-2">
-          <input type="text" class="form-control" placeholder="Filter by Month" [(ngModel)]="filterMonth" />
-        </div>
-        <div class="col-md-3 mb-2">
-          <input type="number" class="form-control" placeholder="Sales Min" [(ngModel)]="filterSalesMin" />
-        </div>
-        <div class="col-md-3 mb-2">
-          <input type="number" class="form-control" placeholder="COGS Min" [(ngModel)]="filterCOGSMin" />
-        </div>
-        <div class="col-md-3 mb-2">
-          <input type="number" class="form-control" placeholder="Net Profit Min" [(ngModel)]="filterNetProfitMin" />
-        </div>
-        <div class="col-md-3 mb-2">
-          <input type="number" class="form-control" placeholder="Sales Max" [(ngModel)]="filterSalesMax" />
-        </div>
-        <div class="col-md-3 mb-2">
-          <input type="number" class="form-control" placeholder="COGS Max" [(ngModel)]="filterCOGSMax" />
-        </div>
-        <div class="col-md-3 mb-2">
-          <input type="number" class="form-control" placeholder="Net Profit Max" [(ngModel)]="filterNetProfitMax" />
-        </div>
-      </div>
-      <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-          <thead class="table-light">
-            <tr>
-              <th>Month</th>
-              <th>Sales</th>
-              <th>COGS</th>
-              <th>Total Expenses</th>
-              <th>Net Profit</th>
-              
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let row of filteredRows">
-              <td>{{ row.month }}</td>
-              <td>{{ row.sales | number:'1.2-2' }}</td>
-              <td>{{ row.cogs | number:'1.2-2' }}</td>
-              <td>{{ row.expenses | number:'1.2-2' }}</td>
-              <td>{{ row.netProfit | number:'1.2-2' }}</td>
-              
-            </tr>
-            <tr *ngIf="profitLossRows.length === 0">
-              <td colspan="5" class="text-center text-muted">No data available.</td>
-            </tr>
-          </tbody>
-        </table>
       </div>
     </div>
   </div>
