@@ -22,11 +22,11 @@
       <tr>
         <th>#</th>
         <th>Product Name</th>
-        <th>Batch</th>
+        <!-- <th>Batch</th> -->
         <th>Qty</th>
         <th>Unit Price</th>
-        <th>Discount (%)</th>
-        <th>Discount</th>
+        <!-- <th>Discount (%)</th> -->
+        <!-- <th>Discount</th> -->
         <th>Total</th>
       </tr>
     </thead>
@@ -34,11 +34,11 @@
       <tr *ngFor="let item of invoiceData.saleItems; let i = index">
         <td>{{ i + 1 }}</td>
         <td>{{ item.productName }}</td>
-        <td>{{ item.batchNo }}</td>
+        <!-- <td>{{ item.batchNo }}</td> -->
         <td>{{ item.remainingQty }}</td>
         <td>{{ item.retailPrice | currency: 'LKR ' }}</td>
-        <td>{{ item.discountPercentage ?? 0 }}%</td>
-        <td>{{ ((item.discountPercentage ?? 0) / 100 * (item.retailPrice ?? 0) * (item.remainingQty ?? 0)) | currency: 'LKR ' }}</td>
+        <!-- <td>{{ item.discountPercentage ?? 0 }}%</td> -->
+        <!-- <td>{{ ((item.discountPercentage ?? 0) / 100 * (item.retailPrice ?? 0) * (item.remainingQty ?? 0)) | currency: 'LKR ' }}</td> -->
         <td>{{ ((item.remainingQty ?? 0) * (item.retailPrice ?? 0) - ((item.discountPercentage ?? 0) / 100 * (item.retailPrice ?? 0) * (item.remainingQty ?? 0))) | currency: 'LKR ' }}</td>
       </tr>
     </tbody>

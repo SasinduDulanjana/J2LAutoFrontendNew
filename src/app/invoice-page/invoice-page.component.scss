@@ -28,6 +28,36 @@
     border: none !important;
   }
 }
+/* A5 print styles */
+@media print {
+  body, html {
+    width: 148mm;
+    min-height: 210mm;
+    margin: 0;
+    padding: 0;
+    background: #fff;
+  }
+  .bill-popup-container {
+    width: 148mm;
+    min-height: 210mm;
+    margin: 0 auto;
+    padding: 16mm 10mm 16mm 10mm;
+    box-sizing: border-box;
+    background: #fff;
+    color: #000;
+    font-size: 11pt;
+    page-break-after: always;
+    border-radius: 0;
+    box-shadow: none !important;
+  }
+  .bill-popup-header, .bill-popup-footer {
+    box-shadow: none !important;
+    border: none !important;
+  }
+  .no-print, .no-print * {
+    display: none !important;
+  }
+}
 .bill-popup-container {
   background: #fff;
   border-radius: 12px;
