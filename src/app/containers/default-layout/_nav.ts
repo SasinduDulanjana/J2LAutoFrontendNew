@@ -88,22 +88,22 @@ export const navItems: INavDataWithRoles[] = [
     iconComponent: { name: 'cil-layers' },
     feature: 'inventory',
     children: [
-      {
-        name: 'Product List',
-        url: '/product-list'
-      },
+      // {
+      //   name: 'Product List',
+      //   url: '/product-list'
+      // },
       {
         name: 'Create Product',
         url: '/create-product'
       },
-      {
-        name: 'Category List',
-        url: '/category-list'
-      },
-      {
-        name: 'Create Category',
-        url: '/create-category'
-      },
+      // {
+      //   name: 'Category List',
+      //   url: '/category-list'
+      // },
+      // {
+      //   name: 'Create Category',
+      //   url: '/create-category'
+      // },
       {
         name: 'Inventory List',
         url: '/inventory-list'

@@ -176,3 +176,37 @@ div {
 .search-container, .search-input {
   display: none !important;
 }
+
+/* Vehicle compatibility table styles */
+.vehicle-table-wrapper {
+  margin: 0;
+  padding: 0;
+}
+.vehicle-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 0;
+}
+.vehicle-table th, .vehicle-table td {
+  border: 1px solid #e0e0e0;
+  padding: 2px 6px;
+  font-size: 12px;
+  line-height: 1.2;
+  text-align: left;
+}
+.vehicle-table th {
+  background: #f4f6fa;
+  font-weight: 600;
+  padding-top: 3px;
+  padding-bottom: 3px;
+}
+.vehicle-table tr {
+  height: 22px;
+}
+.vehicle-table tr:nth-child(even) {
+  background: #f9fbff;
+}
+.vehicle-cell {
+  min-width: 120px;
+  max-width: 180px;
+}

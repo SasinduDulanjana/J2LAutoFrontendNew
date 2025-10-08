@@ -15,6 +15,28 @@ import { VehicleService } from '../services/vehicle.service';
   styleUrls: ['./edit-product.component.scss']
 })
 export class EditProductComponent implements OnInit {
+  openCreateVehiclePopup(): void {
+    const dialogRef = this.dialog.open(
+      // @ts-ignore
+      (window as any).ng?.components?.CreateVehicleComponent || (window as any).CreateVehicleComponent || require('../create-vehicle/create-vehicle.component').CreateVehicleComponent,
+      {
+        width: '500px',
+        disableClose: false
+      }
+    );
+    dialogRef.afterClosed().subscribe((result: any) => {
+      if (result && result.vehicle) {
+        // Refresh vehicle list and sort alphabetically
+        this.vehicleService.getAllVehicles().subscribe(data => {
+          this.vehicleModels = (data || []).sort((a, b) => {
+            const aStr = `${a.make} ${a.model} ${a.year}`.toLowerCase();
+            const bStr = `${b.make} ${b.model} ${b.year}`.toLowerCase();
+            return aStr.localeCompare(bStr);
+          });
+        });
+      }
+    });
+  }
   loading: boolean = false;
   skuExists: boolean = false;
   barcodeExists: boolean = false;
@@ -40,42 +62,65 @@ export class EditProductComponent implements OnInit {
 
   ngOnInit(): void {
     this.loading = true;
-    this.route.paramMap.subscribe(params => {
-      const idParam = params.get('id');
-      this.productId = idParam ? +idParam : 0;
-      if (this.productId) {
-        this.productService.getProductById(this.productId).subscribe(data => {
-          this.product = data;
-          this.selectedParentCategoryId = data.category?.catId ?? data.catId ?? 0;
-          // Set brandName and partNumber robustly
-          this.product.brandName = data.brandName ?? '';
-          this.product.partNumber = data.partNumber ?? '';
-          // Vehicle selection: prefer vehicleList, fallback to vehicleModelIds
-          const vehicleList = (data as any).vehicleList;
-          const vehicleModelIds = (data as any).vehicleModelIds;
-          if (Array.isArray(vehicleList) && vehicleList.length) {
-            this.selectedVehicles = vehicleList;
-          } else if (Array.isArray(vehicleModelIds) && vehicleModelIds.length && this.vehicleModels.length) {
-            this.selectedVehicles = this.vehicleModels.filter(vm => vehicleModelIds?.includes(vm.id));
-          } else {
-            this.selectedVehicles = [];
-          }
+    // Load categories
+    // this.categoryService.getAllCategories().subscribe(data => {
+    //   this.categories = data;
+    // });
+    // Load vehicles first
+    this.vehicleService.getAllVehicles().subscribe(vehicleData => {
+      this.vehicleModels = (vehicleData || []).sort((a, b) => {
+        const aStr = `${a.make} ${a.model} ${a.year}`.toLowerCase();
+        const bStr = `${b.make} ${b.model} ${b.year}`.toLowerCase();
+        return aStr.localeCompare(bStr);
+      });
+      // Now load product
+      this.route.paramMap.subscribe(params => {
+        const idParam = params.get('id');
+        this.productId = idParam ? +idParam : 0;
+        if (this.productId) {
+          this.productService.getProductById(this.productId).subscribe(data => {
+            this.product = data;
+            this.selectedParentCategoryId = data.category?.catId ?? data.catId ?? 0;
+            this.product.brandName = data.brandName ?? '';
+            this.product.partNumber = data.partNumber ?? '';
+            // Vehicle selection: handle vehicle (object), vehicleList (array), vehicleModelIds (array)
+            const vehicleObj = (data as any).vehicle;
+            const vehicleList = (data as any).vehicleList;
+            const vehicleModelIds = (data as any).vehicleModelIds;
+            let compatibleVehicleId: number | null = null;
+            if (vehicleObj && typeof vehicleObj === 'object' && vehicleObj.id) {
+              // If vehicle object exists, set selectedVehicles and selectedVehicleId
+              const found = this.vehicleModels.find(vm => vm.id === vehicleObj.id);
+              if (found) {
+                this.selectedVehicles = [found];
+                compatibleVehicleId = found.id;
+              } else {
+                this.selectedVehicles = [];
+                compatibleVehicleId = null;
+              }
+            } else if (Array.isArray(vehicleList) && vehicleList.length) {
+              this.selectedVehicles = vehicleList;
+              const found = vehicleList.find(vl => this.vehicleModels.some(vm => vm.id === vl.id));
+              compatibleVehicleId = found ? found.id : null;
+            } else if (Array.isArray(vehicleModelIds) && vehicleModelIds.length && this.vehicleModels.length) {
+              this.selectedVehicles = this.vehicleModels.filter(vm => vehicleModelIds?.includes(vm.id));
+              const found = vehicleModelIds.find(id => this.vehicleModels.some(vm => vm.id === id));
+              compatibleVehicleId = found ?? null;
+            } else {
+              this.selectedVehicles = [];
+              compatibleVehicleId = null;
+            }
+            this.selectedVehicleId = compatibleVehicleId;
+            this.loading = false;
+          }, error => {
+            this.loading = false;
+          });
+        } else {
           this.loading = false;
-        }, error => {
-          this.loading = false;
-        });
-      } else {
-        this.loading = false;
-        console.error('Invalid category ID');
-      }
+          console.error('Invalid category ID');
+        }
+      });
     });
-    this.categoryService.getAllCategories().subscribe(data => {
-      this.categories = data;
-    });
-    this.vehicleService.getAllVehicles().subscribe(data => {
-      this.vehicleModels = data;
-    });
-    this.selectedVehicleId = null;
   }
 
   addVehicle(): void {
@@ -131,7 +176,7 @@ export class EditProductComponent implements OnInit {
       productName: this.product.productName,
       brandName: this.product.brandName,
       partNumber: this.product.partNumber,
-      vehicleList: this.selectedVehicles,
+      vehicle: this.vehicleModels.find(vm => vm.id === this.selectedVehicleId) || null,
       isBarCodeAvailable: this.product.isBarCodeAvailable,
       barCode: this.product.barCode,
       sku: this.product.sku,
@@ -181,7 +226,7 @@ export class EditProductComponent implements OnInit {
             panelClass: 'success-dialog-panel'
           });
           dialogRef.afterClosed().subscribe(() => {
-            this.router.navigate(['/product-list']); // Redirect after success
+            this.router.navigate(['/inventory-list']); // Redirect after success
           });
         },
         error: (error) => {

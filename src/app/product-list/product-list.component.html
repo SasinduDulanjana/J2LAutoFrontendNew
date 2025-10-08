@@ -21,54 +21,67 @@
       <div class="card-body">
         <div class="customer-search-bar mb-3">
           <svg cIcon name="cil-magnifying-glass"></svg>
-          <input type="text" placeholder="Search products by name, SKU, category, part number or vehicle" [(ngModel)]="searchQuery" (input)="onSearch()" />
+          <input type="text" placeholder="Search Products By Name & Vehicle" [(ngModel)]="searchQuery" (input)="onSearch()" />
         </div>
         <div class="table-responsive">
           <table class="table table-hover align-middle mb-0">
             <thead class="table-light">
               <tr>
                 <th>Name</th>
-                <th>Part Number</th>
-                <th>Brand Name</th>
+                <th>Make & Model</th>
+                <th>Year</th>
+                <!-- <th>Part Number</th>
+                <th>Brand Name</th> -->
                 <!-- <th>SKU</th> -->
-                <th>Barcode</th>
+                <!-- <th>Barcode</th> -->
                 <th>Description</th>
                 <!-- <th>Low Qty</th> -->
-                <th>Category</th>
-                <th>Compatible Vehicles</th>
+                <!-- <th>Category</th> -->
+                <!-- <th>Compatible Vehicles</th> -->
                 <th class="text-end">Actions</th>
               </tr>
             </thead>
             <tbody>
               <tr *ngFor="let product of filteredProducts">
                 <td>{{ product.productName }}</td>
-                <td>{{ product.partNumber || '-' }}</td>
-                <td>{{ product.brandName || '-' }}</td>
+                <td>{{ product.vehicle?.make || '-' }} {{ product.vehicle?.model || '-' }}</td>
+                <td>{{ product.vehicle?.year || '-' }}</td>
+                <!-- <td>{{ product.partNumber || '-' }}</td>
+                <td>{{ product.brandName || '-' }}</td> -->
                 <!-- <td>{{ product.sku }}</td> -->
-                <td>{{ product.barCode || '-' }}</td>
+                <!-- <td>{{ product.barCode || '-' }}</td> -->
                 <td>{{ product.description || '-' }}</td>
                 <!-- <td>{{ product.lowQty }}</td> -->
-                <td>{{ product.category?.name || 'No Category' }}</td>
-                <td class="vehicle-cell">
+                <!-- <td>{{ product.category?.name || 'No Category' }}</td> -->
+                <!-- <td class="vehicle-cell">
                   <ng-container *ngIf="product.vehicleList && product.vehicleList.length; else noVehicles">
-                    <div class="vehicle-chips">
-                      <ng-container *ngFor="let v of product.vehicleList; let i = index; let last = last">
-                        <span class="vehicle-chip" title="{{ v.make }} {{ v.model }} {{ v.year }}">
-                          {{ v.make }} {{ v.model }} {{ v.year }}
-                        </span><span *ngIf="!last">, </span>
-                      </ng-container>
+                    <div class="vehicle-table-wrapper">
+                      <table class="table table-sm table-bordered mb-0 vehicle-table">
+                        <thead>
+                          <tr>
+                            <th>Make & Model</th>
+                            <th>Year</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr *ngFor="let v of product.vehicleList">
+                            <td>{{ v.make }} {{ v.model }}</td>
+                            <td>{{ v.year }}</td>
+                          </tr>
+                        </tbody>
+                      </table>
                     </div>
                   </ng-container>
                   <ng-template #noVehicles>
                     <span class="text-muted">No vehicles</span>
                   </ng-template>
-                </td>
+                </td> -->
                 <td class="text-end">
                   <c-dropdown>
                     <button cButton cDropdownToggle color="secondary" style="min-width: 100px;">Options</button>
                     <ul cDropdownMenu>
                       <li><button (click)="editProduct(product)" cDropdownItem>Edit</button></li>
-                      <li><button (click)="deleteProduct(product)" cDropdownItem>Delete</button></li>
+                      <!-- <li><button (click)="deleteProduct(product)" cDropdownItem>Delete</button></li> -->
                     </ul>
                   </c-dropdown>
                 </td>

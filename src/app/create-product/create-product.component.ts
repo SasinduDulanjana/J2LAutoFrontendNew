@@ -28,9 +28,13 @@ export class CreateProductComponent implements OnInit{
     );
     dialogRef.afterClosed().subscribe((result: any) => {
       if (result && result.vehicle) {
-        // Optionally refresh vehicle list or add to vehicleModels
+        // Refresh vehicle list and sort alphabetically
         this.vehicleService.getAllVehicles().subscribe(data => {
-          this.vehicleModels = data;
+          this.vehicleModels = (data || []).sort((a, b) => {
+            const aStr = `${a.make} ${a.model} ${a.year}`.toLowerCase();
+            const bStr = `${b.make} ${b.model} ${b.year}`.toLowerCase();
+            return aStr.localeCompare(bStr);
+          });
         });
       }
     });
@@ -83,9 +87,14 @@ export class CreateProductComponent implements OnInit{
     });
     // Fetch vehicle models from backend API
     this.vehicleService.getAllVehicles().subscribe(data => {
-      this.vehicleModels = data;
+      this.vehicleModels = (data || []).sort((a, b) => {
+        const aStr = `${a.make} ${a.model} ${a.year}`.toLowerCase();
+        const bStr = `${b.make} ${b.model} ${b.year}`.toLowerCase();
+        return aStr.localeCompare(bStr);
+      });
+      // Set first vehicle as default selection if available
+      this.selectedVehicleId = this.vehicleModels.length > 0 ? this.vehicleModels[0].id : null;
     });
-    this.selectedVehicleId = null;
     this.selectedVehicles = [];
     // Auto-generate SKU (example: random string with prefix)
     this.product.sku = 'SKU-' + Math.random().toString(36).substring(2, 10).toUpperCase();
@@ -118,6 +127,11 @@ export class CreateProductComponent implements OnInit{
       });
       return;
     }
+    let selectedVehicle = null;
+    if (this.selectedVehicleId !== null && Array.isArray(this.vehicleModels)) {
+      const found = this.vehicleModels.find(v => v.id === this.selectedVehicleId);
+      if (found) selectedVehicle = found;
+    }
     const newProduct = {
       catId: this.selectedParentCategoryId,
       productName: this.product.productName,
@@ -147,7 +161,7 @@ export class CreateProductComponent implements OnInit{
       remainingQty: this.product.remainingQty,
       brandName: this.product.brandName,
       partNumber: this.product.partNumber,
-      vehicleList: this.selectedVehicles
+      vehicle: selectedVehicle
     };
     console.log('Product creation payload:', newProduct);
     console.log('Product creation payload:', newProduct);
@@ -164,6 +178,8 @@ export class CreateProductComponent implements OnInit{
           this.product = new Product(0, '', false, '', '', '', '', '', '', false, 0, 0, 0, 0, '', false, '', '', '', '', '', 0, false, false, false, 0);
           this.selectedParentCategoryId = 0;
           this.selectedVehicles = [];
+          // Set first vehicle as default selection after save/reset
+          this.selectedVehicleId = this.vehicleModels.length > 0 ? this.vehicleModels[0].id : null;
         });
       }, error => {
         this.loading = false;

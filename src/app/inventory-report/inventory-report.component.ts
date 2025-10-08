@@ -39,9 +39,19 @@ export class InventoryReportComponent {
     this.loading = true;
     this.productService.getAllProductsByBatchWise().subscribe({
       next: (products: any[]) => {
-        this.inventory = products;
-        this.filteredInventory = products;
-        this.dropdownOpen = new Array(products.length).fill(false);
+        // Ensure each product has a vehicle object
+        this.inventory = products.map(item => {
+          if (!item.vehicle && (item.make || item.model || item.year)) {
+            item.vehicle = {
+              make: item.make || '-',
+              model: item.model || '-',
+              year: item.year || '-'
+            };
+          }
+          return item;
+        });
+        this.filteredInventory = this.inventory;
+        this.dropdownOpen = new Array(this.inventory.length).fill(false);
         this.loading = false;
       },
       error: err => {
@@ -65,20 +75,60 @@ export class InventoryReportComponent {
     return cat ? cat.name : '';
   }
 
+  // onSearch(): void {
+  //   const query = this.searchQuery.toLowerCase().trim();
+  //   if (query) {
+  //     this.filteredInventory = this.inventory.filter(item => {
+  //       const productMatch = item.productName && item.productName.toLowerCase().includes(query);
+  //       const skuMatch = item.sku && item.sku.toLowerCase().includes(query);
+  //       const categoryName = item.category?.name || this.getCategoryName(item.catId);
+  //       const categoryMatch = categoryName && categoryName.toLowerCase().includes(query);
+  //       return productMatch || skuMatch || categoryMatch;
+  //     });
+  //   } else {
+  //     this.filteredInventory = this.inventory;
+  //   }
+  //   this.dropdownOpen = new Array(this.filteredInventory.length).fill(false);
+  // }
+
+  
   onSearch(): void {
     const query = this.searchQuery.toLowerCase().trim();
     if (query) {
-      this.filteredInventory = this.inventory.filter(item => {
-        const productMatch = item.productName && item.productName.toLowerCase().includes(query);
-        const skuMatch = item.sku && item.sku.toLowerCase().includes(query);
-        const categoryName = item.category?.name || this.getCategoryName(item.catId);
-        const categoryMatch = categoryName && categoryName.toLowerCase().includes(query);
-        return productMatch || skuMatch || categoryMatch;
+      const terms = query.split(/\s+/).filter(Boolean);
+      this.filteredInventory = this.inventory.filter(product => {
+        // Basic fields
+        const matchesBasic =
+          (product.productName && product.productName.toLowerCase().includes(query)) ||
+          (product.partNumber && product.partNumber.toLowerCase().includes(query)) ||
+          (product.barCode && product.barCode.toLowerCase().includes(query)) ||
+          (product.sku && product.sku.toLowerCase().includes(query)) ||
+          (product.category?.name && product.category.name.toLowerCase().includes(query));
+
+        // Helper to match terms against vehicle object
+        const matchVehicleObj = (v: any) => {
+          if (!v) return false;
+          // Match each term separately
+          const termMatches = terms.every(term =>
+            (v.make && v.make.toLowerCase().includes(term)) ||
+            (v.model && v.model.toLowerCase().includes(term)) ||
+            (v.year && v.year.toString().includes(term)) ||
+            (product.productName && product.productName.toLowerCase().includes(term))
+          );
+          // Match combined string
+          const combined = `${v.make || ''} ${v.model || ''} ${v.year || ''} ${product.productName || ''}`.toLowerCase();
+          const combinedMatch = combined.includes(query);
+          return termMatches || combinedMatch;
+        };
+
+        // Vehicle fields (single object)
+        const matchesVehicleObj = matchVehicleObj(product.vehicle);
+
+        return matchesBasic || matchesVehicleObj;
       });
     } else {
       this.filteredInventory = this.inventory;
     }
-    this.dropdownOpen = new Array(this.filteredInventory.length).fill(false);
   }
 
   toggleDropdown(idx: number): void {
@@ -99,8 +149,10 @@ export class InventoryReportComponent {
     doc.text('Inventory Report', 14, 16);
     const head = [[
       'Product',
-      'SKU',
-      'Category',
+      'Make & Model',
+      'Year',
+      // 'SKU',
+      // 'Category',
       'Batch No',
       'Batch Qty',
       'Cost',
@@ -115,8 +167,10 @@ export class InventoryReportComponent {
         item.batchQuantities.forEach((batch: any) => {
           data.push([
             item.productName || '',
-            item.sku || '',
-            categoryName,
+            `${item.vehicle?.make || '-'} ${item.vehicle?.model || '-'}`,
+            item.vehicle?.year || '-',
+            // item.sku || '',
+            // categoryName,
             batch.batchNo ?? '',
             batch.qty ?? 0,
             batch.cost !== undefined ? Number(batch.cost).toFixed(2) : '-',
@@ -128,8 +182,10 @@ export class InventoryReportComponent {
       } else {
         data.push([
           item.productName || '',
-          item.sku || '',
-          categoryName,
+          `${item.vehicle?.make || '-'} ${item.vehicle?.model || '-'}`,
+          item.vehicle?.year || '-',
+          // item.sku || '',
+          // categoryName,
           '-',
           '-',
           '-',

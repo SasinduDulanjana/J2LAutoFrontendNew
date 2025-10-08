@@ -21,23 +21,38 @@
             <div *ngIf="productName.errors?.['minlength']">Product name must be at least 2 characters.</div>
           </div>
         </c-col>
-        <c-col [md]="6">
-          <label cLabel for="brandName">Brand Name</label>
+        <!-- <c-col [md]="6">
+          <label cLabel for="make&model">Make & Model</label>
           <input cFormControl id="brandName" type="text" [(ngModel)]="product.brandName" name="brandName" #brandName="ngModel" minlength="2" />
           <div *ngIf="brandName.invalid && (brandName.dirty || brandName.touched)" class="text-danger small">
-            <!-- <div *ngIf="brandName.errors?.['required']">Brand name is required.</div> -->
+            <div *ngIf="brandName.errors?.['required']">Brand name is required.</div>
             <div *ngIf="brandName.errors?.['minlength']">Brand name must be at least 2 characters.</div>
           </div>
         </c-col>
         <c-col [md]="6">
+          <label cLabel for="year">Year</label>
+          <input cFormControl id="year" type="text" [(ngModel)]="product.year" name="year" #year="ngModel" minlength="2" />
+          <div *ngIf="year.invalid && (year.dirty || year.touched)" class="text-danger small">
+            <div *ngIf="year.errors?.['required']">Year is required.</div>
+            <div *ngIf="year.errors?.['minlength']">Year must be at least 2 characters.</div>
+          </div>
+        </c-col> -->
+        <!-- <c-col [md]="6">
+          <label cLabel for="brandName">Brand Name</label>
+          <input cFormControl id="brandName" type="text" [(ngModel)]="product.brandName" name="brandName" #brandName="ngModel" minlength="2" />
+          <div *ngIf="brandName.invalid && (brandName.dirty || brandName.touched)" class="text-danger small">
+            <div *ngIf="brandName.errors?.['required']">Brand name is required.</div>
+            <div *ngIf="brandName.errors?.['minlength']">Brand name must be at least 2 characters.</div>
+          </div>
+        </c-col> -->
+        <!-- <c-col [md]="6">
           <label cLabel for="partNumber">Part Number</label>
           <input cFormControl id="partNumber" type="text" [(ngModel)]="product.partNumber" name="partNumber" #partNumber="ngModel" minlength="2" />
           <div *ngIf="partNumber.invalid && (partNumber.dirty || partNumber.touched)" class="text-danger small">
-            <!-- <div *ngIf="partNumber.errors?.['required']">Part number is required.</div> -->
             <div *ngIf="partNumber.errors?.['minlength']">Part number must be at least 2 characters.</div>
           </div>
-        </c-col>
-        <c-col [md]="6">
+        </c-col> -->
+        <!-- <c-col [md]="6">
           <label cLabel for="vehicleModel">Compatible Vehicle Models</label>
           <div class="d-flex align-items-center mb-2">
             <select id="vehicleModelSelect" [(ngModel)]="selectedVehicleId" name="vehicleModelSelect" class="form-select me-2" style="max-width: 60%;">
@@ -59,9 +74,21 @@
             </div>
             <span *ngIf="selectedVehicles.length === 0" class="text-muted">No vehicles selected yet.</span>
           </div>
+        </c-col> -->
+        <c-col [md]="6">
+          <label cLabel for="vehicleModel">Compatible Vehicle Model</label>
+          <div class="d-flex align-items-center mb-2">
+            <select id="vehicleModelSelect" [(ngModel)]="selectedVehicleId" name="vehicleModelSelect" class="form-select me-2" style="max-width: 60%;">
+              <option value="" disabled>Select Vehicle Model</option>
+              <option *ngFor="let model of vehicleModels" [value]="model.id">{{ model.make }} {{ model.model }} {{ model.year }}</option>
+            </select>
+            <button cButton color="success" type="button" style="margin-left:8px;" (click)="openCreateVehiclePopup()">
+              <svg cIcon name="cil-plus" style="margin-right:2px;"></svg> New Vehicle
+            </button>
+          </div>
         </c-col>
         <!-- Category -->
-        <c-col [md]="6">
+        <!-- <c-col [md]="6">
           <label cLabel for="category">Category</label>
           <select cFormControl id="category" [(ngModel)]="selectedParentCategoryId" name="category" required #category="ngModel" class="form-select">
             <option value="" disabled selected>Select Category</option>
@@ -70,17 +97,17 @@
           <div *ngIf="category.invalid && (category.dirty || category.touched)" class="text-danger small">
             <div *ngIf="category.errors?.['required']">Category is required.</div>
           </div>
-        </c-col>
+        </c-col> -->
         <!-- Barcode -->
-        <c-col [md]="6">
+        <!-- <c-col [md]="6">
           <label cLabel for="barCode">Barcode</label>
           <input cFormControl id="barCode" type="text" [(ngModel)]="product.barCode" name="barCode" #barCode="ngModel" minlength="3" (ngModelChange)="onBarcodeChange($event)" />
           <div *ngIf="barCode.invalid && (barCode.dirty || barCode.touched)" class="text-danger small">
-            <!-- <div *ngIf="barCode.errors?.['required']">Barcode is required.</div> -->
+            <div *ngIf="barCode.errors?.['required']">Barcode is required.</div>
             <div *ngIf="barCode.errors?.['minlength']">Barcode must be at least 3 characters.</div>
           </div>
           <div *ngIf="barcodeExists" class="text-danger small">Barcode already exists. Please enter a unique Barcode.</div>
-        </c-col>
+        </c-col> -->
         <!-- Product Type -->
         <!-- <c-col [md]="6">
           <label cLabel for="productType">Product Type</label>

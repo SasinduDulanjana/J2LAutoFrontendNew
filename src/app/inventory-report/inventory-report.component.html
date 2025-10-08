@@ -17,7 +17,7 @@
     <div class="card-body">
       <div class="customer-search-bar mb-3">
         <svg cIcon name="cil-magnifying-glass"></svg>
-        <input type="text" placeholder="Search inventory by product, SKU, or category" [(ngModel)]="searchQuery" (input)="onSearch()" />
+        <input type="text" placeholder="Search Products By Name & Vehicle" [(ngModel)]="searchQuery" (input)="onSearch()" />
       </div>
       <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
 
@@ -26,8 +26,11 @@
           <thead class="table-light">
             <tr>
               <th>Product</th>
-              <th>SKU</th>
-              <th>Category</th>
+              <th>Make & Model</th>
+              <th>Year</th>
+              <th>Description</th>
+              <!-- <th>SKU</th>
+              <th>Category</th> -->
               <th>Batch Details</th>
               <th>Total Qty</th>
               <th>Low Stock Alert</th>
@@ -37,8 +40,11 @@
             <ng-container *ngFor="let item of filteredInventory; let idx = index">
               <tr>
                 <td>{{ item.productName }}</td>
-                <td>{{ item.sku }}</td>
-                <td>{{ item.category?.name || getCategoryName(item.catId) }}</td>
+                <!-- <td>{{ item.sku }}</td>
+                <td>{{ item.category?.name || getCategoryName(item.catId) }}</td> -->
+                <td>{{ item.vehicle?.make || '-' }} {{ item.vehicle?.model || '-' }}</td>
+                <td>{{ item.vehicle?.year || '-' }}</td>
+                <td>{{ item.description || '-' }}</td>
                 <td>
                   <button class="btn btn-sm btn-outline-primary" (click)="toggleDropdown(idx)">Batch Details</button>
                 </td>

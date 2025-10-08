@@ -21,6 +21,18 @@
           </div>
         </c-col>
         <c-col [md]="6">
+          <label cLabel for="vehicleModel">Compatible Vehicle Model</label>
+          <div class="d-flex align-items-center mb-2">
+            <select id="vehicleModelSelect" [(ngModel)]="selectedVehicleId" name="vehicleModelSelect" class="form-select me-2" style="max-width: 60%;">
+              <option [ngValue]="null" disabled>Select Vehicle Model</option>
+              <option *ngFor="let model of vehicleModels" [ngValue]="model.id">{{ model.make }} {{ model.model }} {{ model.year }}</option>
+            </select>
+            <button cButton color="success" type="button" style="margin-left:8px;" (click)="openCreateVehiclePopup()">
+              <svg cIcon name="cil-plus" style="margin-right:2px;"></svg> New Vehicle
+            </button>
+          </div>
+        </c-col>
+        <!-- <c-col [md]="6">
           <label cLabel for="brandName">Brand Name</label>
           <input cFormControl id="brandName" type="text" [(ngModel)]="product.brandName" name="brandName" #brandName="ngModel" minlength="2" />
           <div *ngIf="brandName.invalid && (brandName.dirty || brandName.touched)" class="text-danger small">
@@ -53,8 +65,8 @@
             </div>
             <span *ngIf="selectedVehicles.length === 0" class="text-muted">No vehicles selected yet.</span>
           </div>
-        </c-col>
-        <c-col [md]="6">
+        </c-col> -->
+        <!-- <c-col [md]="6">
           <div class="mb-3">
             <label cLabel for="category" class="form-label">Category</label>
             <select cFormControl id="category" [(ngModel)]="selectedParentCategoryId" name="category" required class="form-select">
@@ -70,7 +82,7 @@
             <div *ngIf="barCode.errors?.['minlength']">Barcode must be at least 3 characters.</div>
           </div>
           <div *ngIf="barcodeExists" class="text-danger small">Barcode already exists. Please enter a unique Barcode.</div>
-        </c-col>
+        </c-col> -->
         <!-- SKU is auto-generated and not editable -->
         <!-- Product Type -->
         <!-- <c-col [md]="6">

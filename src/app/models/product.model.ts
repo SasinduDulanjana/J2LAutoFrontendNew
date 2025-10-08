@@ -1,6 +1,11 @@
 export class Product {
   category?: any;
   batchQuantities?: { batchNo: string; qty: number, cost: number, retailPrice: number, wholesalePrice: number }[];
+  vehicle?: {
+    make?: string;
+    model?: string;
+    year?: number | string;
+  };
     productId?: number; // Optional field
     catId: number;
     productName: string;

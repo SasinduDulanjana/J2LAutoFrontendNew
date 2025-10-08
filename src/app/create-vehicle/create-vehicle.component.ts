@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { VehicleService } from '../services/vehicle.service';
+import { FailureDialogComponent } from '../failure-dialog/failure-dialog.component';
 
 @Component({
   selector: 'app-create-vehicle',
@@ -15,7 +16,8 @@ export class CreateVehicleComponent {
 
   constructor(
     private vehicleService: VehicleService,
-    public dialogRef: MatDialogRef<CreateVehicleComponent>
+    public dialogRef: MatDialogRef<CreateVehicleComponent>,
+    private matDialog: MatDialog
   ) {}
 
   createVehicle(): void {
@@ -28,7 +30,23 @@ export class CreateVehicleComponent {
         },
         (error) => {
           this.loading = false;
-          // Optionally show error dialog
+          // Show failure dialog with backend error message if available
+          let errorMsg = 'Failed to save vehicle. Please try again.';
+          if (error && error.error) {
+            if (typeof error.error === 'string') {
+              errorMsg = error.error;
+            } else if (error.error.message) {
+              errorMsg = error.error.message;
+            }
+          } else if (error && error.message) {
+            errorMsg = error.message;
+          }
+          this.dialogRef.close();
+          this.matDialog.open(FailureDialogComponent, {
+            width: '400px',
+            panelClass: 'modern-failure-dialog',
+            data: { message: errorMsg }
+          });
         }
       );
   }

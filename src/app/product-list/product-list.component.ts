@@ -39,6 +39,7 @@ export class ProductListComponent implements OnInit {
   onSearch(): void {
     const query = this.searchQuery.toLowerCase().trim();
     if (query) {
+      const terms = query.split(/\s+/).filter(Boolean);
       this.filteredProducts = this.products.filter(product => {
         // Basic fields
         const matchesBasic =
@@ -48,14 +49,29 @@ export class ProductListComponent implements OnInit {
           (product.sku && product.sku.toLowerCase().includes(query)) ||
           (product.category?.name && product.category.name.toLowerCase().includes(query));
 
-        // Vehicle fields
-        const matchesVehicle = Array.isArray(product.vehicleList) && product.vehicleList.some((v: any) =>
-          (v.make && v.make.toLowerCase().includes(query)) ||
-          (v.model && v.model.toLowerCase().includes(query)) ||
-          (v.year && v.year.toString().includes(query))
-        );
+        // Helper to match terms against vehicle object
+        const matchVehicleObj = (v: any) => {
+          if (!v) return false;
+          // Match each term separately
+          const termMatches = terms.every(term =>
+            (v.make && v.make.toLowerCase().includes(term)) ||
+            (v.model && v.model.toLowerCase().includes(term)) ||
+            (v.year && v.year.toString().includes(term)) ||
+            (product.productName && product.productName.toLowerCase().includes(term))
+          );
+          // Match combined string
+          const combined = `${v.make || ''} ${v.model || ''} ${v.year || ''} ${product.productName || ''}`.toLowerCase();
+          const combinedMatch = combined.includes(query);
+          return termMatches || combinedMatch;
+        };
 
-        return matchesBasic || matchesVehicle;
+        // Vehicle fields (array)
+        const matchesVehicleList = Array.isArray(product.vehicleList) && product.vehicleList.some((v: any) => matchVehicleObj(v));
+
+        // Vehicle fields (single object)
+        const matchesVehicleObj = matchVehicleObj(product.vehicle);
+
+        return matchesBasic || matchesVehicleList || matchesVehicleObj;
       });
     } else {
       this.filteredProducts = this.products;
