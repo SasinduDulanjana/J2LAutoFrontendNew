@@ -1,67 +1,74 @@
-<div class="bill-popup-container" id="invoice-content">
-  <div class="bill-popup-header">
-  <img src="/assets/img/letterhead.png" alt="Letterhead" style="width:100%;object-fit:contain;" />
+<div class="invoice-wrapper" id="invoice-content">
+  <div class="invoice-header">
+    <img src="/assets/img/letterhead.png" alt="True Enterprises Letterhead" class="letterhead" />
   </div>
-  <div class="bill-title">Sale Invoice</div>
-  <div class="bill-meta">
-    <div><span class="meta-label">Invoice No:</span> <span class="meta-value">{{ invoiceData.invoiceNumber }}</span></div>
-    <div><span class="meta-label">Date:</span> <span class="meta-value">{{ invoiceData.currentDate }}</span></div>
-    <div><span class="meta-label">Customer:</span> <span class="meta-value">{{ invoiceData.selectedCustomerName }}</span></div>
-    <div><span class="meta-label">User:</span> <span class="meta-value">{{ invoiceData.loggedUserName }}</span></div>
-    <div *ngIf="invoiceData.vehicle">
-      <span class="meta-label">Vehicle:</span>
-      <span class="meta-value">{{ invoiceData.vehicle.make }} {{ invoiceData.vehicle.model }} {{ invoiceData.vehicle.year }}</span>
+
+  <div class="invoice-body">
+    <div class="invoice-meta">
+      <div class="invoice-meta-left">
+        <h2 class="invoice-title">SALE INVOICE</h2>
+        <p><strong>Invoice No:</strong> {{ invoiceData.invoiceNumber }}</p>
+        <p><strong>Date:</strong> {{ invoiceData.currentDate }}</p>
+      </div>
+
+      <div class="invoice-meta-right">
+        <p><strong>Customer:</strong> {{ invoiceData.selectedCustomerName }}</p>
+        <p><strong>User:</strong> {{ invoiceData.loggedUserName }}</p>
+        <p *ngIf="invoiceData.vehicle"><strong>Vehicle:</strong> {{ invoiceData.vehicle.make }} {{ invoiceData.vehicle.model }} {{ invoiceData.vehicle.year }}</p>
+        <p *ngIf="invoiceData.vehicleNumber"><strong>Vehicle No:</strong> {{ invoiceData.vehicleNumber }}</p>
+      </div>
     </div>
-    <div *ngIf="invoiceData.vehicleNumber">
-      <span class="meta-label">Vehicle No:</span>
-      <span class="meta-value">{{ invoiceData.vehicleNumber }}</span>
+
+    <table class="invoice-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Product</th>
+          <th>Qty</th>
+          <th>Unit Price</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of invoiceData.saleItems; let i = index">
+          <td>{{ i + 1 }}</td>
+          <td>{{ item.productName }}</td>
+          <td>{{ item.remainingQty }}</td>
+          <td>{{ item.retailPrice | currency: 'LKR ' }}</td>
+          <td>
+            {{
+              ((item.remainingQty ?? 0) * (item.retailPrice ?? 0) -
+              ((item.discountPercentage ?? 0) / 100 * (item.retailPrice ?? 0) * (item.remainingQty ?? 0)))
+              | currency: 'LKR '
+            }}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="invoice-summary">
+      <div class="summary-row"><span>Subtotal</span><span>{{ invoiceData.subtotal | currency: 'LKR ' }}</span></div>
+      <div class="summary-row"><span>Line Discount</span><span>{{ invoiceData.totalDiscount | currency: 'LKR ' }}</span></div>
+      <div class="summary-row"><span>Bill Discount (%)</span><span>{{ invoiceData.billWiseDiscountPercentage }}%</span></div>
+      <div class="summary-row"><span>Bill Discount Total</span><span>{{ invoiceData.billWiseDiscountTotal | currency: 'LKR ' }}</span></div>
+      <div class="summary-row total"><span>Net Total</span><span>{{ invoiceData.netTotal | currency: 'LKR ' }}</span></div>
+      <div class="summary-row"><span>Paid Amount</span><span>{{ invoiceData.saleItem.paidAmount | currency: 'LKR ' }}</span></div>
+      <div class="summary-row status">
+        <span>Status</span>
+        <span class="status-badge" [ngClass]="{'paid': invoiceData.saleItem.isFullyPaid, 'unpaid': !invoiceData.saleItem.isFullyPaid}">
+          {{ invoiceData.saleItem.isFullyPaid ? 'Fully Paid' : 'Partially Paid' }}
+        </span>
+      </div>
     </div>
   </div>
 
-  <table class="bill-popup-table">
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>Product Name</th>
-        <!-- <th>Batch</th> -->
-        <th>Qty</th>
-        <th>Unit Price</th>
-        <!-- <th>Discount (%)</th> -->
-        <!-- <th>Discount</th> -->
-        <th>Total</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let item of invoiceData.saleItems; let i = index">
-        <td>{{ i + 1 }}</td>
-        <td>{{ item.productName }}</td>
-        <!-- <td>{{ item.batchNo }}</td> -->
-        <td>{{ item.remainingQty }}</td>
-        <td>{{ item.retailPrice | currency: 'LKR ' }}</td>
-        <!-- <td>{{ item.discountPercentage ?? 0 }}%</td> -->
-        <!-- <td>{{ ((item.discountPercentage ?? 0) / 100 * (item.retailPrice ?? 0) * (item.remainingQty ?? 0)) | currency: 'LKR ' }}</td> -->
-        <td>{{ ((item.remainingQty ?? 0) * (item.retailPrice ?? 0) - ((item.discountPercentage ?? 0) / 100 * (item.retailPrice ?? 0) * (item.remainingQty ?? 0))) | currency: 'LKR ' }}</td>
-      </tr>
-    </tbody>
-  </table>
-
-  <div class="bill-popup-summary">
-    <div class="summary-row"><span>Subtotal:</span> <span>{{ invoiceData.subtotal | currency: 'LKR ' }}</span></div>
-    <div class="summary-row"><span>Line Wise Discount Total:</span> <span>{{ invoiceData.totalDiscount | currency: 'LKR ' }}</span></div>
-    <div class="summary-row"><span>Bill Wise Discount (%):</span> <span>{{ invoiceData.billWiseDiscountPercentage }}%</span></div>
-    <div class="summary-row"><span>Bill Wise Discount Total:</span> <span>{{ invoiceData.billWiseDiscountTotal | currency: 'LKR ' }}</span></div>
-    <div class="summary-row net-total"><span>Net Total:</span> <span>{{ invoiceData.netTotal | currency: 'LKR ' }}</span></div>
-    <div class="summary-row"><span>Paid Amount:</span> <span>{{ invoiceData.saleItem.paidAmount | currency: 'LKR ' }}</span></div>
-    <div class="summary-row"><span>Status:</span> <span class="status-value" [ngClass]="{'paid': invoiceData.saleItem.isFullyPaid, 'unpaid': !invoiceData.saleItem.isFullyPaid}">{{ invoiceData.saleItem.isFullyPaid ? 'Fully Paid' : 'Partially Paid' }}</span></div>
+  <div class="invoice-actions no-print">
+    <button (click)="printBill()" class="btn primary"><i class="fa fa-print"></i> Print</button>
+    <button (click)="startNewTransaction()" class="btn outline"><i class="fa fa-plus"></i> New Sale</button>
   </div>
 
-  <div class="bill-popup-actions">
-    <button (click)="printBill()" class="btn btn-success"><i class="fa fa-print"></i> Print Bill</button>
-    <button (click)="startNewTransaction()" class="btn btn-success" style="margin-left: 12px;"><i class="fa fa-plus"></i> New Transaction</button>
-  </div>
-
-  <div class="bill-popup-footer">
-    <div class="thank-you">Thank you for your business!</div>
-    <div class="footer-note">This is a system generated invoice. If you have any questions, contact us at trueenterprises.lk@gmail.com</div>
+  <div class="invoice-footer">
+    <p class="thank-you">Thank you for your business!</p>
+    <p class="footer-note">This invoice was system-generated. For inquiries, contact: <strong>trueenterprises.lk@gmail.com</strong></p>
   </div>
 </div>

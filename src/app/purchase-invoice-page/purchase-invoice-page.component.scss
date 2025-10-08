@@ -1,33 +1,5 @@
-/* Print styles for thin label size (e.g., 80mm width) */
-@media print {
-  body, html {
-    width: 80mm;
-    min-height: 100mm;
-    margin: 0;
-    padding: 0;
-    background: #fff;
-  }
-  .invoice-container {
-    width: 80mm;
-    min-height: 100mm;
-    margin: 0 auto;
-    padding: 5mm 2mm 5mm 2mm;
-    box-sizing: border-box;
-    background: #fff;
-    color: #000;
-    font-size: 10pt;
-    page-break-after: always;
-  }
-  /* Hide non-invoice elements */
-  .no-print, .no-print * {
-    display: none !important;
-  }
-  /* Remove box shadows, borders, etc. for print */
-  .invoice-container, .invoice-header, .invoice-footer {
-    box-shadow: none !important;
-    border: none !important;
-  }
-}
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 .bill-popup-container {
   background: #fff;
   border-radius: 12px;
@@ -35,42 +7,29 @@
   padding: 32px 40px;
   max-width: 700px;
   margin: 32px auto;
-  font-family: 'Segoe UI', Arial, sans-serif;
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
   color: #222;
 }
-.company-info {
-  text-align: center;
-  margin-bottom: 18px;
+
+/* Header */
+.bill-popup-header img {
+  height: 100px;
+  max-width: 100%;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto;
 }
-.company-name {
-  font-size: 1.4rem;
-  font-weight: 700;
-  color: #2a7ae2;
-  margin-bottom: 4px;
-}
-.company-address, .company-contact {
-  font-size: 1rem;
-  color: #555;
-  margin-bottom: 2px;
-}
-.bill-popup-header {
-  border-bottom: 2px solid #eaeaea;
-  margin-bottom: 18px;
-  padding-bottom: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
+
+/* Title */
 .bill-title {
   font-size: 2rem;
   font-weight: 600;
   color: #2a7ae2;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  justify-content: center;
-  margin-bottom: 8px;
+  text-align: center;
+  margin-bottom: 12px;
 }
+
+/* Meta Info */
 .bill-meta {
   display: flex;
   flex-wrap: wrap;
@@ -87,6 +46,8 @@
   font-weight: 600;
   color: #222;
 }
+
+/* Table */
 .bill-popup-table {
   width: 100%;
   border-collapse: collapse;
@@ -113,6 +74,8 @@
 .bill-popup-table tbody tr:nth-child(even) {
   background: #f9fafb;
 }
+
+/* Summary */
 .bill-popup-summary {
   margin-top: 18px;
   margin-bottom: 18px;
@@ -151,6 +114,8 @@
   background: #fff3e0;
   color: #e65100;
 }
+
+/* Buttons */
 .bill-popup-actions {
   text-align: right;
   margin-top: 24px;
@@ -170,6 +135,8 @@
 .btn-success:hover {
   background: #1a5bb8;
 }
+
+/* Footer */
 .bill-popup-footer {
   text-align: center;
   margin-top: 18px;
@@ -186,6 +153,8 @@
   font-size: 0.95rem;
   color: #888;
 }
+
+/* Print */
 @media print {
   .bill-popup-actions { display: none; }
   .bill-popup-container {
