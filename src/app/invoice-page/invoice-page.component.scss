@@ -76,10 +76,14 @@
   margin-bottom: 18px;
   border-bottom: 2px solid #eaeaea;
   padding-bottom: 12px;
+  // position: relative;
+  // background: url('/assets/img/letterhead.png') no-repeat center top;
+  // background-size: contain;
+  // min-height: 120px;
 }
 .bill-popup-header img {
-  height: 80px;
-  max-width: 120px;
+  height: 120px;
+  width: 100%;
   object-fit: contain;
   display: block;
   margin: 0 auto;

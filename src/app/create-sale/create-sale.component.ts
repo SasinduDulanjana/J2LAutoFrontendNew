@@ -652,11 +652,18 @@ export class CreateSaleComponent implements OnInit {
                   saleItems: this.saleItems,
                   billWiseDiscountPercentage: this.billWiseDiscountPercentage,
                   saleItem: this.saleItem,
+                  vehicleNumber: this.vehicleNumber,
+                  vehicle: this.selectedVehicle,
                   subtotal: this.getSubtotal(),
                   totalDiscount: this.getTotalDiscount(),
                   billWiseDiscountTotal: this.getTotalBillWiseDiscount(),
                   netTotal: this.getTotal()
                 };
+                console.log('Passing to invoice page:', {
+                  vehicleNumber: this.vehicleNumber,
+                  selectedVehicle: this.selectedVehicle,
+                  invoiceData
+                });
                 this.router.navigate(['/invoice'], { state: { invoiceData } });
               } else {
                 console.error('Error creating sale:', response.message);
@@ -799,6 +806,8 @@ export class CreateSaleComponent implements OnInit {
         saleItems: this.saleItems,
         billWiseDiscountPercentage: this.billWiseDiscountPercentage,
         saleItem: this.saleItem,
+        vehicleNumber: this.vehicleNumber,
+        vehicle: this.selectedVehicle,
         getSubtotal: () => this.getSubtotal(),
         getTotalDiscount: () => this.getTotalDiscount(),
         getTotalBillWiseDiscount: () => this.getTotalBillWiseDiscount(),
