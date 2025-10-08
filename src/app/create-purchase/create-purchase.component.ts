@@ -186,11 +186,35 @@ export class CreatePurchaseComponent implements OnInit {
     }
 
     const term = this.productSearchTerm.toLowerCase();
-    this.searchResults = this.allProducts.filter(product =>
-      (product.productName && product.productName.toLowerCase().includes(term)) ||
-      (product.sku && product.sku.toLowerCase().includes(term)) ||
-  (product.barCode && product.barCode.toLowerCase().includes(term))
-    );
+    const terms = term.split(/\s+/).filter(Boolean);
+    this.searchResults = this.allProducts.filter(product => {
+      // Basic fields
+      const matchesBasic =
+        (product.productName && product.productName.toLowerCase().includes(term)) ||
+        (product.sku && product.sku.toLowerCase().includes(term)) ||
+        (product.barCode && product.barCode.toLowerCase().includes(term));
+
+      // Helper to match terms against vehicle object
+      const matchVehicleObj = (v: any) => {
+        if (!v) return false;
+        // Match each term separately
+        const termMatches = terms.every(t =>
+          (v.make && v.make.toLowerCase().includes(t)) ||
+          (v.model && v.model.toLowerCase().includes(t)) ||
+          (v.year && v.year.toString().includes(t)) ||
+          (product.productName && product.productName.toLowerCase().includes(t))
+        );
+        // Match combined string
+        const combined = `${v.make || ''} ${v.model || ''} ${v.year || ''} ${product.productName || ''}`.toLowerCase();
+        const combinedMatch = combined.includes(term);
+        return termMatches || combinedMatch;
+      };
+
+      // Vehicle fields (single object)
+      const matchesVehicleObj = matchVehicleObj(product.vehicle);
+
+      return matchesBasic || matchesVehicleObj;
+    });
   }
 
   addProductToPurchase(product: Product): void {

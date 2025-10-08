@@ -10,21 +10,21 @@
       <thead class="table-light">
         <tr>
           <th>Product Name</th>
-          <th>SKU</th>
+          <!-- <th>SKU</th> -->
           <th>Batch No</th>
-          <th>Sale Price</th>
           <th>Unit Cost</th>
+          <th>Sale Price</th>
           <th>Qty</th>
           <th>Total Cost</th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let product of data.products">
-          <td>{{ product.productName || product.product_name || 'N/A' }}</td>
-          <td>{{ product.sku || product.SKU || 'N/A' }}</td>
+          <td>{{ product.vehicle?.make || '-' }} {{ product.vehicle?.model || '-' }} {{ product.vehicle?.year || '-' }} {{ product.productName || product.product_name || 'N/A' }}</td>
+          <!-- <td>{{ product.sku || product.SKU || 'N/A' }}</td> -->
           <td>{{ product.batchNo || product.batch_no || 'N/A' }}</td>
-          <td>{{ product.salePrice || product.sale_price || 'N/A' }}</td>
           <td>{{ product.unitCost !== undefined ? product.unitCost : (product.cost !== undefined ? product.cost : 'N/A') }}</td>
+          <td>{{ product.salePrice !== undefined ? product.salePrice : (product.sale_price !== undefined ? product.sale_price : 'N/A') }}</td>
           <td>{{ product.purchaseQty || 'N/A' }}</td>
           <td>{{ product.unitCost * product.purchaseQty || 'N/A' }}</td>
         </tr>

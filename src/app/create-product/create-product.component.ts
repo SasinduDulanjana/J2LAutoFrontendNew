@@ -17,6 +17,32 @@ import { FailureDialogComponent } from '../failure-dialog/failure-dialog.compone
   styleUrls: ['./create-product.component.scss']
 })
 export class CreateProductComponent implements OnInit{
+  vehicleSearchTerm: string = '';
+  vehicleModelResults: any[] = [];
+  searchVehicleModel(): void {
+    const term = this.vehicleSearchTerm?.toLowerCase().trim() || '';
+    if (!term) {
+      this.vehicleModelResults = [];
+      return;
+    }
+    // Split term for multi-field matching
+    const parts = term.split(/\s+/);
+    this.vehicleModelResults = this.vehicleModels.filter(v => {
+      const make = (v.make || '').toLowerCase();
+      const model = (v.model || '').toLowerCase();
+      const year = String(v.year || '').toLowerCase();
+      // Match all parts in any order
+      return parts.every(p => make.includes(p) || model.includes(p) || year.includes(p));
+    });
+  }
+
+  selectVehicleModel(vehicle: any): void {
+    this.selectedVehicleId = vehicle.id;
+    this.vehicleSearchTerm = `${vehicle.make} ${vehicle.model} ${vehicle.year}`;
+    this.vehicleModelResults = [];
+    // Optionally add to selectedVehicles array if multi-select is needed
+    // this.selectedVehicles.push(vehicle);
+  }
   openCreateVehiclePopup(): void {
     const dialogRef = this.dialog.open(
       // @ts-ignore

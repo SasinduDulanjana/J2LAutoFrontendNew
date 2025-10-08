@@ -57,10 +57,21 @@ export class SaleListComponent {
   onSearch(): void {
     const query = this.searchQuery.toLowerCase().trim();
     if (query) {
-      this.filteredSales = this.sales.filter(sale =>
-        sale.invoiceNumber.toLowerCase().includes(query.toLowerCase())
-        // || customer.phone.toLowerCase().includes(query)
-      );
+      const terms = query.split(/\s+/).filter(Boolean);
+      this.filteredSales = this.sales.filter(sale => {
+        // Vehicle multi-term search
+        const vehicleStr = sale.vehicle ? `${sale.vehicle.make || ''} ${sale.vehicle.model || ''} ${sale.vehicle.year || ''}`.toLowerCase() : '';
+        const vehicleMatch = terms.length > 1
+          ? terms.every(t => vehicleStr.includes(t))
+          : vehicleStr.includes(query);
+        return (
+          (sale.invoiceNumber && sale.invoiceNumber.toLowerCase().includes(query)) ||
+          (sale.vehicleNumber && sale.vehicleNumber.toLowerCase().includes(query)) ||
+          vehicleMatch ||
+          (sale.customer?.name && sale.customer.name.toLowerCase().includes(query))
+          // || (sale.customer?.phone && sale.customer.phone.toLowerCase().includes(query))
+        );
+      });
     } else {
       this.filteredSales = this.sales;
     }

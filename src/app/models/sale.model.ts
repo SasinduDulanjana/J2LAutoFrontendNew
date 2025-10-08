@@ -25,6 +25,8 @@ export class Sale {
   chequeDate?: string;
   modifiedBy?: string;
   modifiedDate?: string;
+  vehicle?: any;
+  vehicleNumber?: string;
 
   constructor(
   orderDate: string,

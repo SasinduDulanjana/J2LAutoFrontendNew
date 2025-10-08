@@ -51,11 +51,30 @@ export class AuthService {
   }
 
   logout(): void {
-  localStorage.removeItem('token');
-  localStorage.removeItem('rolePermissions');
+    // Get username from token
+    let username = '';
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        username = payload.sub || '';
+      } catch {}
+    }
+    // Call backend logout API with username as request param
+    this.http.post(BASE_URL + '/logout?username=' + encodeURIComponent(username), {}, { withCredentials: true }).subscribe({
+      next: () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('rolePermissions');
+        this.isLoggedInStatus = false;
+      },
+      error: () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('rolePermissions');
+        this.isLoggedInStatus = false;
+      }
+    });
   }
 
-  
   isAuthenticated(): boolean {
     return !!localStorage.getItem('token');
   }

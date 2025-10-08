@@ -6,7 +6,6 @@ import { Batch } from '../models/batch.model';
 import { Sale } from '../models/sale.model';
 import { SaleProduct } from '../models/sale-product.model';
 import { CustomerService } from '../services/customer.service';
-// import { MatDialog } from '@angular/material/dialog';
 import { PopupCustomerListComponent } from '../popup-customer-list/popup-customer-list.component';
 import { CreateCustomerComponent } from '../create-customer/create-customer.component';
 import { SuccessDialogComponent } from '../success-dialog/success-dialog.component';
@@ -25,6 +24,8 @@ import { PaymentDialogComponent } from '../payment-dialog/payment-dialog.compone
 import { AuthService } from '../services/auth.service';
 import { UserService } from '../services/user.service';
 import { InventoryListComponent } from '../inventory-list/inventory-list.component';
+import { VehicleService } from '../services/vehicle.service';
+import { CreateVehicleComponent } from '../create-vehicle/create-vehicle.component';
 
 @Component({
   selector: 'app-create-sale',
@@ -32,6 +33,55 @@ import { InventoryListComponent } from '../inventory-list/inventory-list.compone
   styleUrls: ['./create-sale.component.scss']
 })
 export class CreateSaleComponent implements OnInit {
+  openCreateVehiclePopup(): void {
+    const dialogRef = this.dialog.open(
+      CreateVehicleComponent, // Replace with your actual CreateVehicleComponent if available
+      {
+        width: '500px',
+        disableClose: false
+      }
+    );
+    dialogRef.afterClosed().subscribe((result: any) => {
+      if (result && result.vehicle) {
+        // Refresh vehicle list and sort alphabetically
+        this.vehicleService.getAllVehicles().subscribe((data: any[] = []) => {
+          this.vehicles = data.sort((a: any, b: any) => {
+            const aStr = `${a.make} ${a.model} ${a.year}`.toLowerCase();
+            const bStr = `${b.make} ${b.model} ${b.year}`.toLowerCase();
+            return aStr.localeCompare(bStr);
+          });
+        });
+      }
+    });
+  }
+  vehicles: any[] = [];
+  vehicleResults: any[] = [];
+  vehicleSearchTerm: string = '';
+  selectedVehicle: any = null;
+  vehicleNumber: string = '';
+
+  searchVehicle(): void {
+    const term = this.vehicleSearchTerm?.toLowerCase().trim() || '';
+    if (!term) {
+      this.vehicleResults = [];
+      return;
+    }
+    // Split term for multi-field matching
+    const parts = term.split(/\s+/);
+    this.vehicleResults = this.vehicles.filter(v => {
+      const make = (v.make || '').toLowerCase();
+      const model = (v.model || '').toLowerCase();
+      const year = String(v.year || '').toLowerCase();
+      // Match all parts in any order
+      return parts.every(p => make.includes(p) || model.includes(p) || year.includes(p));
+    });
+  }
+
+  selectVehicle(vehicle: any): void {
+    this.selectedVehicle = vehicle;
+    this.vehicleSearchTerm = `${vehicle.make} ${vehicle.model} ${vehicle.year}`;
+    this.vehicleResults = [];
+  }
   onRetailPriceChange(item: any): void {
     // Only handle retail price change, update totals if needed
     // You can trigger recalculation of net total or other logic here
@@ -184,7 +234,8 @@ export class CreateSaleComponent implements OnInit {
     private router: Router,
     private categoryService: CategoryService,
     private authService: AuthService,
-    private userService: UserService
+    private userService: UserService,
+    private vehicleService: VehicleService
   ) {
     this.saleItem = new Sale(
       "", // orderDate
@@ -202,6 +253,15 @@ export class CreateSaleComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    // Fetch all vehicles for search
+    this.vehicleService.getAllVehicles().subscribe(
+      (vehicles: any[]) => {
+        this.vehicles = vehicles;
+      },
+      (error) => {
+        this.vehicles = [];
+      }
+    );
     // Auto-generate a temporary invoice number on page open
   const shortNum = (Date.now() % 1000000).toString().padStart(6, '0');
   this.invoiceNumber = `INV-${shortNum}`;
@@ -288,11 +348,35 @@ export class CreateSaleComponent implements OnInit {
     }
 
     const term = this.productSearchTerm.toLowerCase();
-    this.searchResults = this.products.filter(product =>
-      (product.productName && product.productName.toLowerCase().includes(term)) ||
-      (product.sku && product.sku.toLowerCase().includes(term)) ||
-      (product.barCode && product.barCode.toLowerCase().includes(term))
-    );
+    const terms = term.split(/\s+/).filter(Boolean);
+    this.searchResults = this.products.filter(product => {
+      // Basic fields
+      const matchesBasic =
+        (product.productName && product.productName.toLowerCase().includes(term)) ||
+        (product.sku && product.sku.toLowerCase().includes(term)) ||
+        (product.barCode && product.barCode.toLowerCase().includes(term));
+
+      // Helper to match terms against vehicle object
+      const matchVehicleObj = (v: any) => {
+        if (!v) return false;
+        // Match each term separately
+        const termMatches = terms.every(t =>
+          (v.make && v.make.toLowerCase().includes(t)) ||
+          (v.model && v.model.toLowerCase().includes(t)) ||
+          (v.year && v.year.toString().includes(t)) ||
+          (product.productName && product.productName.toLowerCase().includes(t))
+        );
+        // Match combined string
+        const combined = `${v.make || ''} ${v.model || ''} ${v.year || ''} ${product.productName || ''}`.toLowerCase();
+        const combinedMatch = combined.includes(term);
+        return termMatches || combinedMatch;
+      };
+
+      // Vehicle fields (single object)
+      const matchesVehicleObj = matchVehicleObj(product.vehicle);
+
+      return matchesBasic || matchesVehicleObj;
+    });
   }
 
   handleKeypress(event: KeyboardEvent): void {
@@ -478,6 +562,9 @@ export class CreateSaleComponent implements OnInit {
     this.saleItem.totalAmount = this.getTotal();
     this.saleItem.subTotal = this.getSubtotal();
     this.saleItem.billWiseDiscountPercentage = this.billWiseDiscountPercentage;
+    // Attach vehicle and vehicleNumber to saleItem before sending
+    this.saleItem.vehicle = this.selectedVehicle;
+    this.saleItem.vehicleNumber = this.vehicleNumber;
 
     // Remove saleId before sending to backend
     if ('saleId' in this.saleItem) {

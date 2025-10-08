@@ -21,18 +21,30 @@ export class ViewProductsDialogComponent {
   ) {
     this.data = data;
     // Map and clean product fields for template compatibility
-    const products = (data.products || []).map((p: any) => ({
-      productName: p.productName || p.product_name || 'N/A',
-      sku: p.sku || p.SKU || 'N/A',
-      batchNo: p.batchNo || p.batch_no || 'N/A',
-      salePrice: p.salePrice || p.sale_price || 'N/A',
-      unitCost: p.unitCost || p.unit_cost || 'N/A',
-      wholeSalePrice: p.wholeSalePrice || p.wholesalePrice || p.whole_sale_price || 'N/A',
-      lowQty: p.lowQty || p.low_qty || 'N/A',
-      qty: p.qty || p.quantity || 'N/A',
-      productId: p.productId || p.id || p.product_id || 'N/A',
-      purchaseId: data.purchaseId || 'N/A'
-    }));
+    const products = (data.products || []).map((p: any) => {
+      // Ensure vehicle is always an object
+      let vehicleObj = p.vehicle;
+      if (!vehicleObj || typeof vehicleObj !== 'object') {
+        vehicleObj = {
+          make: p.make || p.vehicleMake || '-',
+          model: p.model || p.vehicleModel || '-',
+          year: p.year || p.vehicleYear || '-'
+        };
+      }
+      return {
+        productName: p.productName || p.product_name || 'N/A',
+        vehicle: vehicleObj,
+        sku: p.sku || p.SKU || 'N/A',
+        batchNo: p.batchNo || p.batch_no || 'N/A',
+        salePrice: p.salePrice || p.sale_price || 'N/A',
+        unitCost: p.unitCost || p.unit_cost || 'N/A',
+        wholeSalePrice: p.wholeSalePrice || p.wholesalePrice || p.whole_sale_price || 'N/A',
+        lowQty: p.lowQty || p.low_qty || 'N/A',
+        qty: p.qty || p.quantity || 'N/A',
+        productId: p.productId || p.id || p.product_id || 'N/A',
+        purchaseId: data.purchaseId || 'N/A'
+      };
+    });
 
     // Fetch batchDetails for each product by SKU
     const batchRequests = products.map(prod =>

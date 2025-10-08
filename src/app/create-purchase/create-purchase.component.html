@@ -13,23 +13,23 @@
     <div class="card-body">
       <form (ngSubmit)="createPurchase()" #purchaseForm="ngForm" cForm class="row g-4">
         <c-row class="g-3">
-          <c-col [md]="3">
+          <c-col [md]="4">
             <label cLabel for="invoiceNumber">Invoice Number</label>
             <input cFormControl id="invoiceNumber" type="text" [(ngModel)]="purchase.invoiceNumber" name="invoiceNumber" required #invoiceNumber="ngModel" />
             <div *ngIf="invoiceNumber.invalid && (invoiceNumber.dirty || invoiceNumber.touched)" class="text-danger small">Invoice number is required.</div>
             <small class="text-muted">If the purchase has been issued outside of XPos, please provide a unique reference.</small>
           </c-col>
-          <c-col [md]="3">
+          <!-- <c-col [md]="3">
             <label cLabel for="deliveryTime">Delivery Time</label>
             <input cFormControl id="deliveryTime" type="date" [(ngModel)]="purchase.deliveryTime" name="deliveryTime" required #deliveryTime="ngModel" />
             <div *ngIf="deliveryTime.invalid && (deliveryTime.dirty || deliveryTime.touched)" class="text-danger small">Delivery time is required.</div>
-          </c-col>
-          <c-col [md]="3">
+          </c-col> -->
+          <c-col [md]="4">
             <label cLabel for="invoiceDate">Invoice Date</label>
             <input cFormControl id="invoiceDate" type="text" [value]="purchase.invoiceDate" name="invoiceDate" readonly class="form-control bg-light" />
             <small class="text-muted">Invoice date is set to current date automatically.</small>
           </c-col>
-          <c-col [md]="3">
+          <c-col [md]="4">
             <label cLabel for="supplier">Supplier</label>
             <div class="d-flex align-items-center gap-2">
               <select cFormControl id="supplier" [(ngModel)]="selectedSupplierId" name="supplier" required class="form-select" #supplierId="ngModel">
@@ -45,12 +45,12 @@
         </c-row>
         <c-col [xs]="12" class="mt-4">
           <div class="d-flex align-items-center mb-3">
-            <input style="background-color: #e5e7eb;" placeholder="SKU, Barcode, Name" id="searchProduct" type="text" [(ngModel)]="productSearchTerm" (input)="searchProduct()" name="searchProduct" class="form-control" />
+            <input style="background-color: #e5e7eb;" placeholder="Search Product" id="searchProduct" type="text" [(ngModel)]="productSearchTerm" (input)="searchProduct()" name="searchProduct" class="form-control" />
           </div>
           <div *ngIf="searchResults.length > 0">
             <ul class="list-group mt-2">
               <li *ngFor="let product of searchResults" (click)="addProductToPurchase(product)" class="list-group-item list-group-item-action">
-                {{ product.productName }}
+                {{ product.vehicle?.make || '-' }} {{ product.vehicle?.model || '-' }} {{ product.vehicle?.year || '-' }} {{ product.productName }}
               </li>
             </ul>
           </div>

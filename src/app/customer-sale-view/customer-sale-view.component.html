@@ -20,7 +20,7 @@
           </thead>
           <tbody>
             <tr *ngFor="let item of items">
-              <td>{{ item.product }}</td>
+              <td>{{ item.vehicle?.make }} {{ item.vehicle?.model }} {{ item.vehicle?.year }} {{ item.vehicle?.productName }}</td>
               <td>{{ item.qty }}</td>
               <td>
                 <span [ngClass]="item.status === 'PENDING' ? 'badge bg-success' : 'badge bg-warning text-dark'">

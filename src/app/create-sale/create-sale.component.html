@@ -64,14 +64,36 @@
   <div class="box box-left" style="position: relative;">
   <form (ngSubmit)="createSale()" #saleForm="ngForm" cForm class="row g-3">
         <c-col [xs]="12">
+          <div class="row mb-3">
+            <div class="col-6 position-relative">
+              <label for="vehicleSearch" class="form-label">Search Vehicle</label>
+              <div class="d-flex align-items-center">
+                <input id="vehicleSearch" type="text" class="form-control" [(ngModel)]="vehicleSearchTerm" (input)="searchVehicle()" name="vehicleSearch" placeholder="Search Vehicle" autocomplete="off" />
+                <button cButton color="success" type="button" style="margin-left:8px;width:40px;min-width:40px;padding:0 4px;" (click)="openCreateVehiclePopup()" title="Add Vehicle">
+                  <svg cIcon name="cil-plus" style="width:20px;height:35px;"></svg>
+                </button>
+              </div>
+              <div *ngIf="vehicleResults.length > 0" class="dropdown-list" style="position:absolute;width:100%;z-index:10;">
+                <ul class="list-group">
+                  <li *ngFor="let v of vehicleResults" class="list-group-item list-group-item-action" (click)="selectVehicle(v)">
+                    <span>{{ v.make }} {{ v.model }} {{ v.year }}</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="col-6">
+              <label for="vehicleNumber" class="form-label">Vehicle Number</label>
+              <input id="vehicleNumber" type="text" class="form-control" [(ngModel)]="vehicleNumber" name="vehicleNumber" placeholder="Enter Vehicle Number" />
+            </div>
+          </div>
           <input id="searchProduct" type="text" [(ngModel)]="productSearchTerm" (input)="searchProduct()"
             (keypress)="handleKeypress($event)" name="searchProduct" class="form-control"
-            placeholder="Search Product (SKU, BarCode)" />
+            placeholder="Search Product" />
           <div *ngIf="searchResults.length > 0" class="dropdown-list">
             <ul class="list-group">
               <li *ngFor="let product of searchResults" class="list-group-item list-group-item-action"
                 (click)="selectProduct(product)">
-                {{ product.productName }} - (SKU: {{ product.sku }}) - (Barcode: {{ product.barCode }})
+                <span *ngIf="product.vehicle"> {{ product.vehicle.make || '-' }} {{ product.vehicle.model || '-' }} {{ product.vehicle.year || '-' }} {{ product.productName }}</span>
               </li>
             </ul>
           </div>
@@ -96,7 +118,8 @@
               <tbody>
                 <tr *ngFor="let item of saleItems; let i = index">
                   <td>{{ i + 1 }}</td>
-                  <td>{{ item.productName }}</td>
+                  <!-- <td>{{ item.productName }}</td> -->
+                   <td>{{ item.vehicle.make || '-' }} {{ item.vehicle.model || '-' }} {{ item.vehicle.year || '-' }} {{ item.productName }}</td>
                   <td>{{ item.batchNo }}</td>
                     <td style="text-align: center; vertical-align: middle;">
                       <div style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
@@ -145,7 +168,7 @@
             </table>
           </div>
         </c-col>
-        <c-col [xs]="4">
+        <c-col [xs]="6">
           <div class="d-grid gap-2">
             <button cButton color="success" size="lg" type="submit"
               [disabled]="!saleForm.form.valid || saleItems.length === 0 || loading" style="color: white; position:relative;">
@@ -169,12 +192,12 @@
             <button cButton color="info" size="lg" (click)="openBillDialog()" style="color: white;">View/Print Bill</button>
           </div>
         </c-col>
-        <c-col [xs]="4">
+        <!-- <c-col [xs]="4">
           <div class="d-grid gap-2">
             <button cButton color="secondary" size="lg" (click)="holdSale()" style="color: white;">Hold</button>
           </div>
-        </c-col>
-        <c-col [xs]="4">
+        </c-col> -->
+        <c-col [xs]="6">
           <div class="d-grid gap-2">
             <button cButton color="danger" size="lg" width="100px" (click)="clearForm()" style="color: white;">Reset</button>
           </div>

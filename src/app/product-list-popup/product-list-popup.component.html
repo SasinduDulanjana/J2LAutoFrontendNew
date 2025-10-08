@@ -7,21 +7,21 @@
         <th>Batch No</th>
         <th>Quantity</th>
         <th>Retail Price</th>
-        <th>Total Price</th>
-        <th>Discount Percentage</th>
         <th>Discount Amount</th>
+        <th>Total Price</th>
+        <!-- <th>Discount Percentage</th> -->
         <th>Status</th>
       </tr>
     </thead>
     <tbody>
       <tr *ngFor="let product of data.products">
-        <td>{{ product.product.productName }}</td>
+        <td>{{ product.product.vehicle?.make || '-' }} {{ product.product.vehicle?.model || '-' }} {{ product.product.vehicle?.year || '-' }} {{ product.product.productName }}</td>
         <td>{{ product.batchNo || 'N/A' }}</td>
         <td>{{ product.quantity }}</td>
         <td>{{ product.retailPrice }}</td>
-        <td>{{ product.discountedTotal }}</td>
-        <td>{{ product.discountPercentage }}%</td>
         <td>{{ product.discountAmount }}</td>
+        <td>{{ product.discountedTotal }}</td>
+        <!-- <td>{{ product.discountPercentage }}%</td> -->
         <td>{{ product.productDeliveryStatus || '-' }}</td>
       </tr>
     </tbody>

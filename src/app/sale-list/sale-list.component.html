@@ -22,13 +22,15 @@
           <thead class="table-light">
             <tr>
               <th>Inv. No</th>
+              <th>Date</th>
               <th>User</th>
               <th>Customer</th>
-              <th>Line Discounts</th>
+              <th>Vehicle</th>
+              <th>Vehicle Number</th>
+              <!-- <th>Line Discounts</th> -->
               <th>Sub Total</th>
               <th>Bill Discounts</th>
               <th>Net Total</th>
-              <th>Created At</th>
               <th>Products</th>
               <th>Outstanding</th>
           <th>Payment Details</th>
@@ -37,13 +39,16 @@
           <tbody>
             <tr *ngFor="let sale of filteredSales; let i = index">
               <td>{{ sale.invoiceNumber }}</td>
+              <td>{{ sale.saleDate }}</td>
               <td>{{ sale.user?.username || '-' }}</td>
               <td>{{ sale.customer?.name || '-' }}</td>
-              <td>{{ sale.lineWiseDiscountTotalAmount }}</td>
+              <td>{{ sale.vehicle?.make || '-' }} {{ sale.vehicle?.model || '-' }} {{ sale.vehicle?.year || '-' }}</td>
+              <td>{{ sale.vehicleNumber || '-' }}</td>
+              <!-- <td>{{ sale.lineWiseDiscountTotalAmount }}</td> -->
               <td>{{ sale.subTotal }}</td>
               <td>{{ sale.billWiseDiscountTotalAmount }}</td>
               <td>{{ sale.totalAmount}}</td>
-              <td>{{ sale.saleDate }}</td>
+              
               <td>
                 <button *ngIf="productLoadingIndex !== i" (click)="openProductListPopupForSale(sale, i)" cButton color="light" style="min-width: 100px;">Products</button>
                 <button *ngIf="productLoadingIndex === i" cButton color="light" style="min-width: 100px;" disabled>
