@@ -75,7 +75,7 @@
               <tbody>
                 <tr *ngFor="let product of purchase.products; let i = index">
                   <th scope="row">{{ i + 1 }}</th>
-                  <td>{{ product.productName }}</td>
+                  <td>{{ product.vehicle?.make || '-' }} {{ product.vehicle?.model || '-' }} {{ product.vehicle?.year || '-' }} {{ product.productName }}</td>
                   <td>
                     <input type="number" [(ngModel)]="product.remainingQty" name="qty-{{i}}" class="form-control" min="1" required #qty="ngModel" />
                     <div *ngIf="qty.invalid && (qty.dirty || qty.touched)" class="text-danger small">Quantity is required and must be at least 1.</div>

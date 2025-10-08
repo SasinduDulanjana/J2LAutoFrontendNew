@@ -209,6 +209,22 @@ export class CreateProductComponent implements OnInit{
         });
       }, error => {
         this.loading = false;
+        // Always show the raw backend error response
+        let errorMsg = '';
+        if (typeof error?.error === 'string') {
+          errorMsg = error.error;
+        } else if (error?.error) {
+          errorMsg = error.error.message || JSON.stringify(error.error);
+        } else if (error?.message) {
+          errorMsg = error.message;
+        }
+        if (!errorMsg) {
+          errorMsg = 'Failed to create product. Please try again.';
+        }
+        this.dialog.open(FailureDialogComponent, {
+          width: '350px',
+          data: { message: errorMsg }
+        });
         console.error('Error creating product:', error);
       });
   // Removed stray statement and duplicate logic

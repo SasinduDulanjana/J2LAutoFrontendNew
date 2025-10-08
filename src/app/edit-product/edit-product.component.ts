@@ -137,6 +137,13 @@ export class EditProductComponent implements OnInit {
               compatibleVehicleId = null;
             }
             this.selectedVehicleId = compatibleVehicleId;
+            // Pre-fill the vehicle search bar with the first compatible vehicle
+            if (this.selectedVehicles.length > 0) {
+              const v = this.selectedVehicles[0];
+              this.vehicleSearchTerm = `${v.make} ${v.model} ${v.year}`;
+            } else {
+              this.vehicleSearchTerm = '';
+            }
             this.loading = false;
           }, error => {
             this.loading = false;
