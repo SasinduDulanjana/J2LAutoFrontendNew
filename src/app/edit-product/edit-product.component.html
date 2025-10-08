@@ -23,17 +23,19 @@
         <c-col [md]="6">
           <label cLabel for="vehicleModel">Compatible Vehicle Model</label>
           <div class="d-flex align-items-center mb-2">
-            <input id="vehicleModelSearch" type="text" class="form-control me-2" [(ngModel)]="vehicleSearchTerm" (input)="searchVehicleModel()" name="vehicleModelSearch" placeholder="Search Vehicle Model" autocomplete="off" style="max-width: 60%;" />
+            <div style="position: relative; width: 60%;">
+              <input id="vehicleModelSearch" type="text" class="form-control" [(ngModel)]="vehicleSearchTerm" (input)="searchVehicleModel()" name="vehicleModelSearch" placeholder="Search Vehicle Model" autocomplete="off" style="width: 100%;" />
+              <div *ngIf="vehicleModelResults.length > 0" class="dropdown-list" style="width:100%;position:absolute;z-index:10;left:0;top:100%;">
+                <ul class="list-group">
+                  <li *ngFor="let model of vehicleModelResults" class="list-group-item list-group-item-action" (click)="selectVehicleModel(model)">
+                    <span>{{ model.make }} {{ model.model }} {{ model.year }}</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
             <button cButton color="success" type="button" style="margin-left:8px;" (click)="openCreateVehiclePopup()">
               <svg cIcon name="cil-plus" style="margin-right:2px;"></svg> New Vehicle
             </button>
-            <div *ngIf="vehicleModelResults.length > 0" class="dropdown-list" style="width:60%;position:absolute;z-index:10;">
-              <ul class="list-group">
-                <li *ngFor="let model of vehicleModelResults" class="list-group-item list-group-item-action" (click)="selectVehicleModel(model)">
-                  <span>{{ model.make }} {{ model.model }} {{ model.year }}</span>
-                </li>
-              </ul>
-            </div>
           </div>
         </c-col>
         <!-- <c-col [md]="6">

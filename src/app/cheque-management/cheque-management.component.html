@@ -118,7 +118,7 @@
                   </span>
                 </div>
               </td>
-              <td>{{ cheque.party }}</td>
+              <td>{{ cheque.party ? cheque.party : '-' }}</td>
               <td>{{ cheque.amount | number:'1.2-2' }}</td>
               <td>{{ cheque.issueDate }}</td>
               <td>{{ cheque.dueDate }}</td>

@@ -137,7 +137,7 @@ export class ChequeManagementComponent implements OnInit {
 
   getTotal(status: string, type?: string): number {
     return this.allCheques
-      .filter(c => c.status === status && (!type || c.type.toLowerCase() === type.toLowerCase()))
+      .filter(c => c.status === status && (!type || (c.type && c.type.toLowerCase() === type.toLowerCase())))
       .reduce((sum, c) => sum + (c.amount || 0), 0);
   }
 
