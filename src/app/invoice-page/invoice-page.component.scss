@@ -19,12 +19,13 @@
 }
 
 .invoice-title {
-  color: #2a7ae2;
+  color: #222;
   font-weight: 700;
   font-size: 1.6rem;
   margin-bottom: 10px;
   letter-spacing: 1px;
   text-transform: uppercase;
+  text-align: center;
 }
 
 .invoice-meta {
@@ -50,7 +51,7 @@
 
 .invoice-table th {
   background: #f2f6fc;
-  color: #2a7ae2;
+  color: #222;
   text-align: center;
   padding: 10px;
   border-bottom: 2px solid #e5e5e5;
@@ -89,7 +90,7 @@
   font-size: 0.95rem;
   border-top: 1px solid #ddd;
   padding-top: 6px;
-  color: #2a7ae2;
+  color: #222;
 }
 
 .status-badge {
@@ -153,7 +154,7 @@
 
 .thank-you {
   font-weight: 600;
-  color: #2a7ae2;
+  color: #222;
   margin-bottom: 4px;
 }
 
