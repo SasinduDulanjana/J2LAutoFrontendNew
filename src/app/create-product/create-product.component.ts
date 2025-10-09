@@ -206,6 +206,8 @@ export class CreateProductComponent implements OnInit{
           this.selectedVehicles = [];
           // Set first vehicle as default selection after save/reset
           this.selectedVehicleId = this.vehicleModels.length > 0 ? this.vehicleModels[0].id : null;
+          // Regenerate SKU for next product
+          this.product.sku = 'SKU-' + Date.now().toString(36).toUpperCase() + Math.random().toString(36).substring(2, 6).toUpperCase();
         });
       }, error => {
         this.loading = false;
