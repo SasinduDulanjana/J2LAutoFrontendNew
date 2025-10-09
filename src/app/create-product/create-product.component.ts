@@ -122,8 +122,8 @@ export class CreateProductComponent implements OnInit{
       this.selectedVehicleId = this.vehicleModels.length > 0 ? this.vehicleModels[0].id : null;
     });
     this.selectedVehicles = [];
-    // Auto-generate SKU (example: random string with prefix)
-    this.product.sku = 'SKU-' + Math.random().toString(36).substring(2, 10).toUpperCase();
+  // Auto-generate SKU (timestamp + random string for uniqueness)
+  this.product.sku = 'SKU-' + Date.now().toString(36).toUpperCase() + Math.random().toString(36).substring(2, 6).toUpperCase();
   }
 
   addVehicle(): void {
