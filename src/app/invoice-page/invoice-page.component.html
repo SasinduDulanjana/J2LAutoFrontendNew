@@ -23,23 +23,23 @@
       <thead>
         <tr>
           <th>#</th>
-          <th>Product</th>
+          <th style="text-align: left;">Product</th>
           <th>Qty</th>
           <th>Unit Price</th>
-          <th>Total</th>
+          <th style="text-align: right;">Total</th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let item of invoiceData.saleItems; let i = index">
           <td>{{ i + 1 }}</td>
-          <td>{{ item.productName }}</td>
+          <td style="text-align: left;">{{ item.productName }}</td>
           <td>{{ item.remainingQty }}</td>
-          <td>{{ item.retailPrice | currency: 'LKR ' }}</td>
-          <td>
+          <td>{{ item.retailPrice | currency: 'Rs. ' }}</td>
+          <td style="text-align: right;">
             {{
               ((item.remainingQty ?? 0) * (item.retailPrice ?? 0) -
               ((item.discountPercentage ?? 0) / 100 * (item.retailPrice ?? 0) * (item.remainingQty ?? 0)))
-              | currency: 'LKR '
+              | currency: 'Rs. '
             }}
           </td>
         </tr>
@@ -47,11 +47,11 @@
     </table>
 
     <div class="invoice-summary">
-      <div class="summary-row"><span>Subtotal</span><span>{{ invoiceData.subtotal | currency: 'LKR ' }}</span></div>
+      <div class="summary-row"><span>Subtotal</span><span>{{ invoiceData.subtotal | currency: 'Rs. ' }}</span></div>
       <!-- <div class="summary-row"><span>Line Discount</span><span>{{ invoiceData.totalDiscount | currency: 'LKR ' }}</span></div>
       <div class="summary-row"><span>Bill Discount (%)</span><span>{{ invoiceData.billWiseDiscountPercentage }}%</span></div> -->
-      <div class="summary-row"><span>Bill Discount Total</span><span>{{ invoiceData.billWiseDiscountTotal | currency: 'LKR ' }}</span></div>
-      <div class="summary-row total"><span>Net Total</span><span>{{ invoiceData.netTotal | currency: 'LKR ' }}</span></div>
+      <div class="summary-row"><span>Bill Discount Total</span><span>{{ invoiceData.billWiseDiscountTotal | currency: 'Rs. ' }}</span></div>
+      <div class="summary-row total"><span>Net Total</span><span>{{ invoiceData.netTotal | currency: 'Rs. ' }}</span></div>
       <!-- <div class="summary-row"><span>Paid Amount</span><span>{{ invoiceData.saleItem.paidAmount | currency: 'LKR ' }}</span></div>
       <div class="summary-row status">
         <span>Status</span>
