@@ -32,7 +32,7 @@
       <tbody>
         <tr *ngFor="let item of invoiceData.saleItems; let i = index">
           <td>{{ i + 1 }}</td>
-          <td>{{ item.vehicle?.make }} {{ item.vehicle?.model }} {{ item.vehicle?.year }} {{ item.productName }}</td>
+          <td>{{ item.productName }}</td>
           <td>{{ item.remainingQty }}</td>
           <td>{{ item.retailPrice | currency: 'LKR ' }}</td>
           <td>
