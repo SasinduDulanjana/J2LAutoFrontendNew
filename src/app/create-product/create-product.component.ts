@@ -208,6 +208,8 @@ export class CreateProductComponent implements OnInit{
           this.selectedVehicleId = this.vehicleModels.length > 0 ? this.vehicleModels[0].id : null;
           // Regenerate SKU for next product
           this.product.sku = 'SKU-' + Date.now().toString(36).toUpperCase() + Math.random().toString(36).substring(2, 6).toUpperCase();
+          // Clear compatible vehicle model search bar
+          this.vehicleSearchTerm = '';
         });
       }, error => {
         this.loading = false;
