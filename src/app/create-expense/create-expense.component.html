@@ -32,34 +32,8 @@
         </div>
         <div class="col-md-4">
           <label for="amount" class="form-label">Amount</label>
-          <input id="amount" type="number" class="form-control" formControlName="amount" required min="0.01" step="0.01">
-          <div *ngIf="submitted && expenseForm.controls['amount'].invalid" class="text-danger small">Valid amount is required.</div>
-        </div>
-        <div class="col-md-4">
-          <label for="paymentMethod" class="form-label">Payment Method</label>
-          <select id="paymentMethod" class="form-control" formControlName="paymentMethod" required>
-            <option value="">Select Method</option>
-            <option value="Cash">Cash</option>
-            <option value="Cheque">Cheque</option>
-            <option value="Card">Card</option>
-            <option value="Bank Transfer">Bank Transfer</option>
-          </select>
-          <div *ngIf="submitted && expenseForm.controls['paymentMethod'].invalid" class="text-danger small">Payment method is required.</div>
-        </div>
-        <div class="col-md-4" *ngIf="expenseForm.get('paymentMethod')?.value === 'Cheque'">
-          <label for="bankName" class="form-label">Bank Name</label>
-          <input id="bankName" type="text" class="form-control" formControlName="bankName" required>
-          <div *ngIf="submitted && expenseForm.controls['bankName'].invalid" class="text-danger small">Bank name is required.</div>
-        </div>
-        <div class="col-md-4" *ngIf="expenseForm.get('paymentMethod')?.value === 'Cheque'">
-          <label for="chequeDate" class="form-label">Cheque Date</label>
-          <input id="chequeDate" type="date" class="form-control" formControlName="chequeDate" required>
-          <div *ngIf="submitted && expenseForm.controls['chequeDate'].invalid" class="text-danger small">Cheque date is required.</div>
-        </div>
-        <div class="col-md-4" *ngIf="expenseForm.get('paymentMethod')?.value === 'Cheque'">
-          <label for="chequeNumber" class="form-label">Cheque Number</label>
-          <input id="chequeNumber" type="text" class="form-control" formControlName="chequeNumber" required>
-          <div *ngIf="submitted && expenseForm.controls['chequeNumber'].invalid" class="text-danger small">Cheque number is required.</div>
+          <input id="amount" type="number" class="form-control" formControlName="amount" min="0.01" step="0.01" required>
+          <div *ngIf="submitted && expenseForm.controls['amount'].invalid" class="text-danger small">Amount is required and must be greater than 0.</div>
         </div>
         <div class="col-md-4">
           <label for="reference" class="form-label">Reference</label>
@@ -69,9 +43,15 @@
           <label for="description" class="form-label">Description</label>
           <textarea id="description" class="form-control" formControlName="description" rows="3"></textarea>
         </div>
-        <div class="col-md-12 text-end">
+        <!-- <div class="col-md-12 text-end">
           <button type="submit" class="btn btn-primary text-white">
             <svg cIcon name="cil-save" class="me-2"></svg>Save Expense
+          </button>
+        </div> -->
+        <div class="col-md-4 text-end">
+          <button type="button" class="btn btn-success w-100 text-white" (click)="openPaymentDialog()"
+            [disabled]="expenseForm.controls['amount'].invalid || expenseForm.controls['expenseType'].invalid">
+            <svg cIcon name="cil-save" class="me-2"></svg>Pay
           </button>
         </div>
       </form>

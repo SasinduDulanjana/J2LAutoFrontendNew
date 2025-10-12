@@ -38,13 +38,24 @@
         </div>
       </form>
       <!-- Totals Summary -->
-      <div class="mb-3 d-flex flex-wrap gap-3">
-        <span class="fw-bold">
-          💰 Total Expenses: <span class="text-warning">LKR {{ getTotalExpenses() | number:'1.0-0' }}</span>
-        </span>
-        <span *ngFor="let type of visibleExpenseTypes" class="fw-bold">
-          {{ type }} Total: <span class="text-info">LKR {{ getTotalByType(type) | number:'1.0-0' }}</span>
-        </span>
+      <div class="mb-3 d-flex flex-wrap justify-content-center gap-2">
+        <div class="d-flex align-items-center gap-1 bg-light rounded shadow-sm px-2 py-1">
+          <i class="bi bi-cash-stack fs-5 text-warning"></i>
+          <span class="fw-bold small">Total Expenses:</span>
+          <span class="small text-dark">LKR {{ getTotalExpenses() | number:'1.0-0' }}</span>
+        </div>
+        <ng-container *ngFor="let type of visibleExpenseTypes">
+          <div class="d-flex align-items-center gap-1 bg-light rounded shadow-sm px-2 py-1">
+            <i class="bi bi-tags fs-5 text-secondary"></i>
+            <span class="fw-bold small">{{ type }} Total:</span>
+            <span class="small text-secondary">LKR {{ getTotalByType(type) | number:'1.0-0' }}</span>
+          </div>
+        </ng-container>
+        <div class="d-flex align-items-center gap-1 bg-light rounded shadow-sm px-2 py-1">
+          <i class="bi bi-exclamation-circle fs-5 text-danger"></i>
+          <span class="fw-bold small">Total Due Amount:</span>
+          <span class="small" [ngClass]="{'text-danger': getTotalDueAmount() > 0, 'text-success': getTotalDueAmount() === 0}">LKR {{ getTotalDueAmount() | number:'1.2-2' }}</span>
+        </div>
       </div>
 
       <div *ngIf="loading" class="d-flex justify-content-center align-items-center" style="min-height: 120px;">
@@ -58,13 +69,12 @@
             <th>ID</th>
             <th>Date</th>
             <th>Expense Type</th>
-            <th>Amount</th>
             <th>Reference</th>
-            <th>Payment Method</th>
-            <th>Bank Name</th>
-            <th>Cheque Date</th>
-            <th>Cheque Number</th>
             <th>Description</th>
+            <th>Total Amount</th>
+            <th>Paid Amount</th>
+            <th>Due Amount</th>
+            <th>Action</th>
           </tr>
         </thead>
         <tbody>
@@ -72,13 +82,23 @@
             <td>{{ expense.id != null ? expense.id : '-' }}</td>
             <td>{{ expense.date || '-' }}</td>
             <td>{{ expense.expenseType || '-' }}</td>
-            <td>{{ expense.amount != null && expense.amount !== '' ? expense.amount : '-' }}</td>
             <td>{{ expense.reference || '-' }}</td>
-            <td>{{ expense.paymentMethod || '-' }}</td>
-            <td>{{ expense.bankName || '-' }}</td>
-            <td>{{ expense.chequeDate || '-' }}</td>
-            <td>{{ expense.chequeNumber || '-' }}</td>
             <td>{{ expense.description || '-' }}</td>
+            <td>{{ expense.amount != null && expense.amount !== '' ? expense.amount : '-' }}</td>
+            <td>{{ expense.paidAmount != null ? expense.paidAmount : '-' }}</td>
+            <td>
+              <span [ngClass]="{
+                'text-danger': expense.dueAmount != null && expense.dueAmount > 0,
+                'text-success': expense.dueAmount === 0
+              }">
+                {{ expense.dueAmount != null ? expense.dueAmount : '-' }}
+              </span>
+            </td>
+            <td class="text-center align-middle">
+              <button type="button" class="btn btn-info btn-sm text-white" (click)="openPaymentDetails(expense)">
+                <svg cIcon name="cil-list" class="me-1"></svg>Payment Details
+              </button>
+            </td>
           </tr>
         </tbody>
       </table>

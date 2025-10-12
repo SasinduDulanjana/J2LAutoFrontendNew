@@ -100,13 +100,23 @@ export class DashboardComponent implements OnInit {
           saleDate: sale.saleDate || sale.createdAt || sale.date || '-',
           outstandingBalance: sale.outstandingBalance || ((sale.totalAmount || 0) - (sale.paidAmount || 0)),
         }));
+        // Sort by saleDate descending (latest first)
+        const parseCustomDate = (str: string) => {
+          if (!str) return 0;
+          // Expecting format 'DD-MM-YYYY HH:mm:ss' or ISO
+          if (/\d{2}-\d{2}-\d{4} \d{2}:\d{2}:\d{2}/.test(str)) {
+            const [datePart, timePart] = str.split(' ');
+            const [day, month, year] = datePart.split('-').map(Number);
+            const [hour, minute, second] = timePart.split(':').map(Number);
+            return new Date(year, month - 1, day, hour, minute, second).getTime();
+          }
+          // Fallback to Date.parse
+          return Date.parse(str);
+        };
         const sorted = mappedSales.sort((a, b) => {
-          // If invoiceNumber is numeric, sort numerically; otherwise, lexically
-          const aId = isNaN(Number(a.invoiceNumber)) ? a.invoiceNumber : Number(a.invoiceNumber);
-          const bId = isNaN(Number(b.invoiceNumber)) ? b.invoiceNumber : Number(b.invoiceNumber);
-          if (aId < bId) return 1;
-          if (aId > bId) return -1;
-          return 0;
+          const dateA = parseCustomDate(a.saleDate);
+          const dateB = parseCustomDate(b.saleDate);
+          return dateB - dateA;
         });
         this.sales = sorted.slice(0, 8);
         this.loading = false;

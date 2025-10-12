@@ -16,4 +16,11 @@ export class ExpenseService {
   getExpenses(): Observable<any[]> {
     return this.http.get<any[]>(`${this.baseUrl}/getAllExpenses`);
   }
-}
+
+    getPaymentDetailsOfExpense(expenseId: number): Observable<any[]> {
+      return this.http.get<any[]>(`${this.baseUrl}/paymentDetailsOfExpenses/${expenseId}`);
+    }
+    updateExpensePaymentAmount(payload: any): Observable<any> {
+      return this.http.post(`${this.baseUrl}/updateExpensePaymentAmount`, payload);
+    }
+  }

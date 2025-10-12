@@ -1,0 +1,49 @@
+
+<div class="p-3">
+  <h2 class="mb-4 text-center">Payment Details</h2>
+  <div class="mb-3 text-center">
+    <span class="fw-bold">Due Amount: </span>
+    <span [ngClass]="{'text-danger': getDueAmount() > 0, 'text-success': getDueAmount() === 0}">
+      {{ getDueAmount() | number:'1.2-2' }}
+    </span>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-bordered table-hover align-middle">
+      <thead class="table-light">
+        <tr class="text-center">
+          <th>Date</th>
+          <th>Paid Amount</th>
+          <th>Payment Method</th>
+          <th>Cheque No</th>
+          <th>Cheque Date</th>
+          <th>Bank Name</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let payment of data.payments">
+          <td class="text-end">{{ payment.paymentDate | date: 'shortDate' }}</td>
+          <td class="text-end">{{ payment.amount }}</td>
+          <td class="text-center">{{ payment.paymentMethod }}</td>
+          <td class="text-center">{{ payment.chequeNo || '-' }}</td>
+          <td class="text-center">{{ payment.chequeDate | date: 'shortDate' }}</td>
+          <td class="text-center">{{ payment.bankName || '-' }}</td>
+          <td class="text-center">
+            <span [ngClass]="{'text-success': payment.paymentStatus === 'CLEARED', 'text-danger': payment.paymentStatus !== 'CLEARED'}">
+              {{ payment.paymentStatus }}
+            </span>
+          </td>
+         
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="text-end mt-3 d-flex justify-content-end gap-2">
+    <button type="button" class="btn btn-success text-white"
+      [disabled]="getDueAmount() <= 0"
+      (click)="pay()">
+      Pay Balance
+    </button>
+    <button type="button" class="btn btn-secondary" (click)="close()">Close</button>
+  </div>
+</div>

@@ -368,58 +368,55 @@
     </c-card>
   </c-col>
 </c-row> -->
+
 <c-row>
   <c-col xs>
-    <c-card class="mb-4">
-      <c-card-header>Recent Transactions</c-card-header>
-      <c-card-body>
-        <div *ngIf="loading" class="loading-overlay">
-          <div class="spinner"></div>
-          <span>Loading dashboard...</span>
+    <c-card class="mb-4 border-0 shadow-sm rounded-3">
+      <c-card-header class="bg-primary text-white rounded-top-3 py-2 px-3">
+        <span class="fw-bold fs-6">Recent Transactions</span>
+      </c-card-header>
+      <c-card-body class="p-0">
+        <div *ngIf="loading" class="loading-overlay py-5 text-center">
+          <div class="spinner-border text-primary mb-2" role="status"></div>
+          <div class="fw-bold text-muted">Loading dashboard...</div>
         </div>
-        <table
-          *ngIf="!loading"
-          [hover]="true"
-          [responsive]="true"
-          [striped]="true"
-          align="middle"
-          cTable
-          class="mb-0 border"
-        >
-          <thead cTableColor="light">
-            <tr>
-              <th>INV ID</th>
-              <th>User</th>
-              <th>Customer</th>
-              <th>Line Discounts</th>
-              <th>Sub Total</th>
-              <th>Bill Discounts</th>
-              <th>Net Total</th>
-              <th>Created At</th>
-              <th>Outstanding</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let sale of sales; index as i">
-              <td>{{ sale.invoiceNumber }}</td>
-              <td>{{ sale.user?.username || '-' }}</td>
-              <td>{{ sale.customer?.name || '-' }}</td>
-              <td>{{ sale.lineWiseDiscountTotalAmount }}</td>
-              <td>{{ sale.subTotal }}</td>
-              <td>{{ sale.billWiseDiscountTotalAmount }}</td>
-              <td>{{ sale.totalAmount }}</td>
-              <td>{{ sale.saleDate }}</td>
-              <td>
-                <span *ngIf="sale.outstandingBalance > 0" class="badge bg-danger" style="font-size: 1rem; padding: 0.5em 1em;">
-                  {{ sale.outstandingBalance }}
-                </span>
-                <span *ngIf="sale.outstandingBalance === 0" class="badge bg-success" style="font-size: 1rem; padding: 0.5em 1em;">
-                  {{ sale.outstandingBalance }}
-                </span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <div *ngIf="!loading">
+          <table cTable class="table table-sm table-hover mb-0">
+            <thead style="background-color: #f8f9fa; font-size: 0.85rem;">
+              <tr class="align-middle">
+                <th class="text-secondary">INV ID</th>
+                <th class="text-secondary">User</th>
+                <th class="text-secondary">Customer</th>
+                <th class="text-secondary">Line Discounts</th>
+                <th class="text-secondary">Sub Total</th>
+                <th class="text-secondary">Bill Discounts</th>
+                <th class="text-secondary">Net Total</th>
+                <th class="text-secondary">Created At</th>
+                <th class="text-secondary">Outstanding</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let sale of sales; index as i" class="align-middle">
+                <td class="text-secondary" style="font-size: 0.8rem;">{{ sale.invoiceNumber }}</td>
+                <td style="font-size: 0.8rem;">{{ sale.user?.username || '-' }}</td>
+                <td style="font-size: 0.8rem;">{{ sale.customer?.name || '-' }}</td>
+                <td class="text-end" style="font-size: 0.8rem;">{{ sale.lineWiseDiscountTotalAmount | number:'1.2-2' }}</td>
+                <td class="text-end" style="font-size: 0.8rem;">{{ sale.subTotal | number:'1.2-2' }}</td>
+                <td class="text-end" style="font-size: 0.8rem;">{{ sale.billWiseDiscountTotalAmount | number:'1.2-2' }}</td>
+                <td class="text-end" style="font-size: 0.8rem;">{{ sale.totalAmount | number:'1.2-2' }}</td>
+                <td class="text-nowrap text-secondary" style="font-size: 0.8rem;">{{ sale.saleDate }}</td>
+                <td>
+                  <span *ngIf="sale.outstandingBalance > 0" class="badge bg-primary rounded-pill px-2 py-1" style="font-size: 0.8rem;">
+                    {{ sale.outstandingBalance | number:'1.2-2' }}
+                  </span>
+                  <span *ngIf="sale.outstandingBalance === 0" class="badge bg-secondary rounded-pill px-2 py-1" style="font-size: 0.8rem;">
+                    {{ sale.outstandingBalance | number:'1.2-2' }}
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </c-card-body>
     </c-card>
   </c-col>
