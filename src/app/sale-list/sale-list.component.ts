@@ -39,12 +39,23 @@ export class SaleListComponent {
   ngOnInit(): void {
     this.loading = true;
     this.saleService.findAllSales().subscribe(data => {
-      // Sort by transaction date and time descending (latest first)
+      // Sort by saleDate descending (latest first), handle custom date format
+      const parseCustomDate = (str: string) => {
+        if (!str) return 0;
+        // Expecting format 'DD-MM-YYYY HH:mm:ss' or ISO
+        if (/\d{2}-\d{2}-\d{4} \d{2}:\d{2}:\d{2}/.test(str)) {
+          const [datePart, timePart] = str.split(' ');
+          const [day, month, year] = datePart.split('-').map(Number);
+          const [hour, minute, second] = timePart.split(':').map(Number);
+          return new Date(year, month - 1, day, hour, minute, second).getTime();
+        }
+        // Fallback to Date.parse
+        return Date.parse(str);
+      };
       data.sort((a: any, b: any) => {
-        // Try to use the most precise field available
-        const dateA = new Date((a.saleDate));
-        const dateB = new Date((b.saleDate));
-        return dateB.getTime() - dateA.getTime();
+        const dateA = parseCustomDate(a.saleDate);
+        const dateB = parseCustomDate(b.saleDate);
+        return dateB - dateA;
       });
       this.sales = data;
       this.filteredSales = data;
