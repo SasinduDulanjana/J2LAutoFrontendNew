@@ -34,6 +34,7 @@
               <th>Products</th>
               <th>Outstanding</th>
           <th>Payment Details</th>
+          <th>Action</th>
             </tr>
           </thead>
           <tbody>
@@ -66,7 +67,17 @@
               <td>
                 <div class="d-flex flex-column gap-2">
                   <button (click)="goToPaymentDetails(sale)" cButton color="info" style="min-width: 120px;">Payment Details</button>
-                  <button (click)="printInvoice(sale)" cButton color="primary" style="min-width: 120px;">Print Invoice</button>
+                </div>
+              </td>
+              <td>
+                <div class="d-flex align-items-center">
+                  <button (click)="printInvoice(sale)" class="icon-action-btn" title="Print Invoice">
+                    <!-- Inline SVG printer icon (uses currentColor) -->
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+                      <path d="M19 7H5a2 2 0 0 0-2 2v6h4v4h10v-4h4v-6a2 2 0 0 0-2-2zm-9 10H6v-4H5V9a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v4h-1v4h-4v-4H10v4z" />
+                      <path d="M17 3H7v4h10V3z" />
+                    </svg>
+                  </button>
                 </div>
               </td>
             </tr>

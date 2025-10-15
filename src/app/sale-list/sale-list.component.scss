@@ -193,6 +193,27 @@ div {
   color: white; /* Text color change on hover */
 }
 
+/* Small icon-only action button used in tables */
+.icon-action-btn {
+  width: 36px;
+  height: 36px;
+  padding: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  background: #0d6efd;
+  color: #fff;
+}
+.icon-action-btn i {
+  font-size: 14px;
+}
+.icon-action-btn:hover {
+  background: #0958d1;
+}
+
 .search-input {
   flex: 1; /* Make the input take up remaining space */
   padding: 10px; /* Padding for the input */
