@@ -64,7 +64,10 @@
                 </span>
               </td>
               <td>
-                <button (click)="goToPaymentDetails(sale)" cButton color="info" style="min-width: 120px;">Payment Details</button>
+                <div class="d-flex flex-column gap-2">
+                  <button (click)="goToPaymentDetails(sale)" cButton color="info" style="min-width: 120px;">Payment Details</button>
+                  <button (click)="printInvoice(sale)" cButton color="primary" style="min-width: 120px;">Print Invoice</button>
+                </div>
               </td>
             </tr>
             <tr *ngIf="filteredSales.length === 0">

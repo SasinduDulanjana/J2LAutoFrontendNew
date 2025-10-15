@@ -155,4 +155,15 @@ export class SaleListComponent {
       });
     }, 500); // Simulate loading, adjust as needed
   }
+
+  printInvoice(sale: any): void {
+    const invoiceNumber = sale.invoiceNumber || sale.id || sale.saleId;
+    if (!invoiceNumber) {
+      alert('Invoice identifier not available for this sale');
+      return;
+    }
+    // Open invoice page in a new tab with invoiceNumber as query param
+    const url = `${window.location.origin}/#/invoice?invoiceNumber=${encodeURIComponent(invoiceNumber)}`;
+    window.open(url, '_blank');
+  }
 }
