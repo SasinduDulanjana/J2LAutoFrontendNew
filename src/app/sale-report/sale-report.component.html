@@ -34,9 +34,9 @@
                 <th>Inv. No</th>
                 <th>User</th>
                 <th>Customer</th>
-                <th>Line Discounts</th>
+                <!-- <th>Line Discounts</th> -->
                 <th>Sub Total</th>
-                <th>Bill Discounts</th>
+                <!-- <th>Bill Discounts</th> -->
                 <th>Net Total</th>
                 <th>Created At</th>
                 <th>Outstanding</th>
@@ -49,9 +49,9 @@
                 <td>{{ sale.invoiceNumber }}</td>
                 <td>{{ sale.user?.username || '-' }}</td>
                 <td>{{ sale.customer?.name || '-' }}</td>
-                <td>{{ sale.lineWiseDiscountTotalAmount }}</td>
+                <!-- <td>{{ sale.lineWiseDiscountTotalAmount }}</td> -->
                 <td>{{ sale.subTotal }}</td>
-                <td>{{ sale.billWiseDiscountTotalAmount }}</td>
+                <!-- <td>{{ sale.billWiseDiscountTotalAmount }}</td> -->
                 <td>{{ sale.totalAmount}}</td>
                 <td>{{ sale.saleDate }}</td>
                 <td>

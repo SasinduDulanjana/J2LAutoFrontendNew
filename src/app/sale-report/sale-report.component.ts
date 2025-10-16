@@ -25,9 +25,9 @@ export class SaleReportComponent {
       'Inv. No',
       'User',
       'Customer',
-      'Line Discounts',
+      // 'Line Discounts',
       'Sub Total',
-      'Bill Discounts',
+      // 'Bill Discounts',
       'Net Total',
       'Created At',
       'Outstanding',
@@ -37,9 +37,9 @@ export class SaleReportComponent {
       sale.invoiceNumber || '',
       sale.user?.username || '-',
       sale.customer?.name || '-',
-      sale.lineWiseDiscountTotalAmount != null ? sale.lineWiseDiscountTotalAmount : '',
+      // sale.lineWiseDiscountTotalAmount != null ? sale.lineWiseDiscountTotalAmount : '',
       sale.subTotal != null ? sale.subTotal : '',
-      sale.billWiseDiscountTotalAmount != null ? sale.billWiseDiscountTotalAmount : '',
+      // sale.billWiseDiscountTotalAmount != null ? sale.billWiseDiscountTotalAmount : '',
       sale.totalAmount != null ? sale.totalAmount : '',
       sale.saleDate || '',
       sale.outstandingBalance != null ? sale.outstandingBalance : '',
@@ -106,14 +106,24 @@ export class SaleReportComponent {
         return saleDate >= start && saleDate <= end;
       });
     }
-    // Apply search filter
+    // Apply search filter (case-insensitive, null-safe)
     if (query) {
+      const includesQuery = (val: any) => {
+        if (val === null || val === undefined) return false;
+        return val.toString().toLowerCase().includes(query);
+      };
+
       filtered = filtered.filter(sale =>
-        (sale.invoiceNumber && sale.invoiceNumber.toLowerCase().includes(query)) ||
-        (sale.customerName && sale.customerName.toLowerCase().includes(query)) ||
-        (sale.custId && sale.custId.toString().includes(query))
+        includesQuery(sale.invoiceNumber) ||
+        includesQuery(sale.user?.username) ||
+        includesQuery(sale.customer?.name) ||
+        includesQuery(sale.customerName) ||
+        includesQuery(sale.custId) ||
+        includesQuery(sale.customer?.mobile) ||
+        includesQuery(sale.id)
       );
     }
+
     this.filteredSales = filtered;
   }
 
