@@ -23,8 +23,9 @@ export class SaleReportComponent {
     doc.text('Sale Report', 14, 16);
     const head = [[
       'Inv. No',
-      'User',
+      // 'User',
       'Customer',
+      'Vehicle Number',
       // 'Line Discounts',
       'Sub Total',
       // 'Bill Discounts',
@@ -35,8 +36,9 @@ export class SaleReportComponent {
     ]];
     const data = (this.filteredSales || []).map((sale: any) => [
       sale.invoiceNumber || '',
-      sale.user?.username || '-',
+      // sale.user?.username || '-',
       sale.customer?.name || '-',
+      sale.vehicleNumber || '-',
       // sale.lineWiseDiscountTotalAmount != null ? sale.lineWiseDiscountTotalAmount : '',
       sale.subTotal != null ? sale.subTotal : '',
       // sale.billWiseDiscountTotalAmount != null ? sale.billWiseDiscountTotalAmount : '',

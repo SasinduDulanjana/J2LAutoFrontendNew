@@ -32,8 +32,8 @@
             <thead class="table-light">
               <tr>
                 <th>Inv. No</th>
-                <th>User</th>
                 <th>Customer</th>
+                 <th>Vehicle Number</th>
                 <!-- <th>Line Discounts</th> -->
                 <th>Sub Total</th>
                 <!-- <th>Bill Discounts</th> -->
@@ -47,8 +47,8 @@
             <tbody>
               <tr *ngFor="let sale of filteredSales">
                 <td>{{ sale.invoiceNumber }}</td>
-                <td>{{ sale.user?.username || '-' }}</td>
                 <td>{{ sale.customer?.name || '-' }}</td>
+                <td>{{ sale.vehicleNumber || '-' }}</td>
                 <!-- <td>{{ sale.lineWiseDiscountTotalAmount }}</td> -->
                 <td>{{ sale.subTotal }}</td>
                 <!-- <td>{{ sale.billWiseDiscountTotalAmount }}</td> -->
