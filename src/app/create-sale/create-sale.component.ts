@@ -20,6 +20,8 @@ import { DiscountInputComponent } from '../discount-input/discount-input.compone
 import { DiscountBillWiseComponent } from '../discount-bill-wise/discount-bill-wise.component';
 import { CategoryService } from '../services/category.service';
 import { ProductListComponent } from '../product-list/product-list.component';
+import { CreateProductComponent } from '../create-product/create-product.component';
+import { CreatePurchaseComponent } from '../create-purchase/create-purchase.component';
 import { PaymentDialogComponent } from '../payment-dialog/payment-dialog.component';
 import { AuthService } from '../services/auth.service';
 import { UserService } from '../services/user.service';
@@ -60,6 +62,11 @@ export class CreateSaleComponent implements OnInit {
   selectedVehicle: any = null;
   vehicleNumber: string = '';
 
+  // Customer inline search state
+  customerResults: any[] = [];
+  customerSearchTerm: string = '';
+  
+
   searchVehicle(): void {
     const term = this.vehicleSearchTerm?.toLowerCase().trim() || '';
     if (!term) {
@@ -82,6 +89,44 @@ export class CreateSaleComponent implements OnInit {
     this.vehicleSearchTerm = `${vehicle.make} ${vehicle.model} ${vehicle.year}`;
     this.vehicleResults = [];
   }
+
+  // Inline customer search (similar behaviour to vehicle search)
+  searchCustomer(): void {
+    const term = this.customerSearchTerm?.toLowerCase().trim() || '';
+    if (!term) {
+      this.customerResults = [];
+      return;
+    }
+    const parts = term.split(/\s+/);
+    // Ensure customers list is loaded; if not, fetch once
+    if (!this.customers || this.customers.length === 0) {
+      this.customerService.findAllCustomers().subscribe(customers => {
+        this.customers = customers || [];
+        this.customerResults = this.customers.filter(c => {
+          const name = (c.name || '').toLowerCase();
+          const phone = (c.phone || '').toLowerCase();
+          return parts.every(p => name.includes(p) || phone.includes(p));
+        });
+      }, err => {
+        this.customerResults = [];
+      });
+      return;
+    }
+
+    this.customerResults = this.customers.filter(c => {
+      const name = (c.name || '').toLowerCase();
+      const phone = (c.phone || '').toLowerCase();
+      return parts.every(p => name.includes(p) || phone.includes(p));
+    });
+  }
+
+  selectCustomer(cust: any): void {
+    this.saleItem.customer = cust;
+    this.selectedCustomerId = cust.custId || cust.id || 0;
+    this.selectedCustomerName = cust.name || 'Select Customer';
+    this.customerSearchTerm = this.selectedCustomerName;
+    this.customerResults = [];
+  }
   onRetailPriceChange(item: any): void {
     // Only handle retail price change, update totals if needed
     // You can trigger recalculation of net total or other logic here
@@ -90,18 +135,36 @@ export class CreateSaleComponent implements OnInit {
   openAddCustomerDialog(): void {
     const dialogRef = this.dialog.open(CreateCustomerComponent, {
       width: '600px',
-      disableClose: true
+      disableClose: false
     });
     dialogRef.afterClosed().subscribe(result => {
       if (result && result.customer) {
         // Add new customer to list and select
-        this.customers.push(result.customer);
-        this.selectedCustomerName = result.customer.name;
-        this.selectedCustomerId = result.customer.custId;
+        const newCust = result.customer;
+        try {
+          const exists = this.customers.find(c => (c.custId && newCust.custId && c.custId === newCust.custId) || (c.id && newCust.id && c.id === newCust.id));
+          if (!exists) this.customers.unshift(newCust);
+        } catch (e) {
+          this.customers.push(newCust);
+        }
+        this.saleItem.customer = newCust;
+        this.selectedCustomerName = newCust.name;
+        this.selectedCustomerId = newCust.custId || newCust.id || 0;
+
+        // If the current search term would match the new customer, show it in dropdown immediately
+        const term = (this.customerSearchTerm || '').toLowerCase().trim();
+        if (!term || (newCust.name && newCust.name.toLowerCase().includes(term)) || (newCust.phone && newCust.phone.toLowerCase().includes(term))) {
+          const existsInResults = this.customerResults.find(c => (c.custId && newCust.custId && c.custId === newCust.custId) || (c.id && newCust.id && c.id === newCust.id));
+          if (!existsInResults) this.customerResults.unshift(newCust);
+        }
       } else {
-        // Optionally refresh customer list
+        // Refresh customer list to pick up any changes
         this.customerService.findAllCustomers().subscribe(customers => {
-          this.customers = customers;
+          this.customers = customers || [];
+          // If there's an active search term, refresh filtered results
+          if (this.customerSearchTerm && this.customerSearchTerm.trim().length > 0) {
+            this.searchCustomer();
+          }
         });
       }
     });
@@ -763,6 +826,82 @@ export class CreateSaleComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         console.log('The dialog was closed', result);
+      }
+    });
+  }
+
+  // Open the Create Product dialog as a popup and optionally add the created product to sale
+  openCreateProductPopup(): void {
+    const dialogRef = this.dialog.open(CreateProductComponent, {
+      width: '900px',
+      disableClose: false
+    });
+    dialogRef.afterClosed().subscribe((result: any) => {
+      // If the create product dialog returned a product, or even if not, refresh products so the new product
+      // will appear in the search dropdown immediately.
+      if (result && result.product) {
+        const newProd = result.product as any;
+        // Ensure defaults
+        newProd.batchNo = newProd.batchNo ?? '';
+        newProd.remainingQty = 1;
+        newProd.retailPrice = newProd.retailPrice ?? newProd.salePrice ?? 0;
+        // add to saleItems (try to attach batches if possible)
+        if (newProd.sku) {
+          this.productService.getBatchNumbersForProduct(newProd.sku).subscribe(batches => {
+            if (batches && batches.length > 0) {
+              newProd.batchNo = batches[0].batchNumber;
+              newProd.batch = batches[0];
+              newProd.retailPrice = newProd.retailPrice || batches[0].retailPrice || batches[0].unitCost;
+            }
+            this.saleItems.push(newProd);
+          }, err => {
+            this.saleItems.push(newProd);
+          });
+        } else {
+          this.saleItems.push(newProd);
+        }
+        // Add to products list and searchResults so it appears immediately
+        try {
+          const exists = this.products.find(p => (p.productId && newProd.productId && p.productId === newProd.productId) || (p.sku && newProd.sku && p.sku === newProd.sku));
+          if (!exists) this.products.unshift(newProd);
+          const term = (this.productSearchTerm || '').toLowerCase().trim();
+          const matches = !term || (newProd.productName && newProd.productName.toLowerCase().includes(term)) || (newProd.sku && newProd.sku.toLowerCase().includes(term));
+          if (matches) {
+            const existsInSearch = this.searchResults.find(p => (p.productId && newProd.productId && p.productId === newProd.productId) || (p.sku && newProd.sku && p.sku === newProd.sku));
+            if (!existsInSearch) this.searchResults.unshift(newProd);
+          }
+        } catch (e) {
+          // ignore
+        }
+      }
+
+      // Always refresh products list from server to ensure we have the latest data (covers cases where the
+      // Create Product dialog didn't return the product object)
+      this.productService.getAllProducts().subscribe((data: Product[] = []) => {
+        this.products = data || [];
+        if (this.productSearchTerm && this.productSearchTerm.trim().length > 0) {
+          this.searchProduct();
+        }
+      }, err => {
+        // ignore
+      });
+    });
+  }
+
+  // Open Create Purchase dialog as popup
+  openCreatePurchasePopup(): void {
+    const dialogRef = this.dialog.open(CreatePurchaseComponent, {
+      width: '1000px',
+      disableClose: false,
+      data: {}
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        // If a purchase was created, you might want to refresh related data (suppliers/products)
+        this.fetchCategories();
+        this.productService.getAllProducts().subscribe((data: Product[]) => {
+          this.products = data;
+        });
       }
     });
   }

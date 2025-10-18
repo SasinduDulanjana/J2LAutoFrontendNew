@@ -151,9 +151,16 @@ export class CreatePurchaseComponent implements OnInit {
           billWiseDiscountTotal: 0,
           netTotal: this.calculateTotalCost()
         };
-        this.router.navigate(['/purchase-invoice'], { state: { invoiceData } });
-          this.isLoadingInvoice = false; // Reset loading state
-        // Reset form after navigation
+        // Instead of navigating to an invoice page, show a success dialog
+        try {
+          this.dialog.open(SuccessDialogComponent, {
+            data: { message: 'Purchase created successfully.' }
+          });
+        } catch (e) {
+          console.warn('Could not open success dialog', e);
+        }
+        this.isLoadingInvoice = false; // Reset loading state
+        // Reset form after success
         const currentInvoiceDate = this.purchase.invoiceDate;
         this.purchase = new Purchase(0, '', '', '', '', '', [], 0, 0, false);
         this.purchase.invoiceDate = currentInvoiceDate;

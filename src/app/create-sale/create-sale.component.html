@@ -13,47 +13,70 @@
   <!-- Common Box at the Top -->
   <div class="common-box">
     <div class="header-buttons">
-      <button cButton color="success" variant="outline" size="lg" width="100px"
-        (click)="navigateToDashboard()">Dashboard</button>
-      <button cButton color="primary" variant="outline" size="lg" width="100px"
-        (click)="navigateToOrders()">Sales</button>
-      <!-- <button class="btn btn-primary">Order Type</button> -->
-      <button cButton color="primary" variant="outline" size="lg" width="100px"
-        (click)="openProductListPopup()">Products</button>
+      <div class="header-nav" role="navigation" aria-label="Main actions">
+        <button class="nav-btn nav-btn-ghost" aria-label="Dashboard" (click)="navigateToDashboard()">
+          <svg class="nav-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 13h8V3H3v10zM13 21h8V11h-8v10zM3 21h8v-6H3v6zM13 3v6h8V3h-8z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>Dashboard</span>
+        </button>
+
+        <button class="nav-btn nav-btn-ghost" aria-label="Sales" (click)="navigateToOrders()">
+          <svg class="nav-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 6h18M3 12h18M7 18h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>Sales</span>
+        </button>
+
+        <button class="nav-btn nav-btn-ghost" aria-label="Products" (click)="openProductListPopup()">
+          <svg class="nav-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>Products</span>
+        </button>
+
+        <div class="nav-spacer"></div>
+        <div class="nav-spacer"></div>
+        <div class="nav-spacer"></div>
+        <div class="nav-spacer"></div>
+        <div class="nav-spacer"></div>
+        <div class="nav-spacer"></div>
+
+        <button class="nav-btn nav-btn-primary" aria-label="Add Product" (click)="openCreateProductPopup()">
+          <svg class="nav-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>Add Product</span>
+        </button>
+
+        <button class="nav-btn nav-btn-primary" aria-label="Create Purchase" (click)="openCreatePurchasePopup()">
+          <svg class="nav-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 7h18M7 7v14h10V7" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>Create Purchase</span>
+        </button>
+      </div>
 
 
       <!-- Display selected customer name -->
-      <c-col class="info-box">
+      <!-- <c-col class="info-box">
         <label cLabel for="custId">Customer: </label>
         <label class="info-value">
           <span *ngIf="selectedCustomerName" class="clickable-customer" (click)="openCustomerListPopup()"
             style="cursor: pointer;">
             {{ selectedCustomerName }}
           </span>
-          <!-- <button cButton color="success" size="sm" style="margin-left:8px;vertical-align:middle;" (click)="openAddCustomerDialog()">
-            <svg cIcon name="cil-user-follow" style="margin-right:4px;"></svg> Add Customer
-          </button> -->
         </label>
-      </c-col>
+      </c-col> -->
       <!-- User ID -->
-      <c-col class="info-box">
+      <!-- <c-col class="info-box">
         <label cLabel for="userId">User: </label>
         <label class="info-value">
           <div>{{ loggedUserName }}</div>
         </label>
-      </c-col>
+      </c-col> -->
       <!-- Order Date -->
-      <c-col class="info-box">
+      <!-- <c-col class="info-box">
         <label cLabel for="orderDate">Inv. Date: </label>
         <label class="info-value">{{ currentDate }}</label>
-      </c-col>
+      </c-col> -->
       <!-- Invoice Number -->
-      <c-col class="info-box">
+      <!-- <c-col class="info-box">
         <label cLabel for="invoiceNumber">Inv. Number: </label>
         <label class="info-value">
           <div *ngIf="invoiceNumber">{{ invoiceNumber }}</div>
         </label>
-      </c-col>
+      </c-col> -->
     </div>
   </div>
 
@@ -65,8 +88,24 @@
   <form (ngSubmit)="createSale()" #saleForm="ngForm" cForm class="row g-3">
         <c-col [xs]="12">
           <div class="row mb-3">
-            <div class="col-6 position-relative">
-              <label for="vehicleSearch" class="form-label">Search Vehicle</label>
+            <div class="col-4 position-relative">
+              <!-- <label for="customerSearch" class="form-label">Search Customer</label> -->
+              <div class="d-flex align-items-center">
+                <input id="customerSearch" type="text" class="form-control" [(ngModel)]="customerSearchTerm" (input)="searchCustomer()" name="customerSearch" placeholder="Search Customer" autocomplete="off" />
+                <button cButton color="success" type="button" style="margin-left:8px;width:40px;min-width:40px;padding:0 4px;" (click)="openAddCustomerDialog()" title="Add Customer">
+                  <svg cIcon name="cil-plus" style="width:20px;height:35px;"></svg>
+                </button>
+              </div>
+              <div *ngIf="customerResults.length > 0" class="dropdown-list" style="position:absolute;width:100%;z-index:10;">
+                <ul class="list-group">
+                  <li *ngFor="let c of customerResults" class="list-group-item list-group-item-action" (click)="selectCustomer(c)">
+                    <span>{{ c.name }}{{ c.phone ? (' - ' + c.phone) : '' }}</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="col-4 position-relative">
+              <!-- <label for="vehicleSearch" class="form-label">Search Vehicle</label> -->
               <div class="d-flex align-items-center">
                 <input id="vehicleSearch" type="text" class="form-control" [(ngModel)]="vehicleSearchTerm" (input)="searchVehicle()" name="vehicleSearch" placeholder="Search Vehicle" autocomplete="off" />
                 <button cButton color="success" type="button" style="margin-left:8px;width:40px;min-width:40px;padding:0 4px;" (click)="openCreateVehiclePopup()" title="Add Vehicle">
@@ -81,8 +120,8 @@
                 </ul>
               </div>
             </div>
-            <div class="col-6">
-              <label for="vehicleNumber" class="form-label">Vehicle Number</label>
+            <div class="col-4">
+              <!-- <label for="vehicleNumber" class="form-label">Vehicle Number</label> -->
               <input id="vehicleNumber" type="text" class="form-control" [(ngModel)]="vehicleNumber" name="vehicleNumber" placeholder="Enter Vehicle Number" />
             </div>
           </div>
@@ -232,9 +271,29 @@
           <strong>Net Total:</strong>
           <span>{{ getTotal() | currency: 'LKR ' }}</span>
         </div>
-        <div style="margin-top: 32px; display: flex; justify-content: flex-end; align-items: flex-end; min-height: 60px;">
-          <img src="assets/img/logo.png" alt="Logo" style="height: 80px; width: 250px; opacity: 0.98;" />
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div class="footer-row footer-red">
+          <strong>Invoice Number:</strong>
+          <span>{{ invoiceNumber || '-' }}</span>
         </div>
+
+        <div class="footer-row footer-red">
+          <strong>Invoice Date:</strong>
+          <span>{{ currentDate || '-' }}</span>
+        </div>
+
+        <div class="footer-row footer-red">
+          <strong>Logged User:</strong>
+          <span>{{ loggedUserName || '-' }}</span>
+        </div>
+        <!-- <div style="margin-top: 18px; display: flex; justify-content: flex-end; align-items: flex-end; min-height: 60px;">
+          <img src="assets/img/logo.png" alt="Logo" style="height: 80px; width: 250px; opacity: 0.98;" />
+        </div> -->
       </div>
     </div>
 
