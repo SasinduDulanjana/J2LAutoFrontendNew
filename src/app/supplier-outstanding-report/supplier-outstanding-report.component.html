@@ -122,22 +122,24 @@
                       <th>Purchase Date</th>
                       <th>Total Amount</th>
                       <th>Paid Amount</th>
+                      <th>Refund Amount</th>
                       <th>Outstanding</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr *ngFor="let item of supplierOutstanding">
+                    <tr *ngFor="let item of supplierOutstandingNonZero">
                       <td>{{ item.invoiceNumber }}</td>
                       <td>{{ item.purchaseDate }}</td>
                       <td>{{ item.totalAmount | number:'1.2-2' }}</td>
                       <td>{{ item.paidAmount | number:'1.2-2' }}</td>
+                      <td>{{ item.refundAmount | number:'1.2-2' }}</td>
                       <td>
                         <span [ngClass]="{'text-danger': item.outstanding > 0, 'text-success': item.outstanding <= 0}">
                           {{ item.outstanding | number:'1.2-2' }}
                         </span>
                       </td>
                     </tr>
-                    <tr *ngIf="supplierOutstanding.length === 0">
+                    <tr *ngIf="supplierOutstandingNonZero.length === 0">
                       <td colspan="5" class="text-center text-muted">No outstanding found.</td>
                     </tr>
                   </tbody>

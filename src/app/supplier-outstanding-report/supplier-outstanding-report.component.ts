@@ -19,6 +19,14 @@ export class SupplierOutstandingReportComponent implements OnInit {
   activeTab: string = 'details';
   supplierOutstanding: any[] = [];
 
+  // Filter out records with exactly zero outstanding
+  get supplierOutstandingNonZero(): any[] {
+    return (this.supplierOutstanding || []).filter(item => {
+      const val = Number(item?.outstanding);
+      return !isNaN(val) && val !== 0;
+    });
+  }
+
   constructor(private route: ActivatedRoute, private supplierService: SupplierService) {}
 
   ngOnInit(): void {

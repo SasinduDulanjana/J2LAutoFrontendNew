@@ -19,6 +19,15 @@ export class CustomerOutstandingReportComponent implements OnInit {
   activeTab: string = 'details';
   customerOutstanding: any[] = [];
 
+  // Provide a filtered view that excludes records with exactly zero outstanding
+  get customerOutstandingNonZero(): any[] {
+    return (this.customerOutstanding || []).filter(item => {
+      const val = Number(item?.outstanding);
+      // Keep only numeric values that are not exactly zero
+      return !isNaN(val) && val !== 0;
+    });
+  }
+
   constructor(private route: ActivatedRoute, private customerService: CustomerService) {}
 
   ngOnInit(): void {

@@ -86,9 +86,9 @@
                     <tr *ngFor="let txn of outstandingData.transactionDetails; let i = index">
                       <td>{{ txn.date | date:'yyyy-MM-dd HH:mm:ss' }}</td>
                       <td>{{ txn.type }}</td>
-                        <td>{{ txn.invoiceNo == null || txn.invoiceNo == undefined ? '-' : txn.invoiceNo }}</td>
-                        <td>{{ txn.debit == null || txn.debit == undefined ? '-' : (txn.debit | number:'1.2-2') }}</td>
-                        <td>{{ txn.credit == null || txn.credit == undefined ? '-' : (txn.credit | number:'1.2-2') }}</td>
+                      <td>{{ txn.invoiceNo == null || txn.invoiceNo == undefined ? '-' : txn.invoiceNo }}</td>
+                      <td>{{ txn.debit == null || txn.debit == undefined ? '-' : (txn.debit | number:'1.2-2') }}</td>
+                      <td>{{ txn.credit == null || txn.credit == undefined ? '-' : (txn.credit | number:'1.2-2') }}</td>
                       <td>
                         <span *ngIf="i === 0" [ngClass]="{'text-danger': txn.balance < 0, 'text-success': txn.balance >= 0}" style="font-weight: bold;">
                           {{ txn.balance | number:'1.2-2' }}
@@ -119,25 +119,29 @@
                   <thead class="table-light">
                     <tr>
                       <th>Invoice No</th>
+                      <th>Vehicle Number</th>
                       <th>Purchase Date</th>
                       <th>Total Amount</th>
                       <th>Paid Amount</th>
+                      <th>Refund Amount</th>
                       <th>Outstanding</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr *ngFor="let item of customerOutstanding">
+                    <tr *ngFor="let item of customerOutstandingNonZero">
                       <td>{{ item.invoiceNumber }}</td>
+                      <td>{{ item.vehicleNumber }}</td>
                       <td>{{ item.saleDate }}</td>
                       <td>{{ item.totalAmount | number:'1.2-2' }}</td>
                       <td>{{ item.paidAmount | number:'1.2-2' }}</td>
+                      <td>{{ item.refundAmount | number:'1.2-2' }}</td>
                       <td>
                         <span [ngClass]="{'text-danger': item.outstanding > 0, 'text-success': item.outstanding <= 0}">
                           {{ item.outstanding | number:'1.2-2' }}
                         </span>
                       </td>
                     </tr>
-                    <tr *ngIf="customerOutstanding.length === 0">
+                    <tr *ngIf="customerOutstandingNonZero.length === 0">
                       <td colspan="5" class="text-center text-muted">No outstanding found.</td>
                     </tr>
                   </tbody>
