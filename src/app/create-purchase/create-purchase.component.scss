@@ -138,3 +138,28 @@ input::placeholder {
 //     background-color: #f1f1f1;
 //     /* Optional: Hover effect */
 // }
+
+/* Products table scrolling and sticky headers */
+.products-table-scroll {
+    /* adjust max-height as needed for your layout */
+    max-height: 420px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.products-table-scroll thead th {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    /* Match the table header background (Bootstrap .table-light) */
+    background: #f8f9fa;
+}
+
+/* Optional: keep footer visible when scrolling (uncomment if you prefer sticky footer) */
+.products-table-scroll tfoot th,
+.products-table-scroll tfoot td {
+    position: sticky;
+    bottom: 0;
+    background: #fff;
+    z-index: 9;
+}

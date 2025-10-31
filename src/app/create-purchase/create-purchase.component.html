@@ -57,7 +57,10 @@
         </c-col>
         <c-col [xs]="12" style="padding-top: 2%;">
           <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
+            <!-- Scrollable wrapper: limits vertical height and enables body scrolling while keeping header visible -->
+            <!-- Inline styles below added to ensure immediate effect (adjust or remove later) -->
+            <div class="products-table-scroll" style="max-height:240px; overflow-y:auto; border: 1px solid rgba(0,0,0,0.04);">
+              <table class="table table-hover align-middle mb-0">
               <thead class="table-light">
                 <tr>
                   <th>#</th>
@@ -136,7 +139,8 @@
                   </td>
                 </tr> -->
               </tfoot>
-            </table>
+              </table>
+            </div>
           </div>
         </c-col>
         <c-col [md]="12" class="text-end">
