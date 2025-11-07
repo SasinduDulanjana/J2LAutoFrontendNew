@@ -1,6 +1,7 @@
 
 
 import { Component } from '@angular/core';
+import { forkJoin } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { SuccessDialogComponent } from '../../success-dialog/success-dialog.component';
 import { PurchaseService } from '../../services/purchase.service';
@@ -49,32 +50,44 @@ export class PurchaseReturnComponent {
             this.loading = false;
             return;
           }
-          const productId = purchase.products[0].product?.productId || purchase.products[0].productId || 0;
-          if (!productId) {
-            this.error = 'Invalid product ID for this purchase.';
+          // Prepare requests for all products in the purchase
+          const products = purchase.products || [];
+          const productIds = products.map((p: any) => p.product?.productId || p.productId || 0).filter((id: number) => !!id);
+          if (productIds.length === 0) {
+            this.error = 'Invalid product IDs for this purchase.';
             this.loading = false;
             return;
           }
-          this.purchaseService.getProductBatchDetails(purchase.purchaseId, productId).subscribe({
-            next: (batchDetails: any) => {
-              console.log('API response for batch details:', batchDetails);
-              let detailsArr: any[] = [];
-              if (Array.isArray(batchDetails)) {
-                detailsArr = batchDetails;
-              } else if (batchDetails && typeof batchDetails === 'object') {
-                detailsArr = [batchDetails];
-              }
-              this.purchasedProducts = detailsArr.map(item => ({
-                productId: item.productId,
-                productName: item.productName || '',
-                batchNo: item.batchNumber,
-                quantity: item.qty,
-                purchasePrice: item.unitCost,
-                retailPrice: item.retailPrice,
-                refundedQty: item.refundedQty || 0,
-                refundedAmount: item.refundedAmount || 0,
-                // Add more mappings as needed for your table columns
-              }));
+
+          const batchRequests = productIds.map((pid: number) => this.purchaseService.getProductBatchDetails(purchase.purchaseId, pid));
+
+          // Execute all batch requests in parallel and combine results
+          (forkJoin(batchRequests) as any).subscribe((batchDetailsArr: any[]) => {
+              // batchDetailsArr is an array of responses, one per product
+              const aggregated: any[] = [];
+              batchDetailsArr.forEach((batchDetails: any, idx: number) => {
+                let detailsArr: any[] = [];
+                if (Array.isArray(batchDetails)) {
+                  detailsArr = batchDetails;
+                } else if (batchDetails && typeof batchDetails === 'object') {
+                  detailsArr = [batchDetails];
+                }
+                // Map each batch entry to the UI row format
+                detailsArr.forEach(item => {
+                  aggregated.push({
+                    productId: item.productId || productIds[idx],
+                    productName: item.productName || item.productName || products[idx]?.product?.productName || products[idx]?.productName || '',
+                    batchNo: item.batchNumber || item.batchNo || '',
+                    quantity: item.qty != null ? item.qty : (item.quantity != null ? item.quantity : 0),
+                    purchasePrice: item.unitCost != null ? item.unitCost : item.unit_cost || 0,
+                    retailPrice: item.retailPrice != null ? item.retailPrice : item.salePrice || 0,
+                    refundedQty: item.refundedQty || 0,
+                    refundedAmount: item.refundedAmount || 0
+                  });
+                });
+              });
+
+              this.purchasedProducts = aggregated;
               this.returnGood = this.purchasedProducts.map(p => 0);
               this.returnDamaged = this.purchasedProducts.map(p => 0);
               this.reasonGood = this.purchasedProducts.map(p => '');
@@ -83,11 +96,9 @@ export class PurchaseReturnComponent {
               this.refundAmountDamaged = this.purchasedProducts.map(p => 0);
               this.batchNumber = this.purchasedProducts.map(p => p.batchNo || '');
               this.loading = false;
-            },
-            error: () => {
-              this.error = 'Error fetching product batch details.';
-              this.loading = false;
-            }
+          }, () => {
+            this.error = 'Error fetching product batch details.';
+            this.loading = false;
           });
         } else {
           this.error = 'No purchase found for this identifier.';
