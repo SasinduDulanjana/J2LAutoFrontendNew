@@ -168,6 +168,7 @@ export class CustomerOutstandingReportComponent implements OnInit {
       // Outstanding Report
       const columns = [
         { header: 'Invoice No', dataKey: 'invoiceNumber' },
+        { header: 'Vehicle Number', dataKey: 'vehicleNumber' },
         { header: 'Purchase Date', dataKey: 'saleDate' },
         { header: 'Total Amount', dataKey: 'totalAmount' },
         { header: 'Paid Amount', dataKey: 'paidAmount' },
@@ -175,6 +176,7 @@ export class CustomerOutstandingReportComponent implements OnInit {
       ];
       const rows = (this.customerOutstanding || []).map((item: any) => ({
         invoiceNumber: item.invoiceNumber || '-',
+        vehicleNumber: item.vehicleNumber || '-',
         saleDate: item.saleDate || '-',
         totalAmount: item.totalAmount != null ? item.totalAmount : '-',
         paidAmount: item.paidAmount != null ? item.paidAmount : '-',
@@ -184,6 +186,7 @@ export class CustomerOutstandingReportComponent implements OnInit {
         head: [columns.map(col => col.header)],
         body: rows.map((row: any) => [
           row.invoiceNumber,
+          row.vehicleNumber,
           row.saleDate,
           row.totalAmount,
           row.paidAmount,
