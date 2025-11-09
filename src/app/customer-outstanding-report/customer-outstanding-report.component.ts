@@ -174,14 +174,19 @@ export class CustomerOutstandingReportComponent implements OnInit {
         { header: 'Paid Amount', dataKey: 'paidAmount' },
         { header: 'Outstanding', dataKey: 'outstanding' }
       ];
-      const rows = (this.customerOutstanding || []).map((item: any) => ({
+
+      // Prefer the filtered non-zero list so PDF excludes zero-outstanding records
+      const source = (this.customerOutstandingNonZero && this.customerOutstandingNonZero.length) ? this.customerOutstandingNonZero : [];
+
+      const rows = source.map((item: any) => ({
         invoiceNumber: item.invoiceNumber || '-',
-        vehicleNumber: item.vehicleNumber || '-',
+        vehicleNumber: item.vehicleNumber || (item.vehicle?.registrationNo ?? '-') || '-',
         saleDate: item.saleDate || '-',
         totalAmount: item.totalAmount != null ? item.totalAmount : '-',
         paidAmount: item.paidAmount != null ? item.paidAmount : '-',
         outstanding: item.outstanding != null ? item.outstanding : '-'
       }));
+
       autoTable(doc, {
         head: [columns.map(col => col.header)],
         body: rows.map((row: any) => [
