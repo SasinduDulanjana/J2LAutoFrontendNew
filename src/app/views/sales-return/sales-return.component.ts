@@ -21,15 +21,25 @@ export class SalesReturnComponent {
 
   submitAllReturns() {
     if (!this.sale) return;
-    // Validation: sum of good + damaged <= sold quantity for each product
+    // Validation: for each product, ensure the sum of good + damaged does not exceed remaining quantity
+    // Important: don't block the entire submission just because another product is already fully refunded.
     for (let i = 0; i < this.soldProducts.length; i++) {
-      const totalReturn = (this.returnGood[i] || 0) + (this.returnDamaged[i] || 0);
+      const goodReturn = (this.returnGood[i] || 0);
+      const damagedReturn = (this.returnDamaged[i] || 0);
+      const totalReturn = goodReturn + damagedReturn;
+      // If user didn't enter any return for this row, skip validations for it
+      if (totalReturn === 0) continue;
+
       const soldQty = this.soldProducts[i].quantity;
       const refundedQty = this.soldProducts[i].refundedQty || 0;
+
+      // If the product is already fully refunded and user is trying to return more, block only this row
       if (refundedQty >= soldQty) {
-        this.error = `All quantities for ${this.soldProducts[i].product?.productName || 'product'} have already been refunded. No further returns allowed.`;
+        this.error = `All quantities for ${this.soldProducts[i].product?.productName || 'product'} have already been refunded. No further returns allowed for this item.`;
         return;
       }
+
+      // Ensure requested return does not exceed remaining available qty for this product
       if (totalReturn > (soldQty - refundedQty)) {
         this.error = `Return quantity for ${this.soldProducts[i].product?.productName || 'product'} exceeds available quantity (already refunded: ${refundedQty}).`;
         return;
@@ -103,6 +113,46 @@ export class SalesReturnComponent {
 
   constructor(private saleService: SaleService, private dialog: MatDialog) {}
 
+  // Compute unit price for a sold product. Prefer discountedTotal/quantity if available, fallback to retailPrice
+  private getUnitPrice(product: any): number {
+    if (!product) return 0;
+    const qty = Number(product.quantity) || 1;
+    const discountedTotal = Number(product.discountedTotal || 0);
+    if (discountedTotal > 0 && qty > 0) return discountedTotal / qty;
+    const retail = Number(product.retailPrice || 0);
+    return retail;
+  }
+
+  // Auto-calc refund amount when Good qty changes
+  onGoodQtyChange(i: number) {
+    if (!this.soldProducts[i]) return;
+    let qty = Number(this.returnGood[i] || 0);
+    const soldQty = Number(this.soldProducts[i].quantity || 0);
+    const refundedQty = Number(this.soldProducts[i].refundedQty || 0);
+    const remaining = Math.max(0, soldQty - refundedQty);
+    if (qty > remaining) {
+      qty = remaining;
+      this.returnGood[i] = qty;
+    }
+    const unit = this.getUnitPrice(this.soldProducts[i]);
+    this.refundAmountGood[i] = Number((unit * qty).toFixed(2));
+  }
+
+  // Auto-calc refund amount when Damaged qty changes
+  onDamagedQtyChange(i: number) {
+    if (!this.soldProducts[i]) return;
+    let qty = Number(this.returnDamaged[i] || 0);
+    const soldQty = Number(this.soldProducts[i].quantity || 0);
+    const refundedQty = Number(this.soldProducts[i].refundedQty || 0);
+    const remaining = Math.max(0, soldQty - refundedQty);
+    if (qty > remaining) {
+      qty = remaining;
+      this.returnDamaged[i] = qty;
+    }
+    const unit = this.getUnitPrice(this.soldProducts[i]);
+    this.refundAmountDamaged[i] = Number((unit * qty).toFixed(2));
+  }
+
   fetchSaleByInvoiceNumber() {
     this.error = '';
     this.sale = null;
@@ -134,6 +184,11 @@ export class SalesReturnComponent {
                   this.refundAmountDamaged = this.soldProducts.map(p => 0);
                   // Set batchNumber from response if available
                   this.batchNumber = this.soldProducts.map(p => p.batchNo || '');
+                  // Ensure refunded fields are numeric and default to 0 so template logic works
+                  this.soldProducts.forEach(p => {
+                    p.refundedQty = Number(p.refundedQty || 0);
+                    p.refundedAmount = Number(p.refundedAmount || 0);
+                  });
                   this.loading = false;
                 },
                 error: () => {
