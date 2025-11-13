@@ -1,4 +1,4 @@
-
+<!-- 
 <div *ngIf="loading" class="loading-overlay d-flex flex-column align-items-center justify-content-center" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(255,255,255,0.7); z-index: 9999;">
  
   <div *ngIf="loading" class="loading-overlay">
@@ -23,7 +23,7 @@
                 <span class="info-label">Purchase ID:</span>
                 <span class="info-value fw-bold">{{ purchase?.purchaseId }}</span>
               </div> -->
-              <div class="info-item d-flex align-items-center gap-2">
+              <!-- <div class="info-item d-flex align-items-center gap-2">
                 <span class="info-label">Invoice No:</span>
                 <span class="info-value fw-bold">{{ purchase?.invoiceNumber }}</span>
               </div>
@@ -104,7 +104,7 @@
         </div>
       </div>
     </div>
-</div>
+</div> --> 
 <div class="container py-4">
   <div class="card shadow-sm mb-4">
     <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
@@ -136,8 +136,12 @@
             <span class="info-value text-success fw-bold">{{ purchase?.paidAmount !== undefined ? purchase?.paidAmount : '-' }}</span>
           </div>
           <div class="info-item d-flex align-items-center gap-2">
+                <span class="info-label">Return Amount:</span>
+                <span class="info-value text-warning fw-bold">{{ (purchase?.returnAmount || 0) | number:'1.2-2' }}</span>
+              </div>
+          <div class="info-item d-flex align-items-center gap-2">
             <span class="info-label">Outstanding:</span>
-            <span class="info-value text-danger fw-bold">{{ (purchase?.totalCost || 0) - (purchase?.paidAmount || 0) }}</span>
+            <span class="info-value text-danger fw-bold">{{ (purchase?.totalCost || 0) - (purchase?.paidAmount || 0) - (purchase?.returnAmount || 0) }}</span>
           </div>
         </div>
         <div class="card shadow-sm modern-details-card">

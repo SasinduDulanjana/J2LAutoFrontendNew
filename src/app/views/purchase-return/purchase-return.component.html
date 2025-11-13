@@ -59,7 +59,7 @@
                 <th>Product Name</th>
                 <th>Batch #</th>
                 <th>Purchased Qty</th>
-                <th>Purchase Price</th>
+                <th>Purchase Unit Price</th>
                 <th>Refunded Qty</th>
                 <th>Refunded Amount</th>
                 <th>Return Qty</th>
@@ -76,13 +76,14 @@
                 <td><span class="text-danger fw-bold">{{ pp.refundedQty }}</span></td>
                 <td><span class="text-danger fw-bold">{{ pp.refundedAmount | number:'1.2-2' }}</span></td>
                 <td>
-                  <input type="number" class="form-control" min="0" max="{{pp.quantity}}" [(ngModel)]="returnGood[i]" placeholder="Good Qty" />
+                  <input type="number" class="form-control" min="0" [max]="pp.quantity - (pp.refundedQty || 0)" [(ngModel)]="returnGood[i]" (ngModelChange)="onGoodQtyChange(i)" placeholder="Good Qty" [disabled]="(pp.refundedQty || 0) >= pp.quantity" />
                 </td>
                 <td>
-                  <input type="number" class="form-control" min="0" [(ngModel)]="refundAmountGood[i]" placeholder="Refund Amount (Good)" />
+                  <!-- Auto-calculated refund amount; readonly so user cannot edit it. Still disabled when item already fully refunded. -->
+                  <input type="number" class="form-control" min="0" [(ngModel)]="refundAmountGood[i]" placeholder="Refund Amount (Good)" readonly [disabled]="(pp.refundedQty || 0) >= pp.quantity" />
                 </td>
                 <td>
-                  <input class="form-control" [(ngModel)]="reasonGood[i]" placeholder="Reason to Return" />
+                  <input class="form-control" [(ngModel)]="reasonGood[i]" placeholder="Reason to Return" [disabled]="(pp.refundedQty || 0) >= pp.quantity" />
                 </td>
               </tr>
             </tbody>

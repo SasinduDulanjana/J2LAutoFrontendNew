@@ -56,6 +56,34 @@ export class PaymentHistoryComponent implements OnInit {
     });
     doc.save('payment-history.pdf');
   }
+
+  // Fetch all sales returns and compute total return amount for the current invoice
+  private updateReturnAmounts(): void {
+    if (!this.invoiceNumber || !this.sale) return;
+    this.sale.returnAmount = 0;
+    this.saleService.getAllSalesReturn().subscribe({
+      next: (data: any[]) => {
+        try {
+          const flattened = (data || []).flatMap((saleObj: any) => {
+            const inv = saleObj.invoiceNumber || '';
+            return (saleObj.returns || []).map((r: any) => ({ invoiceNumber: inv, refundAmount: Number(r.refundAmount ?? r.refundedAmount ?? 0) }));
+          });
+          const sum = flattened
+            .filter((r: any) => r.invoiceNumber === this.invoiceNumber)
+            .reduce((acc: number, cur: any) => acc + (Number(cur.refundAmount) || 0), 0);
+          this.sale.returnAmount = sum;
+          this.sale.outstanding = (this.sale.totalAmount || 0) - (this.sale.paidAmount || 0) - (this.sale.returnAmount || 0);
+        } catch (e) {
+          this.sale.returnAmount = 0;
+          this.sale.outstanding = (this.sale.totalAmount || 0) - (this.sale.paidAmount || 0);
+        }
+      },
+      error: () => {
+        this.sale.returnAmount = 0;
+        this.sale.outstanding = (this.sale.totalAmount || 0) - (this.sale.paidAmount || 0);
+      }
+    });
+  }
   invoiceNumber!: string;
   sale: any = null;
   paymentHistory: any[] = [];
@@ -82,6 +110,11 @@ export class PaymentHistoryComponent implements OnInit {
                 totalAmount: first.payment.totalAmount || 0,
                 paidAmount: data.reduce((sum: number, item: any) => sum + (item.amount || 0), 0)
               };
+                // initialize returnAmount and outstanding; will be updated by fetching sales returns
+                this.sale.returnAmount = 0;
+                this.sale.outstanding = (this.sale.totalAmount || 0) - (this.sale.paidAmount || 0);
+                // fetch returns and update outstanding
+                this.updateReturnAmounts();
                 this.paymentHistory = data
                   .map((item: any) => ({
                     date: item.paymentDate || item.payment?.paymentDate,
@@ -108,6 +141,10 @@ export class PaymentHistoryComponent implements OnInit {
                     totalAmount: saleData.totalAmount || 0,
                     paidAmount: saleData.paidAmount || 0
                   };
+                    // init return amount/outstanding then fetch returns
+                    this.sale.returnAmount = 0;
+                    this.sale.outstanding = (this.sale.totalAmount || 0) - (this.sale.paidAmount || 0);
+                    this.updateReturnAmounts();
                   this.paymentHistory = [];
                   this.loading = false;
                 },
@@ -170,6 +207,9 @@ export class PaymentHistoryComponent implements OnInit {
                       totalAmount: first.payment.totalAmount || 0,
                       paidAmount: data.reduce((sum: number, item: any) => sum + (item.amount || 0), 0)
                     };
+                    // refresh return amount and outstanding after payment update
+                    this.sale.returnAmount = this.sale.returnAmount || 0;
+                    this.updateReturnAmounts();
                     this.paymentHistory = data
                       .map((item: any) => ({
                         date: item.paymentDate || item.payment?.paymentDate,

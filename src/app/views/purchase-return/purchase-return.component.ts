@@ -28,6 +28,28 @@ export class PurchaseReturnComponent {
 
   constructor(private purchaseService: PurchaseService, private dialog: MatDialog) {}
 
+  // Compute unit price for a purchased product. Prefer purchasePrice, fallback to retailPrice.
+  private getUnitPrice(product: any): number {
+    if (!product) return 0;
+    const unit = Number(product.purchasePrice || product.retailPrice || 0);
+    return unit;
+  }
+
+  // Auto-calc refund amount when Good qty changes
+  onGoodQtyChange(i: number) {
+    if (!this.purchasedProducts[i]) return;
+    let qty = Number(this.returnGood[i] || 0);
+    const purchasedQty = Number(this.purchasedProducts[i].quantity || 0);
+    const refundedQty = Number(this.purchasedProducts[i].refundedQty || 0);
+    const remaining = Math.max(0, purchasedQty - refundedQty);
+    if (qty > remaining) {
+      qty = remaining;
+      this.returnGood[i] = qty;
+    }
+    const unit = this.getUnitPrice(this.purchasedProducts[i]);
+    this.refundAmountGood[i] = Number((unit * qty).toFixed(2));
+  }
+
   fetchPurchaseByInvoiceNumber() {
     this.error = '';
     this.purchase = null;
@@ -114,15 +136,25 @@ export class PurchaseReturnComponent {
 
   submitAllReturns() {
     if (!this.purchase) return;
-    // Validation: sum of good + damaged <= purchased quantity for each product
+    // Validation: for each product, ensure the sum of good + damaged does not exceed remaining quantity
+    // Important: don't block the entire submission just because another product is already fully refunded.
     for (let i = 0; i < this.purchasedProducts.length; i++) {
-      const totalReturn = (this.returnGood[i] || 0) + (this.returnDamaged[i] || 0);
+      const goodReturn = (this.returnGood[i] || 0);
+      const damagedReturn = (this.returnDamaged[i] || 0);
+      const totalReturn = goodReturn + damagedReturn;
+      // If user didn't enter any return for this row, skip validations for it
+      if (totalReturn === 0) continue;
+
       const purchasedQty = this.purchasedProducts[i].quantity;
       const refundedQty = this.purchasedProducts[i].refundedQty || 0;
+
+      // If the product is already fully refunded and user is trying to return more, block only this row
       if (refundedQty >= purchasedQty) {
-        this.error = `All quantities for ${this.purchasedProducts[i].product?.productName || 'product'} have already been refunded. No further returns allowed.`;
+        this.error = `All quantities for ${this.purchasedProducts[i].product?.productName || 'product'} have already been refunded. No further returns allowed for this item.`;
         return;
       }
+
+      // Ensure requested return does not exceed remaining available qty for this product
       if (totalReturn > (purchasedQty - refundedQty)) {
         this.error = `Return quantity for ${this.purchasedProducts[i].product?.productName || 'product'} exceeds available quantity (already refunded: ${refundedQty}).`;
         return;

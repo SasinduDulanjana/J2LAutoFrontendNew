@@ -148,7 +148,9 @@ export class SaleListComponent {
       }
       this.saleService.getProductsForSale(saleId).subscribe(products => {
         this.dialog.open(ProductListPopupComponent, {
-          width: '700px',
+          // Use a responsive width so popup is wider on large screens but fits on small screens
+          width: '90vw',
+          maxWidth: '1000px',
           data: { products }
         });
         this.productLoadingIndex = null;

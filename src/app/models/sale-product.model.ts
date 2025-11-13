@@ -9,6 +9,9 @@ export class SaleProduct {
   retailPrice: number;
   batchNo?: string;
   productDeliveryStatus?: string;
+  // Optional refunded fields (may be provided by backend)
+  refundedQty?: number;
+  refundedAmount?: number;
 
   constructor(
     product: Product,

@@ -33,8 +33,12 @@
             <span class="info-value text-success fw-bold">{{ sale?.paidAmount }}</span>
           </div>
           <div class="info-item d-flex align-items-center gap-2">
+            <span class="info-label">Return Amount:</span>
+            <span class="info-value text-warning fw-bold">{{ (sale?.returnAmount || 0) | number:'1.2-2' }}</span>
+          </div>
+          <div class="info-item d-flex align-items-center gap-2">
             <span class="info-label">Outstanding:</span>
-            <span class="info-value text-danger fw-bold">{{ sale?.totalAmount - sale?.paidAmount }}</span>
+            <span class="info-value text-danger fw-bold">{{ sale?.outstanding != null ? (sale.outstanding | number:'1.2-2') : ((sale?.totalAmount - sale?.paidAmount) | number:'1.2-2') }}</span>
           </div>
         </div>
         <div class="card shadow-sm modern-details-card">
@@ -86,7 +90,7 @@
               </table>
             </div>
             <div class="d-flex justify-content-end mt-4">
-              <button class="btn btn-success pay-balance-btn" style="min-width: 160px; height: 44px; font-size: 1.08rem; font-weight: 600;" (click)="payBalance()" [disabled]="!sale || (sale.totalAmount - sale.paidAmount) <= 0">
+              <button class="btn btn-success pay-balance-btn" style="min-width: 160px; height: 44px; font-size: 1.08rem; font-weight: 600;" (click)="payBalance()" [disabled]="!sale || (sale.outstanding != null ? sale.outstanding <= 0 : ((sale.totalAmount - sale.paidAmount) <= 0))">
                 <svg cIcon name="cil-credit-card" class="me-2"></svg> Pay Balance
               </button>
             </div>

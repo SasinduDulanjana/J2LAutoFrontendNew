@@ -16,6 +16,8 @@
           <th>Sale Price</th>
           <th>Qty</th>
           <th>Total Cost</th>
+          <th>Returned Qty</th>
+          <th>Returned Amount</th>
         </tr>
       </thead>
       <tbody>
@@ -26,10 +28,12 @@
           <td>{{ product.unitCost !== undefined ? product.unitCost : (product.cost !== undefined ? product.cost : 'N/A') }}</td>
           <td>{{ product.salePrice !== undefined ? product.salePrice : (product.sale_price !== undefined ? product.sale_price : 'N/A') }}</td>
           <td>{{ product.purchaseQty || 'N/A' }}</td>
-          <td>{{ product.unitCost * product.purchaseQty || 'N/A' }}</td>
+          <td>{{ (product.unitCost && product.purchaseQty) ? (product.unitCost * product.purchaseQty) : 'N/A' }}</td>
+          <td>{{ product.refundedQty != null ? product.refundedQty : 0 }}</td>
+          <td>{{ (product.refundedAmount != null ? product.refundedAmount : 0) | number:'1.2-2' }}</td>
         </tr>
         <tr *ngIf="!data.products || data.products.length === 0">
-          <td colspan="7" class="text-center text-muted">No products found for this purchase.</td>
+          <td colspan="9" class="text-center text-muted">No products found for this purchase.</td>
         </tr>
       </tbody>
     </table>

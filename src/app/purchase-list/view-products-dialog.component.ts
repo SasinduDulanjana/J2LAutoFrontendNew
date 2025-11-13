@@ -62,6 +62,8 @@ export class ViewProductsDialogComponent {
             const salePrice = batchDetails.retailPrice !== undefined && batchDetails.retailPrice !== null ? batchDetails.retailPrice : 'N/A';
             const unitCost = batchDetails.unitCost !== undefined && batchDetails.unitCost !== null ? batchDetails.unitCost : 'N/A';
             const purchaseQty = batchDetails.qty !== undefined && batchDetails.qty !== null ? batchDetails.qty : 'N/A';
+            const refundedQty = batchDetails.refundedQty !== undefined && batchDetails.refundedQty !== null ? batchDetails.refundedQty : (batchDetails.refunded_qty !== undefined && batchDetails.refunded_qty !== null ? batchDetails.refunded_qty : 0);
+            const refundedAmount = batchDetails.refundedAmount !== undefined && batchDetails.refundedAmount !== null ? batchDetails.refundedAmount : (batchDetails.refunded_amount !== undefined && batchDetails.refunded_amount !== null ? batchDetails.refunded_amount : 0);
             return {
               ...prod,
               batchNo,
@@ -69,6 +71,8 @@ export class ViewProductsDialogComponent {
               batchDetails,
               unitCost,
               purchaseQty,
+              refundedQty,
+              refundedAmount,
             };
           });
           this.data.products = productsWithBatch;

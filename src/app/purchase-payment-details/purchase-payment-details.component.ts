@@ -41,6 +41,10 @@ export class PurchasePaymentDetailsComponent implements OnInit {
               paidAmount: response.reduce((sum: number, item: any) => sum + (item.amount || 0), 0),
               paymentStatus: first.paymentStatus || payment.paymentStatus || '-',
             };
+            // initialize returnAmount and outstanding, then update by fetching purchase returns
+            this.purchase.returnAmount = 0;
+            this.purchase.outstanding = (this.purchase.totalCost || 0) - (this.purchase.paidAmount || 0);
+            this.updateReturnAmounts();
             this.paymentHistory = response.map((item: any) => ({
               date: item.paymentDate || (item.payment && item.payment.paymentDate) || '',
               chequeNo: item.chequeNo,
@@ -64,6 +68,9 @@ export class PurchasePaymentDetailsComponent implements OnInit {
                   paidAmount: 0,
                   paymentStatus: '-',
                 };
+                this.purchase.returnAmount = 0;
+                this.purchase.outstanding = (this.purchase.totalCost || 0) - (this.purchase.paidAmount || 0);
+                this.updateReturnAmounts();
                 this.paymentHistory = [];
                 this.loading = false;
               },
@@ -96,6 +103,46 @@ export class PurchasePaymentDetailsComponent implements OnInit {
         }
       });
     }
+  }
+
+  // Compute total returned amount for this purchase and update outstanding
+  private updateReturnAmounts(): void {
+    if (!this.purchase) return;
+    this.purchase.returnAmount = 0;
+    this.purchase.outstanding = (this.purchase.totalCost || 0) - (this.purchase.paidAmount || 0);
+    this.purchaseService.getPurchaseReturns().subscribe({
+      next: (data: any[]) => {
+        try {
+          console.log('getPurchaseReturns response:', data);
+          // data is an array of purchase return entries; each may have purchaseId or invoiceNumber and returns array
+          const flattened = (data || []).flatMap((pr: any) => {
+            const inv = pr.invoiceNumber || pr.invoiceNo || '';
+            const pid = pr.purchaseId || pr.purchase_id || pr.purchaseId;
+            return (pr.returns || []).map((r: any) => ({ purchaseId: pid, invoiceNumber: inv, refundAmount: Number(r.refundAmount ?? r.refundedAmount ?? 0) }));
+          });
+          console.log('Flattened purchase returns:', flattened);
+          const sum = flattened
+            .filter((r: any) => {
+              // Match by purchaseId if available, else by invoiceNumber
+              const matchById = this.purchase.purchaseId && r.purchaseId && Number(r.purchaseId) === Number(this.purchase.purchaseId);
+              const matchByInv = this.purchase.invoiceNumber && r.invoiceNumber && String(r.invoiceNumber) === String(this.purchase.invoiceNumber);
+              if (matchById || matchByInv) console.log('Matched return row for purchase:', r);
+              return matchById || matchByInv;
+            })
+            .reduce((acc: number, cur: any) => acc + (Number(cur.refundAmount) || 0), 0);
+          console.log('Computed return sum:', sum, 'for purchase', this.purchase);
+          this.purchase.returnAmount = sum;
+          this.purchase.outstanding = (this.purchase.totalCost || 0) - (this.purchase.paidAmount || 0) - (this.purchase.returnAmount || 0);
+        } catch (e) {
+          this.purchase.returnAmount = 0;
+          this.purchase.outstanding = (this.purchase.totalCost || 0) - (this.purchase.paidAmount || 0);
+        }
+      },
+      error: () => {
+        this.purchase.returnAmount = 0;
+        this.purchase.outstanding = (this.purchase.totalCost || 0) - (this.purchase.paidAmount || 0);
+      }
+    });
   }
 
   payBalance() {
@@ -135,6 +182,9 @@ export class PurchasePaymentDetailsComponent implements OnInit {
                       paidAmount: response.reduce((sum: number, item: any) => sum + (item.amount || 0), 0),
                       paymentStatus: first.paymentStatus || payment.paymentStatus || '-',
                     };
+                  // refresh return amount/outstanding after updating payments
+                  this.purchase.returnAmount = this.purchase.returnAmount || 0;
+                  this.updateReturnAmounts();
                   } else {
                     this.purchase = null;
                   }

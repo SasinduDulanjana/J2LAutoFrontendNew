@@ -56,10 +56,10 @@
                 </button>
               </td>
               <td>
-                <span *ngIf="(purchase['totalCost'] - purchase['paidAmount']) > 0" class="badge bg-danger" style="font-size: 1rem; padding: 0.5em 1em;">
-                  {{ purchase['totalCost'] - purchase['paidAmount'] | number:'1.2-2' }}
+                <span *ngIf="purchase['outstandingAmount'] > 0" class="badge bg-danger" style="font-size: 1rem; padding: 0.5em 1em;">
+                  {{ purchase['outstandingAmount'] | number:'1.2-2' }}
                 </span>
-                <span *ngIf="(purchase['totalCost'] - purchase['paidAmount']) === 0" class="badge bg-success" style="font-size: 1rem; padding: 0.5em 1em;">
+                <span *ngIf="purchase['outstandingAmount'] === 0" class="badge bg-success" style="font-size: 1rem; padding: 0.5em 1em;">
                   0.00
                 </span>
               </td>

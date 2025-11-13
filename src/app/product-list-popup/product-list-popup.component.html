@@ -9,6 +9,8 @@
         <th>Retail Price</th>
         <th>Discount Amount</th>
         <th>Total Price</th>
+        <th>Returned Qty</th>
+        <th>Returned Amount</th>
         <!-- <th>Discount Percentage</th> -->
         <th>Status</th>
       </tr>
@@ -21,6 +23,8 @@
         <td>{{ product.retailPrice }}</td>
         <td>{{ product.discountAmount }}</td>
         <td>{{ product.discountedTotal }}</td>
+        <td>{{ product.refundedQty || 0 }}</td>
+  <td>{{ (product.refundedAmount || 0) | number:'1.2-2' }}</td>
         <!-- <td>{{ product.discountPercentage }}%</td> -->
         <td>{{ product.productDeliveryStatus || '-' }}</td>
       </tr>
