@@ -129,10 +129,12 @@ export class SalesReturnComponent {
     let qty = Number(this.returnGood[i] || 0);
     const soldQty = Number(this.soldProducts[i].quantity || 0);
     const refundedQty = Number(this.soldProducts[i].refundedQty || 0);
+    // Do not forcibly clamp here so user can enter both Good and Damaged values;
+    // final validation will ensure totalReturn <= remaining before submission.
     const remaining = Math.max(0, soldQty - refundedQty);
-    if (qty > remaining) {
-      qty = remaining;
-      this.returnGood[i] = qty;
+    if (qty < 0) {
+      qty = 0;
+      this.returnGood[i] = 0;
     }
     const unit = this.getUnitPrice(this.soldProducts[i]);
     this.refundAmountGood[i] = Number((unit * qty).toFixed(2));
@@ -144,13 +146,38 @@ export class SalesReturnComponent {
     let qty = Number(this.returnDamaged[i] || 0);
     const soldQty = Number(this.soldProducts[i].quantity || 0);
     const refundedQty = Number(this.soldProducts[i].refundedQty || 0);
+    // Allow user to enter a damaged qty even if a good qty is also entered.
+    // We'll validate the sum (good + damaged) at submit time and show inline warnings.
     const remaining = Math.max(0, soldQty - refundedQty);
-    if (qty > remaining) {
-      qty = remaining;
-      this.returnDamaged[i] = qty;
+    if (qty < 0) {
+      qty = 0;
+      this.returnDamaged[i] = 0;
     }
     const unit = this.getUnitPrice(this.soldProducts[i]);
     this.refundAmountDamaged[i] = Number((unit * qty).toFixed(2));
+  }
+
+  // Return remaining available qty for the row (sold - already refunded)
+  getRemaining(i: number): number {
+    const sp = this.soldProducts[i];
+    if (!sp) return 0;
+    const soldQty = Number(sp.quantity || 0);
+    const refundedQty = Number(sp.refundedQty || 0);
+    return Math.max(0, soldQty - refundedQty);
+  }
+
+  // Check whether entered good+damaged for a row exceeds remaining
+  isRowInvalid(i: number): boolean {
+    const good = Number(this.returnGood[i] || 0);
+    const damaged = Number(this.returnDamaged[i] || 0);
+    const total = good + damaged;
+    return total > this.getRemaining(i);
+  }
+
+  // Helper used by template to determine if any row is invalid (templates can't use arrow funcs)
+  anyRowInvalid(): boolean {
+    if (!this.soldProducts || !Array.isArray(this.soldProducts)) return false;
+    return this.soldProducts.some((p, i) => this.isRowInvalid(i));
   }
 
   fetchSaleByInvoiceNumber() {

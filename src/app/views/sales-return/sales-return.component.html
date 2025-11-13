@@ -72,43 +72,51 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let sp of soldProducts; let i = index">
-                <td><strong>{{ sp.product?.productName }}</strong></td>
-                <td><span class="badge bg-info">{{ sp.batchNo }}</span></td>
-                <td>{{ sp.quantity }}</td>
-                <td>{{ sp.retailPrice }}</td>
-                <td>{{ sp.discountAmount }}</td>
-                <td>{{ sp.discountedTotal }}</td>
-                <td><span class="text-danger fw-bold">{{ sp.refundedQty }}</span></td>
-                <td><span class="text-danger fw-bold">{{ sp.refundedAmount }}</span></td>
-                <td>
-                  <input type="number" class="form-control" min="0" [max]="sp.quantity - (sp.refundedQty || 0)" [(ngModel)]="returnGood[i]" (ngModelChange)="onGoodQtyChange(i)" placeholder="Good Qty" [disabled]="(sp.refundedQty || 0) >= sp.quantity" />
-                </td>
-                <td>
-                  <!-- Auto-calculated refund amount; read-only so user cannot edit it. Still disabled when item already fully refunded. -->
-                  <input type="number" class="form-control" min="0" [(ngModel)]="refundAmountGood[i]" placeholder="Refund Amount (Good)" readonly [disabled]="(sp.refundedQty || 0) >= sp.quantity" />
-                </td>
-                <td>
-                  <input class="form-control" [(ngModel)]="reasonGood[i]" placeholder="Reason for Good" [disabled]="(sp.refundedQty || 0) >= sp.quantity"/>
-                </td>
-                <td>
-                  <input type="number" class="form-control" min="0" [max]="sp.quantity - (sp.refundedQty || 0)" [(ngModel)]="returnDamaged[i]" (ngModelChange)="onDamagedQtyChange(i)" placeholder="Damaged Qty" [disabled]="(sp.refundedQty || 0) >= sp.quantity" />
-                </td>
-                <td>
-                  <!-- Auto-calculated refund amount for damaged returns; read-only to prevent manual edits. -->
-                  <input type="number" class="form-control" min="0" [(ngModel)]="refundAmountDamaged[i]" placeholder="Refund Amount (Damaged)" readonly [disabled]="(sp.refundedQty || 0) >= sp.quantity" />
-                </td>
-                <td>
-                  <input class="form-control" [(ngModel)]="reasonDamaged[i]" placeholder="Reason for Damaged" [disabled]="(sp.refundedQty || 0) >= sp.quantity" />
-                </td>
-              </tr>
+              <ng-container *ngFor="let sp of soldProducts; let i = index">
+                <tr>
+                  <td><strong>{{ sp.product?.productName }}</strong></td>
+                  <td><span class="badge bg-info">{{ sp.batchNo }}</span></td>
+                  <td>{{ sp.quantity }}</td>
+                  <td>{{ sp.retailPrice }}</td>
+                  <td>{{ sp.discountAmount }}</td>
+                  <td>{{ sp.discountedTotal }}</td>
+                  <td><span class="text-danger fw-bold">{{ sp.refundedQty }}</span></td>
+                  <td><span class="text-danger fw-bold">{{ sp.refundedAmount }}</span></td>
+                  <td>
+                    <input type="number" class="form-control" min="0" [max]="sp.quantity - (sp.refundedQty || 0)" [(ngModel)]="returnGood[i]" (ngModelChange)="onGoodQtyChange(i)" placeholder="Good Qty" [disabled]="(sp.refundedQty || 0) >= sp.quantity" />
+                  </td>
+                  <td>
+                    <!-- Auto-calculated refund amount; read-only so user cannot edit it. Still disabled when item already fully refunded. -->
+                    <input type="number" class="form-control" min="0" [(ngModel)]="refundAmountGood[i]" placeholder="Refund Amount (Good)" readonly [disabled]="(sp.refundedQty || 0) >= sp.quantity" />
+                  </td>
+                  <td>
+                    <input class="form-control" [(ngModel)]="reasonGood[i]" placeholder="Reason for Good" [disabled]="(sp.refundedQty || 0) >= sp.quantity"/>
+                  </td>
+                  <td>
+                    <input type="number" class="form-control" min="0" [max]="sp.quantity - (sp.refundedQty || 0)" [(ngModel)]="returnDamaged[i]" (ngModelChange)="onDamagedQtyChange(i)" placeholder="Damaged Qty" [disabled]="(sp.refundedQty || 0) >= sp.quantity" />
+                  </td>
+                  <td>
+                    <!-- Auto-calculated refund amount for damaged returns; read-only to prevent manual edits. -->
+                    <input type="number" class="form-control" min="0" [(ngModel)]="refundAmountDamaged[i]" placeholder="Refund Amount (Damaged)" readonly [disabled]="(sp.refundedQty || 0) >= sp.quantity" />
+                  </td>
+                  <td>
+                    <input class="form-control" [(ngModel)]="reasonDamaged[i]" placeholder="Reason for Damaged" [disabled]="(sp.refundedQty || 0) >= sp.quantity" />
+                  </td>
+                </tr>
+                <tr *ngIf="isRowInvalid(i)">
+                  <td colspan="14">
+                    <div class="alert alert-warning mb-0 py-1">
+                      The total return quantity (Good + Damaged) exceeds the available quantity of <strong>{{ getRemaining(i) }}</strong> for this product. Please adjust the quantities.
+                    </div>
+                  </td>
+                </tr>
+              </ng-container>
             </tbody>
           </table>
         </div>
         <div class="mt-3 text-end">
-          <button class="btn btn-success" (click)="submitAllReturns()" [disabled]="loading">Submit All Returns</button>
+          <button class="btn btn-success" (click)="submitAllReturns()" [disabled]="loading || anyRowInvalid()">Submit All Returns</button>
         </div>
       </div>
     </div>
   </div>
-</div>
