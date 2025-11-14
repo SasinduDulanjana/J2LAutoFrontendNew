@@ -109,6 +109,7 @@ export class SaleService {
   // The payload should include the saleId in the body. Optional productId and batchNumber
   // may be provided when the discount applies to a specific line.
   updateSaleDiscount(body: { saleId: number | string, discountType: 'amount'|'percent', value: number, productId?: number|string, batchNumber?: string, reason?: string }): Observable<any> {
-    return this.http.post<any>(`${this.baseUrl}/updateDiscount`, body);
+    // Use responseType 'text' to be tolerant of backends that return plain text responses
+    return this.http.post<any>(`${this.baseUrl}/updateDiscount`, body, { responseType: 'text' as 'json' });
   }
 }
