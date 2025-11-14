@@ -103,4 +103,12 @@ export class SaleService {
   getAllSalesReturn(): Observable<any[]> {
     return this.http.get<any[]>(`${this.baseUrl}/getAllSalesReturn`);
   }
+
+
+  // Apply a discount to the sale (sale-level or line-level).
+  // The payload should include the saleId in the body. Optional productId and batchNumber
+  // may be provided when the discount applies to a specific line.
+  updateSaleDiscount(body: { saleId: number | string, discountType: 'amount'|'percent', value: number, productId?: number|string, batchNumber?: string, reason?: string }): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/updateDiscount`, body);
+  }
 }

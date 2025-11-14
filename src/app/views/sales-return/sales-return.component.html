@@ -59,7 +59,7 @@
                 <th>Batch #</th>
                 <th>Sold Qty</th>
                 <th>Retail Price</th>
-                <th>Discount</th>
+                <!-- <th>Discount</th> -->
                 <th>Discounted Total</th>
                 <th>Refunded Qty</th>
                 <th>Refunded Amount</th>
@@ -69,6 +69,7 @@
                 <th>Return Qty (Damaged)</th>
                 <th>Refund Amount (Damaged)</th>
                 <th>Reason to Return (Damaged)</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody>
@@ -78,7 +79,7 @@
                   <td><span class="badge bg-info">{{ sp.batchNo }}</span></td>
                   <td>{{ sp.quantity }}</td>
                   <td>{{ sp.retailPrice }}</td>
-                  <td>{{ sp.discountAmount }}</td>
+                  <!-- <td>{{ sp.discountAmount }}</td> -->
                   <td>{{ sp.discountedTotal }}</td>
                   <td><span class="text-danger fw-bold">{{ sp.refundedQty }}</span></td>
                   <td><span class="text-danger fw-bold">{{ sp.refundedAmount }}</span></td>
@@ -102,9 +103,12 @@
                   <td>
                     <input class="form-control" [(ngModel)]="reasonDamaged[i]" placeholder="Reason for Damaged" [disabled]="(sp.refundedQty || 0) >= sp.quantity" />
                   </td>
+                  <td>
+                    <button class="btn btn-sm btn-outline-primary" (click)="openEditPriceDialog(i)">Edit Discount</button>
+                  </td>
                 </tr>
                 <tr *ngIf="isRowInvalid(i)">
-                  <td colspan="14">
+                  <td colspan="15">
                     <div class="alert alert-warning mb-0 py-1">
                       The total return quantity (Good + Damaged) exceeds the available quantity of <strong>{{ getRemaining(i) }}</strong> for this product. Please adjust the quantities.
                     </div>

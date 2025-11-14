@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { EditSalePriceDialogComponent } from '../../edit-sale-price-dialog/edit-sale-price-dialog.component';
 import { SaleService } from '../../services/sale.service';
 import { Sale } from '../../models/sale.model';
 import { MatDialog } from '@angular/material/dialog';
@@ -111,6 +112,54 @@ export class SalesReturnComponent {
   error: string = '';
   loading: boolean = false;
 
+  openEditPriceDialog(i: number) {
+    const product = this.soldProducts[i];
+    if (!product) return;
+    const dialogRef = this.dialog.open(EditSalePriceDialogComponent, {
+      width: '420px',
+      data: { saleId: this.sale?.saleId || this.sale?.id, product }
+    });
+    dialogRef.afterClosed().subscribe((result: any) => {
+      if (result && result.updated) {
+        const saleId = this.sale?.saleId || this.sale?.id;
+        // Ensure we have a valid saleId before calling backend
+        if (!saleId) {
+          console.error('Cannot apply discount: missing saleId');
+          return;
+        }
+        // If dialog returned a newDiscount, call backend to apply discount at sale level
+        if (result.newDiscount !== undefined) {
+          // include productId and batchNumber for line-level discount context
+          const prod = product; // use captured 'product' from outer scope
+          const productId = prod?.product?.productId || prod?.productId;
+          const batchNumber = prod?.batchNo || prod?.batchNumber || '';
+          const payload: { saleId?: string|number, discountType: 'amount'|'percent', value: number, productId?: number|string, batchNumber?: string, reason?: string } = {
+            saleId: saleId,
+            discountType: 'amount',
+            value: Number(result.newDiscount || 0),
+            productId,
+            batchNumber,
+            reason: result.reason || ''
+          };
+          this.saleService.updateSaleDiscount(payload as any).subscribe({
+            next: (updatedSale: any) => {
+              // Refresh sale and products to reflect updated totals
+              this.fetchSaleByInvoiceNumber();
+            },
+            error: () => {
+              // Could show an error - keep simple for now
+              console.error('Failed to apply discount');
+            }
+          });
+        } else if (result.newPrice !== undefined) {
+          // legacy: update price locally
+          this.soldProducts[i].retailPrice = result.newPrice;
+          this.onGoodQtyChange(i);
+          this.onDamagedQtyChange(i);
+        }
+      }
+    });
+  }
   constructor(private saleService: SaleService, private dialog: MatDialog) {}
 
   // Compute unit price for a sold product. Prefer discountedTotal/quantity if available, fallback to retailPrice
