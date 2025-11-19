@@ -1,11 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Optional } from '@angular/core';
 import { ProductService } from '../services/product.service'; // Correct path to the service
 import { Product } from '../models/product.model'; // Correct path to the model
 import { CategoryService } from '../services/category.service'; // Correct path to the service
 import { VehicleService } from '../services/vehicle.service'; // Correct path to the service
 import { Category } from '../models/category.model'; // Correct path to the model
 import { CreateCategoryComponent } from '../create-category/create-category.component';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { HttpClient } from '@angular/common/http';
 import { SuccessDialogComponent } from '../success-dialog/success-dialog.component';
 import { FailureDialogComponent } from '../failure-dialog/failure-dialog.component';
@@ -88,7 +88,8 @@ export class CreateProductComponent implements OnInit{
     private categoryService: CategoryService,
     private vehicleService: VehicleService,
     private dialog: MatDialog,
-    private http: HttpClient
+    private http: HttpClient,
+    @Optional() public dialogRef: MatDialogRef<CreateProductComponent> | null
   ) { }
 
 
@@ -195,12 +196,23 @@ export class CreateProductComponent implements OnInit{
     this.productService.createProduct(newProduct)
       .subscribe(response => {
         this.loading = false;
+        // If this component was opened inside a MatDialog, close it and return the created product to the caller
+        try {
+          if (this.dialogRef) {
+            // Close dialog and pass created product back to caller
+            this.dialogRef.close({ product: response });
+            return;
+          }
+        } catch (e) {
+          // ignore and fall through to normal behavior
+        }
+
         const dialogRef = this.dialog.open(SuccessDialogComponent, {
           width: '350px',
           data: { message: 'Product created successfully!' }
         });
         dialogRef.afterClosed().subscribe(() => {
-          // Reset the form fields
+          // Reset the form fields when used as a standalone page
           this.product = new Product(0, '', false, '', '', '', '', '', '', false, 0, 0, 0, 0, '', false, '', '', '', '', '', 0, false, false, false, 0);
           this.selectedParentCategoryId = 0;
           this.selectedVehicles = [];

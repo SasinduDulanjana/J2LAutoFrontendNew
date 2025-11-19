@@ -46,6 +46,9 @@
         <c-col [xs]="12" class="mt-4">
           <div class="d-flex align-items-center mb-3">
             <input style="background-color: #e5e7eb;" placeholder="Search Product" id="searchProduct" type="text" [(ngModel)]="productSearchTerm" (input)="searchProduct()" name="searchProduct" class="form-control" />
+            <button type="button" class="btn btn-outline-primary ms-2" (click)="openCreateProductPopup()" title="Create new product">
+              <svg cIcon name="cil-plus" class="me-1"></svg>
+            </button>
           </div>
           <div *ngIf="searchResults.length > 0">
             <ul class="list-group mt-2">

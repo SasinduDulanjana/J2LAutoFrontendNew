@@ -8,6 +8,7 @@ import { ProductService } from '../services/product.service';
 import { Supplier } from '../models/supplier.model'; // Correct path to the model
 import { Batch } from '../models/batch.model';
 import { MatDialog } from '@angular/material/dialog';
+import { CreateProductComponent } from '../create-product/create-product.component';
 import { PaymentDialogComponent } from '../payment-dialog/payment-dialog.component';
 import { QuantityInputComponent } from '../quantity-input/quantity-input.component';
 import { CreateSupplierComponent } from '../create-supplier/create-supplier.component';
@@ -44,6 +45,63 @@ export class CreatePurchaseComponent implements OnInit {
     private dialog: MatDialog,
     private router: Router
   ) { }
+
+  // Open the Create Product dialog as a popup and optionally add the created product to purchase
+  openCreateProductPopup(): void {
+    const dialogRef = this.dialog.open(CreateProductComponent, {
+      width: '900px',
+      disableClose: false
+    });
+    dialogRef.afterClosed().subscribe((result: any) => {
+      if (result && result.product) {
+        const newProd = result.product as any;
+        // Ensure defaults for the product object so the search and batch cache work
+        newProd.batchNo = newProd.batchNo ?? '';
+        newProd.remainingQty = newProd.remainingQty ?? 1;
+        newProd.retailPrice = newProd.retailPrice ?? newProd.salePrice ?? 0;
+
+        // Preload batch numbers into the local cache for this SKU so the dropdown/batch selector
+        // will have data if the user selects this product after creation. Do NOT auto-add to table.
+        if (newProd.sku) {
+          this.productService.getBatchNumbersForProduct(newProd.sku).subscribe(batches => {
+            this.batchNumbers[newProd.sku] = batches || [];
+            if (batches && batches.length > 0) {
+              // Keep the product's default batchNo consistent with server data
+              newProd.batchNo = newProd.batchNo || batches[0].batchNumber;
+              newProd.batch = newProd.batch || batches[0];
+              newProd.retailPrice = newProd.retailPrice || batches[0].retailPrice || batches[0].unitCost;
+            }
+            // Add to product list so search/dropdown can find it immediately
+            const exists = this.allProducts.find(p => (p.productId && newProd.productId && p.productId === newProd.productId) || (p.sku && newProd.sku && p.sku === newProd.sku));
+            if (!exists) this.allProducts.unshift(newProd);
+            // Re-run search to refresh dropdown results immediately
+            this.searchProduct();
+          }, err => {
+            // On error fetching batches still add product to search data so it can be selected
+            const exists = this.allProducts.find(p => (p.productId && newProd.productId && p.productId === newProd.productId) || (p.sku && newProd.sku && p.sku === newProd.sku));
+            if (!exists) this.allProducts.unshift(newProd);
+            this.searchProduct();
+          });
+        } else {
+          // No SKU — still add to product source so the dropdown can show it
+          const exists = this.allProducts.find(p => (p.productId && newProd.productId && p.productId === newProd.productId));
+          if (!exists) this.allProducts.unshift(newProd);
+          this.searchProduct();
+        }
+      }
+
+      // Also refresh products list from server in background to keep cache fresh
+      this.productService.getAllProducts().subscribe((data: Product[] = []) => {
+        this.allProducts = data || this.allProducts;
+        // If there is an active search term, refresh results (safe no-op if searchTerm is empty)
+        if (this.productSearchTerm && this.productSearchTerm.trim().length > 0) {
+          this.searchProduct();
+        }
+      }, err => {
+        // ignore errors — we already updated local arrays for immediate UX
+      });
+    });
+  }
 
   // Handler for adding a new batch for a product
   addNewBatch(product: Product): void {
