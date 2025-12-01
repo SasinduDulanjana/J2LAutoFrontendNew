@@ -159,7 +159,16 @@ export class CreatePurchaseComponent implements OnInit {
   }
 
   createPurchase(): void {
-      this.isLoadingInvoice = true; // Set loading state
+    // Require a supplier to be selected before creating a purchase
+    if (!this.selectedSupplierId || this.selectedSupplierId === 0) {
+      this.dialog.open(FailureDialogComponent, {
+        width: '350px',
+        data: { message: 'Please select a supplier before creating the purchase.' }
+      });
+      return;
+    }
+
+    this.isLoadingInvoice = true; // Set loading state
     const totalCost = this.calculateTotalCost();
     const paidAmount = this.paidAmount;
     const paymentType = this.paymentType;
@@ -218,10 +227,14 @@ export class CreatePurchaseComponent implements OnInit {
           console.warn('Could not open success dialog', e);
         }
         this.isLoadingInvoice = false; // Reset loading state
-        // Reset form after success
-        const currentInvoiceDate = this.purchase.invoiceDate;
-        this.purchase = new Purchase(0, '', '', '', '', '', [], 0, 0, false);
-        this.purchase.invoiceDate = currentInvoiceDate;
+  // Reset form after success and generate a fresh invoice number for the next purchase
+  const currentInvoiceDate = this.purchase.invoiceDate;
+  this.purchase = new Purchase(0, '', '', '', '', '', [], 0, 0, false);
+  this.purchase.invoiceDate = currentInvoiceDate;
+  // regenerate invoice number using same logic as ngOnInit
+  const now = new Date();
+  const pad = (n: number) => n.toString().padStart(2, '0');
+  this.purchase.invoiceNumber = `INV-${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`;
         this.selectedSupplierId = 0;
         this.paidAmount = 0;
         this.paymentType = '';
