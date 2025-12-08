@@ -841,37 +841,32 @@ export class CreateSaleComponent implements OnInit {
       // will appear in the search dropdown immediately.
       if (result && result.product) {
         const newProd = result.product as any;
-        // Ensure defaults
+        // Ensure defaults for dropdown/search UX
         newProd.batchNo = newProd.batchNo ?? '';
-        newProd.remainingQty = 1;
+        newProd.remainingQty = newProd.remainingQty ?? 1;
         newProd.retailPrice = newProd.retailPrice ?? newProd.salePrice ?? 0;
-        // add to saleItems (try to attach batches if possible)
+
+        // Do NOT auto-add the created product to the sale table. Instead, preload batch info
+        // and add the product to the products/search arrays so it appears in the dropdown.
         if (newProd.sku) {
           this.productService.getBatchNumbersForProduct(newProd.sku).subscribe(batches => {
             if (batches && batches.length > 0) {
-              newProd.batchNo = batches[0].batchNumber;
-              newProd.batch = batches[0];
+              newProd.batchNo = newProd.batchNo || batches[0].batchNumber;
+              newProd.batch = newProd.batch || batches[0];
               newProd.retailPrice = newProd.retailPrice || batches[0].retailPrice || batches[0].unitCost;
             }
-            this.saleItems.push(newProd);
+            const exists = this.products.find(p => (p.productId && newProd.productId && p.productId === newProd.productId) || (p.sku && newProd.sku && p.sku === newProd.sku));
+            if (!exists) this.products.unshift(newProd);
+            this.searchProduct();
           }, err => {
-            this.saleItems.push(newProd);
+            const exists = this.products.find(p => (p.productId && newProd.productId && p.productId === newProd.productId) || (p.sku && newProd.sku && p.sku === newProd.sku));
+            if (!exists) this.products.unshift(newProd);
+            this.searchProduct();
           });
         } else {
-          this.saleItems.push(newProd);
-        }
-        // Add to products list and searchResults so it appears immediately
-        try {
-          const exists = this.products.find(p => (p.productId && newProd.productId && p.productId === newProd.productId) || (p.sku && newProd.sku && p.sku === newProd.sku));
+          const exists = this.products.find(p => (p.productId && newProd.productId && p.productId === newProd.productId));
           if (!exists) this.products.unshift(newProd);
-          const term = (this.productSearchTerm || '').toLowerCase().trim();
-          const matches = !term || (newProd.productName && newProd.productName.toLowerCase().includes(term)) || (newProd.sku && newProd.sku.toLowerCase().includes(term));
-          if (matches) {
-            const existsInSearch = this.searchResults.find(p => (p.productId && newProd.productId && p.productId === newProd.productId) || (p.sku && newProd.sku && p.sku === newProd.sku));
-            if (!existsInSearch) this.searchResults.unshift(newProd);
-          }
-        } catch (e) {
-          // ignore
+          this.searchProduct();
         }
       }
 
