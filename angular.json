@@ -23,7 +23,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/coreui-free-angular-admin-template",
+            "outputPath": "dist/food-ordering-client",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": [
@@ -43,7 +43,10 @@
             "scripts": [],
             "allowedCommonJsDependencies": [
               "chart.js",
-              "@coreui/chartjs/dist/js/coreui-chartjs.js"
+              "@coreui/chartjs/dist/js/coreui-chartjs.js",
+              "jspdf",
+              "jspdf-autotable",
+              "html2canvas"
             ]
           },
           "configurations": {
@@ -51,8 +54,8 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "1500kb",
-                  "maximumError": "6mb"
+                  "maximumWarning": "2500kb",
+                  "maximumError": "3mb"
                 },
                 {
                   "type": "anyComponentStyle",
