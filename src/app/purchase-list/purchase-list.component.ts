@@ -120,6 +120,32 @@ export class PurchaseListComponent implements OnInit {
     }
   }
 
+  /**
+   * Calculate totals for purchases displayed (filtered by search) or all purchases.
+   */
+  getTotalPurchasesCost(useFiltered: boolean = true): number {
+    const list = useFiltered ? this.filteredPurchases : this.purchases;
+    if (!list || list.length === 0) return 0;
+    return list.reduce((sum: number, p: any) => sum + (Number(p.totalCost ?? p.total_cost ?? 0) || 0), 0);
+  }
+
+  getTotalPaidAmount(useFiltered: boolean = true): number {
+    const list = useFiltered ? this.filteredPurchases : this.purchases;
+    if (!list || list.length === 0) return 0;
+    return list.reduce((sum: number, p: any) => sum + (Number(p.paidAmount ?? p.paid_amount ?? 0) || 0), 0);
+  }
+
+  getTotalOutstanding(useFiltered: boolean = true): number {
+    const list = useFiltered ? this.filteredPurchases : this.purchases;
+    if (!list || list.length === 0) return 0;
+    return list.reduce((sum: number, p: any) => {
+      const total = Number(p.totalCost ?? p.total_cost ?? 0) || 0;
+      const paid = Number(p.paidAmount ?? p.paid_amount ?? 0) || 0;
+      const out = Math.max(0, total - paid);
+      return sum + out;
+    }, 0);
+  }
+
   navigateToCreatePurchase() {
     this.router.navigate(['/create-purchase']);
   }

@@ -17,6 +17,20 @@
       </button>
     </div>
     <div class="card-body">
+      <div class="d-flex justify-content-end mb-3 gap-3">
+        <div class="text-muted text-end">
+          <small class="d-block">Total Cost</small>
+          <strong>{{ getTotalPurchasesCost() | number:'1.2-2' }}</strong>
+        </div>
+        <div class="text-muted text-end">
+          <small class="d-block">Total Paid</small>
+          <strong>{{ getTotalPaidAmount() | number:'1.2-2' }}</strong>
+        </div>
+        <div class="text-muted text-end">
+          <small class="d-block">Total Outstanding</small>
+          <strong>{{ getTotalOutstanding() | number:'1.2-2' }}</strong>
+        </div>
+      </div>
       <div class="purchase-search-bar mb-3">
         <svg cIcon name="cil-magnifying-glass"></svg>
         <input type="text" placeholder="Search purchases by name, invoice, or supplier" [(ngModel)]="searchQuery" (input)="onSearch()" />

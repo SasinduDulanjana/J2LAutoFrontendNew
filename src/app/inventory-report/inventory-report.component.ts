@@ -161,10 +161,24 @@ export class InventoryReportComponent {
       'Low Stock Alert'
     ]];
     let data: any[] = [];
+    let totalCostValue = 0;
+    let totalRetailValue = 0;
     (this.filteredInventory || []).forEach((item: any) => {
       const categoryName = item.category?.name || this.getCategoryName(item.catId);
+      // Only include items that have batches with qty > 0. Skip items with no batches or zero quantities.
       if (Array.isArray(item.batchQuantities) && item.batchQuantities.length > 0) {
-        item.batchQuantities.forEach((batch: any) => {
+        const validBatches = item.batchQuantities.filter((b: any) => Number(b.qty ?? 0) > 0);
+        if (validBatches.length === 0) {
+          // skip item entirely if no positive-qty batches
+          return;
+        }
+        validBatches.forEach((batch: any) => {
+          const qty = Number(batch.qty ?? 0) || 0;
+          const cost = Number(batch.cost ?? item.cost ?? 0) || 0;
+          const retail = Number(batch.retailPrice ?? item.retailPrice ?? item.salePrice ?? 0) || 0;
+          // accumulate totals
+          totalCostValue += qty * cost;
+          totalRetailValue += qty * retail;
           data.push([
             item.productName || '',
             `${item.vehicle?.make || '-'} ${item.vehicle?.model || '-'}`,
@@ -172,27 +186,16 @@ export class InventoryReportComponent {
             // item.sku || '',
             // categoryName,
             batch.batchNo ?? '',
-            batch.qty ?? 0,
-            batch.cost !== undefined ? Number(batch.cost).toFixed(2) : '-',
-            batch.retailPrice !== undefined ? Number(batch.retailPrice).toFixed(2) : '-',
+            qty,
+            cost !== undefined ? cost.toFixed(2) : '-',
+            retail !== undefined ? retail.toFixed(2) : '-',
             // batch.wholesalePrice !== undefined ? Number(batch.wholesalePrice).toFixed(2) : '-',
             this.isLowStock(item) ? 'Low' : 'OK'
           ]);
         });
       } else {
-        data.push([
-          item.productName || '',
-          `${item.vehicle?.make || '-'} ${item.vehicle?.model || '-'}`,
-          item.vehicle?.year || '-',
-          // item.sku || '',
-          // categoryName,
-          '-',
-          '-',
-          '-',
-          '-',
-          '-',
-          this.isLowStock(item) ? 'Low' : 'OK'
-        ]);
+        // No batches -> skip from PDF as requested
+        return;
       }
     });
     autoTable(doc, {
@@ -204,6 +207,63 @@ export class InventoryReportComponent {
       alternateRowStyles: { fillColor: [240, 245, 255] },
       margin: { left: 8, right: 8 }
     });
+    // Add totals below the table
+    // lastAutoTable.finalY gives the vertical position after the table
+    // (may be undefined if autoTable isn't present in typings)
+    const finalY = (doc as any).lastAutoTable ? (doc as any).lastAutoTable.finalY : 22;
+    const nextY = (finalY || 22) + 8;
+    doc.setFontSize(12);
+    doc.text('Totals (shown items only):', 14, nextY);
+    doc.setFontSize(11);
+    doc.text(`Total cost value: ${Number(totalCostValue).toFixed(2)}`, 14, nextY + 8);
+    doc.text(`Total retail value: ${Number(totalRetailValue).toFixed(2)}`, 14, nextY + 16);
     doc.save('inventory-report.pdf');
+  }
+
+  /**
+   * Calculate total stock value (cost basis) for the current inventory set.
+   * Uses batch.cost when available, otherwise falls back to product.cost.
+   */
+  getInventoryStockValue(useFiltered: boolean = true): number {
+    const list = useFiltered ? this.filteredInventory : this.inventory;
+    if (!list || list.length === 0) return 0;
+    return list.reduce((total: number, item: any) => {
+      // If batchQuantities available, use per-batch cost * qty
+      if (item.batchQuantities && Array.isArray(item.batchQuantities) && item.batchQuantities.length > 0) {
+        const batchSum = item.batchQuantities.reduce((s: number, batch: any) => {
+          const qty = Number(batch.qty ?? 0) || 0;
+          const cost = Number(batch.cost ?? item.cost ?? 0) || 0;
+          return s + qty * cost;
+        }, 0);
+        return total + batchSum;
+      }
+
+      // Otherwise use remainingQty * item.cost as fallback
+      const qty = Number(item.remainingQty ?? 0) || 0;
+      const cost = Number(item.cost ?? 0) || 0;
+      return total + qty * cost;
+    }, 0);
+  }
+
+  /**
+   * Calculate total sale/retail value for the current inventory set.
+   * Uses batch.retailPrice when available, otherwise falls back to item.retailPrice or item.salePrice.
+   */
+  getInventorySaleValue(useFiltered: boolean = true): number {
+    const list = useFiltered ? this.filteredInventory : this.inventory;
+    if (!list || list.length === 0) return 0;
+    return list.reduce((total: number, item: any) => {
+      if (item.batchQuantities && Array.isArray(item.batchQuantities) && item.batchQuantities.length > 0) {
+        const batchSum = item.batchQuantities.reduce((s: number, batch: any) => {
+          const qty = Number(batch.qty ?? 0) || 0;
+          const price = Number(batch.retailPrice ?? item.retailPrice ?? item.salePrice ?? 0) || 0;
+          return s + qty * price;
+        }, 0);
+        return total + batchSum;
+      }
+      const qty = Number(item.remainingQty ?? 0) || 0;
+      const price = Number(item.retailPrice ?? item.salePrice ?? 0) || 0;
+      return total + qty * price;
+    }, 0);
   }
 }
