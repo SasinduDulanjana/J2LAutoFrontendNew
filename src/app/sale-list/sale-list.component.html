@@ -87,6 +87,37 @@
           </tbody>
         </table>
       </div>
+
+      <!-- Pagination Controls -->
+      <nav class="mt-4" aria-label="Page navigation">
+        <ul class="pagination justify-content-center mb-0">
+          <!-- Previous Button -->
+          <li class="page-item" [ngClass]="{ 'disabled': isFirstPage() }">
+            <button class="page-link" (click)="previousPage()" [disabled]="isFirstPage()">
+              Previous
+            </button>
+          </li>
+
+          <!-- Page Numbers -->
+          <li class="page-item" *ngFor="let pageNum of getPageNumbers()" [ngClass]="{ 'active': pageNum === currentPage }">
+            <button class="page-link" (click)="goToPage(pageNum)">
+              {{ pageNum + 1 }}
+            </button>
+          </li>
+
+          <!-- Next Button -->
+          <li class="page-item" [ngClass]="{ 'disabled': isLastPage() }">
+            <button class="page-link" (click)="nextPage()" [disabled]="isLastPage()">
+              Next
+            </button>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- Page Info -->
+      <div class="text-center mt-2 text-muted">
+        <small>Page {{ currentPage + 1 }} of {{ totalPages }} | Total Records: {{ totalCount }}</small>
+      </div>
     </div>
   </div>
 </div>

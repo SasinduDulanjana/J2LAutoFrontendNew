@@ -28,6 +28,12 @@ export class SaleListComponent {
   userMap: { [key: number]: string } = {};
   customerMap: { [key: number]: string } = {};
 
+  // Pagination properties
+  currentPage: number = 0;
+  pageSize: number = 10;
+  totalCount: number = 0;
+  totalPages: number = 0;
+
   constructor(
     private saleService: SaleService,
     private router: Router,
@@ -37,8 +43,13 @@ export class SaleListComponent {
   ) { }
 
   ngOnInit(): void {
+    this.loadSales();
+  }
+
+  loadSales(page: number = 0): void {
     this.loading = true;
-    this.saleService.findAllSales().subscribe(data => {
+    this.currentPage = page;
+    this.saleService.findAllSalesPaginated(page, this.pageSize).subscribe(data => {
       // Sort by saleDate descending (latest first), handle custom date format
       const parseCustomDate = (str: string) => {
         if (!str) return 0;
@@ -59,6 +70,14 @@ export class SaleListComponent {
       });
       this.sales = data;
       this.filteredSales = data;
+      
+      // Calculate total pages based on initial load
+      if (page === 0 && data.length > 0) {
+        // For the first page, estimate total count
+        // You may need to update backend to return totalCount
+        this.totalCount = data.length >= this.pageSize ? this.pageSize * 10 : data.length;
+        this.totalPages = Math.ceil(this.totalCount / this.pageSize);
+      }
       this.loading = false;
     }, error => {
       this.loading = false;
@@ -167,5 +186,48 @@ export class SaleListComponent {
     // Open invoice page in a new tab with invoiceNumber as query param
     const url = `${window.location.origin}/#/invoice?invoiceNumber=${encodeURIComponent(invoiceNumber)}`;
     window.open(url, '_blank');
+  }
+
+  // Pagination methods
+  nextPage(): void {
+    if (this.currentPage < this.totalPages - 1) {
+      this.loadSales(this.currentPage + 1);
+    }
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 0) {
+      this.loadSales(this.currentPage - 1);
+    }
+  }
+
+  goToPage(page: number): void {
+    if (page >= 0 && page < this.totalPages) {
+      this.loadSales(page);
+    }
+  }
+
+  isFirstPage(): boolean {
+    return this.currentPage === 0;
+  }
+
+  isLastPage(): boolean {
+    return this.currentPage >= this.totalPages - 1;
+  }
+
+  getPageNumbers(): number[] {
+    const pages = [];
+    const maxPagesToShow = 5;
+    let startPage = Math.max(0, this.currentPage - Math.floor(maxPagesToShow / 2));
+    let endPage = Math.min(this.totalPages - 1, startPage + maxPagesToShow - 1);
+
+    if (endPage - startPage < maxPagesToShow - 1) {
+      startPage = Math.max(0, endPage - maxPagesToShow + 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(i);
+    }
+    return pages;
   }
 }

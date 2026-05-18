@@ -72,6 +72,11 @@ export class SaleService {
     return this.http.get<any>(url);
   }
 
+  findAllSalesPaginated(page: number, size: number): Observable<any> {
+    const url = `${this.baseUrl}/getAllSale?page=${page}&size=${size}`;
+    return this.http.get<any>(url);
+  }
+
   findAllDeletedSales(): Observable<any> {
     const url = `${this.baseUrl}/getAllDeletedSales`;
     return this.http.get<any>(url);
