@@ -44,8 +44,16 @@ export class PurchaseListComponent implements OnInit {
   }
   purchases: PurchaseListItem[] = [];
   filteredPurchases: PurchaseListItem[] = [];
+  allPurchasesData: PurchaseListItem[] = [];
   searchQuery: string = '';
+  isSearching: boolean = false;
   suppliers: Supplier[] = [];
+
+  // Pagination properties
+  currentPage: number = 0;
+  pageSize: number = 5;
+  totalCount: number = 0;
+  totalPages: number = 0;
 
   constructor(
     private purchaseService: PurchaseService,
@@ -55,14 +63,20 @@ export class PurchaseListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-  this.loading = true;
-  // Fetch suppliers first
-  this.supplierService.findAllSuppliers().subscribe({
+    this.loadPurchases();
+  }
+
+  loadPurchases(page: number = 0): void {
+    this.loading = true;
+    this.isSearching = false;
+    this.currentPage = page;
+    // Fetch suppliers first
+    this.supplierService.findAllSuppliers().subscribe({
       next: (suppliers: Supplier[]) => {
         console.log('Suppliers loaded:', suppliers);
         this.suppliers = suppliers;
-        // Now fetch purchases
-        this.purchaseService.getAllPurchases().subscribe({
+        // Now fetch purchases with pagination
+        this.purchaseService.getAllPurchasesPaginated(page, this.pageSize).subscribe({
           next: (data: any[]) => {
             console.log('Purchases loaded:', data);
             this.purchases = data.map(p => {
@@ -87,6 +101,13 @@ export class PurchaseListComponent implements OnInit {
             });
             console.log('Mapped purchases:', this.purchases);
             this.filteredPurchases = [...this.purchases];
+            this.allPurchasesData = [...this.purchases];
+            
+            // Calculate total pages (estimate based on page size)
+            if (page === 0 && data.length > 0) {
+              this.totalCount = data.length >= this.pageSize ? this.pageSize * 10 : data.length;
+              this.totalPages = Math.ceil(this.totalCount / this.pageSize);
+            }
             this.loading = false;
           },
           error: err => {
@@ -110,13 +131,45 @@ export class PurchaseListComponent implements OnInit {
   onSearch(): void {
     const query = this.searchQuery.toLowerCase().trim();
     if (query) {
-      this.filteredPurchases = this.purchases.filter(purchase =>
-        (purchase.purchaseName && purchase.purchaseName.toLowerCase().includes(query)) ||
-        (purchase.invoiceNumber && purchase.invoiceNumber.toLowerCase().includes(query)) ||
-        (purchase.supplierName && purchase.supplierName.toLowerCase().includes(query))
-      );
+      this.loading = true;
+      this.isSearching = true;
+      // Fetch all purchases without pagination for searching
+      this.purchaseService.getAllPurchasesWithoutPagination().subscribe((allPurchases: any[]) => {
+        const filtered = allPurchases.filter((purchase: any) => {
+          const supplierName = purchase.supplierId ? this.getSupplierName(purchase.supplierId) : '';
+          return (
+            (purchase.purchaseName && purchase.purchaseName.toLowerCase().includes(query)) ||
+            (purchase.invoiceNumber && purchase.invoiceNumber.toLowerCase().includes(query)) ||
+            (supplierName && supplierName.toLowerCase().includes(query))
+          );
+        });
+        
+        // Set filtered purchases and reset pagination
+        this.filteredPurchases = filtered.map(p => {
+          const supId = p.supplierId ?? p.supId ?? null;
+          const totalCost = p.totalCost ?? p.total_cost ?? 0;
+          const paidAmount = p.paidAmount ?? p.paid_amount ?? 0;
+          return {
+            ...p,
+            supId,
+            supplierName: supId ? this.getSupplierName(supId) : '',
+            totalCost,
+            paidAmount
+          };
+        });
+        this.allPurchasesData = this.filteredPurchases; // Keep all filtered data for pagination
+        this.currentPage = 0;
+        this.totalCount = this.filteredPurchases.length;
+        this.totalPages = Math.ceil(this.totalCount / this.pageSize);
+        this.loading = false;
+      }, error => {
+        console.error('Error searching purchases:', error);
+        this.loading = false;
+      });
     } else {
-      this.filteredPurchases = [...this.purchases];
+      // Reset to paginated view
+      this.isSearching = false;
+      this.loadPurchases(0);
     }
   }
 
@@ -217,6 +270,71 @@ export class PurchaseListComponent implements OnInit {
       })
     );
   }
+
+  // Pagination methods
+  nextPage(): void {
+    if (this.currentPage < this.totalPages - 1) {
+      this.currentPage++;
+      if (!this.isSearching) {
+        this.loadPurchases(this.currentPage);
+      }
+    }
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 0) {
+      this.currentPage--;
+      if (!this.isSearching) {
+        this.loadPurchases(this.currentPage);
+      }
+    }
+  }
+
+  goToPage(page: number): void {
+    if (page >= 0 && page < this.totalPages) {
+      this.currentPage = page;
+      if (!this.isSearching) {
+        this.loadPurchases(page);
+      }
+    }
+  }
+
+  getPaginatedPurchases(): any[] {
+    if (this.isSearching) {
+      // In search mode, slice from all filtered data
+      const startIndex = this.currentPage * this.pageSize;
+      const endIndex = startIndex + this.pageSize;
+      return this.allPurchasesData.slice(startIndex, endIndex);
+    } else {
+      // In normal mode, return all filtered purchases (already paginated from backend)
+      return this.filteredPurchases;
+    }
+  }
+
+  isFirstPage(): boolean {
+    return this.currentPage === 0;
+  }
+
+  isLastPage(): boolean {
+    return this.currentPage >= this.totalPages - 1;
+  }
+
+  getPageNumbers(): number[] {
+    const pages = [];
+    const maxPagesToShow = 5;
+    let startPage = Math.max(0, this.currentPage - Math.floor(maxPagesToShow / 2));
+    let endPage = Math.min(this.totalPages - 1, startPage + maxPagesToShow - 1);
+
+    if (endPage - startPage < maxPagesToShow - 1) {
+      startPage = Math.max(0, endPage - maxPagesToShow + 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(i);
+    }
+    return pages;
+  }
+
   // Helper to check if a date string is valid for DatePipe
   isValidDate(date: any): boolean {
     return date && !isNaN(Date.parse(date));

@@ -22,15 +22,17 @@ export class SaleListComponent {
   loading: boolean = false;
   sales: any[] = [];
   filteredSales: any[] = [];
+  allSalesData: any[] = []; // Store all sales for search/filtering
   searchQuery: string = '';
   selectedSales: number[] = [];
   selectAll: boolean = false;
   userMap: { [key: number]: string } = {};
   customerMap: { [key: number]: string } = {};
+  isSearching: boolean = false; // Track if we're in search mode
 
   // Pagination properties
   currentPage: number = 0;
-  pageSize: number = 10;
+  pageSize: number = 5;
   totalCount: number = 0;
   totalPages: number = 0;
 
@@ -48,6 +50,7 @@ export class SaleListComponent {
 
   loadSales(page: number = 0): void {
     this.loading = true;
+    this.isSearching = false;
     this.currentPage = page;
     this.saleService.findAllSalesPaginated(page, this.pageSize).subscribe(data => {
       // Sort by saleDate descending (latest first), handle custom date format
@@ -69,7 +72,8 @@ export class SaleListComponent {
         return dateB - dateA;
       });
       this.sales = data;
-      this.filteredSales = data;
+      this.filteredSales = data; // For pagination, show this page's data
+      this.allSalesData = data;
       
       // Calculate total pages based on initial load
       if (page === 0 && data.length > 0) {
@@ -87,23 +91,40 @@ export class SaleListComponent {
   onSearch(): void {
     const query = this.searchQuery.toLowerCase().trim();
     if (query) {
-      const terms = query.split(/\s+/).filter(Boolean);
-      this.filteredSales = this.sales.filter(sale => {
-        // Vehicle multi-term search
-        const vehicleStr = sale.vehicle ? `${sale.vehicle.make || ''} ${sale.vehicle.model || ''} ${sale.vehicle.year || ''}`.toLowerCase() : '';
-        const vehicleMatch = terms.length > 1
-          ? terms.every(t => vehicleStr.includes(t))
-          : vehicleStr.includes(query);
-        return (
-          (sale.invoiceNumber && sale.invoiceNumber.toLowerCase().includes(query)) ||
-          (sale.vehicleNumber && sale.vehicleNumber.toLowerCase().includes(query)) ||
-          vehicleMatch ||
-          (sale.customer?.name && sale.customer.name.toLowerCase().includes(query))
-          // || (sale.customer?.phone && sale.customer.phone.toLowerCase().includes(query))
-        );
+      this.loading = true;
+      this.isSearching = true;
+      // Fetch all sales without pagination for searching
+      this.saleService.findAllSalesWithoutPagination().subscribe((allSales: any[]) => {
+        const terms = query.split(/\s+/).filter(Boolean);
+        const filtered = allSales.filter((sale: any) => {
+          // Vehicle multi-term search
+          const vehicleStr = sale.vehicle ? `${sale.vehicle.make || ''} ${sale.vehicle.model || ''} ${sale.vehicle.year || ''}`.toLowerCase() : '';
+          const vehicleMatch = terms.length > 1
+            ? terms.every(t => vehicleStr.includes(t))
+            : vehicleStr.includes(query);
+          return (
+            (sale.invoiceNumber && sale.invoiceNumber.toLowerCase().includes(query)) ||
+            (sale.vehicleNumber && sale.vehicleNumber.toLowerCase().includes(query)) ||
+            vehicleMatch ||
+            (sale.customer?.name && sale.customer.name.toLowerCase().includes(query))
+          );
+        });
+        
+        // Set filtered sales and reset pagination
+        this.filteredSales = filtered;
+        this.allSalesData = filtered; // Keep all filtered data for pagination
+        this.currentPage = 0;
+        this.totalCount = filtered.length;
+        this.totalPages = Math.ceil(this.totalCount / this.pageSize);
+        this.loading = false;
+      }, error => {
+        console.error('Error searching sales:', error);
+        this.loading = false;
       });
     } else {
-      this.filteredSales = this.sales;
+      // Reset to paginated view
+      this.isSearching = false;
+      this.loadSales(0);
     }
   }
 
@@ -191,19 +212,28 @@ export class SaleListComponent {
   // Pagination methods
   nextPage(): void {
     if (this.currentPage < this.totalPages - 1) {
-      this.loadSales(this.currentPage + 1);
+      this.currentPage++;
+      if (!this.isSearching) {
+        this.loadSales(this.currentPage);
+      }
     }
   }
 
   previousPage(): void {
     if (this.currentPage > 0) {
-      this.loadSales(this.currentPage - 1);
+      this.currentPage--;
+      if (!this.isSearching) {
+        this.loadSales(this.currentPage);
+      }
     }
   }
 
   goToPage(page: number): void {
     if (page >= 0 && page < this.totalPages) {
-      this.loadSales(page);
+      this.currentPage = page;
+      if (!this.isSearching) {
+        this.loadSales(page);
+      }
     }
   }
 
@@ -229,5 +259,17 @@ export class SaleListComponent {
       pages.push(i);
     }
     return pages;
+  }
+
+  getPaginatedSales(): any[] {
+    if (this.isSearching) {
+      // In search mode, slice from all filtered data
+      const startIndex = this.currentPage * this.pageSize;
+      const endIndex = startIndex + this.pageSize;
+      return this.allSalesData.slice(startIndex, endIndex);
+    } else {
+      // In normal mode, return all filtered sales (already paginated from backend)
+      return this.filteredSales;
+    }
   }
 }

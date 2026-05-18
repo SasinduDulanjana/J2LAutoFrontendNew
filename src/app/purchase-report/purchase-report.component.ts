@@ -27,7 +27,7 @@ export class PurchaseReportComponent {
     this.supplierService.findAllSuppliers().subscribe({
       next: (suppliers: any[]) => {
         this.suppliers = suppliers;
-        this.purchaseService.getAllPurchases().subscribe({
+        this.purchaseService.getAllPurchasesWithoutPagination().subscribe({
           next: (data: any[]) => {
             this.purchases = data.map(p => {
               const supId = p.supplierId ?? p.supId ?? null;

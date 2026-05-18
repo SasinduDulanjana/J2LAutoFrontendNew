@@ -18,7 +18,7 @@
     </div>
     <div class="card-body">
       <div class="d-flex justify-content-end mb-3 gap-3">
-        <div class="text-muted text-end">
+        <!-- <div class="text-muted text-end">
           <small class="d-block">Total Cost</small>
           <strong>{{ getTotalPurchasesCost() | number:'1.2-2' }}</strong>
         </div>
@@ -29,11 +29,16 @@
         <div class="text-muted text-end">
           <small class="d-block">Total Outstanding</small>
           <strong>{{ getTotalOutstanding() | number:'1.2-2' }}</strong>
-        </div>
+        </div> -->
       </div>
-      <div class="purchase-search-bar mb-3">
-        <svg cIcon name="cil-magnifying-glass"></svg>
-        <input type="text" placeholder="Search purchases by name, invoice, or supplier" [(ngModel)]="searchQuery" (input)="onSearch()" />
+      <div class="purchase-search-bar mb-3 d-flex gap-2">
+        <div class="flex-grow-1" style="display: flex; align-items: center; background: white; border-radius: 4px; border: 1px solid #ddd; padding: 8px 12px;">
+          <svg cIcon name="cil-magnifying-glass" style="margin-right: 8px;"></svg>
+          <input type="text" placeholder="Search purchases by name, invoice, or supplier" [(ngModel)]="searchQuery" (keyup.enter)="onSearch()" style="border: none; outline: none; flex: 1;" />
+        </div>
+        <button cButton color="primary" (click)="onSearch()" style="white-space: nowrap;">
+          <svg cIcon name="cil-search" style="margin-right: 4px;"></svg>Search
+        </button>
       </div>
       <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">
@@ -52,7 +57,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let purchase of filteredPurchases">
+            <tr *ngFor="let purchase of getPaginatedPurchases()">
               <!-- <td>{{ purchase.purchaseName }}</td> -->
               <td>{{ purchase.invoiceNumber }}</td>
               <td>{{ purchase.supplierName }}</td>
@@ -81,11 +86,42 @@
                 <button cButton color="info" (click)="goToPaymentDetails(purchase)" style="min-width: 120px;">Payment Details</button>
               </td>
             </tr>
-            <tr *ngIf="filteredPurchases.length === 0">
+            <tr *ngIf="getPaginatedPurchases().length === 0">
               <td colspan="6" class="text-center text-muted">No purchases found.</td>
             </tr>
           </tbody>
         </table>
+      </div>
+
+      <!-- Pagination Controls -->
+      <nav class="mt-4" aria-label="Page navigation">
+        <ul class="pagination justify-content-center mb-0">
+          <!-- Previous Button -->
+          <li class="page-item" [ngClass]="{ 'disabled': isFirstPage() }">
+            <button class="page-link" (click)="previousPage()" [disabled]="isFirstPage()">
+              Previous
+            </button>
+          </li>
+
+          <!-- Page Numbers -->
+          <li class="page-item" *ngFor="let pageNum of getPageNumbers()" [ngClass]="{ 'active': pageNum === currentPage }">
+            <button class="page-link" (click)="goToPage(pageNum)">
+              {{ pageNum + 1 }}
+            </button>
+          </li>
+
+          <!-- Next Button -->
+          <li class="page-item" [ngClass]="{ 'disabled': isLastPage() }">
+            <button class="page-link" (click)="nextPage()" [disabled]="isLastPage()">
+              Next
+            </button>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- Page Info -->
+      <div class="text-center mt-2 text-muted">
+        <small>Page {{ currentPage + 1 }} of {{ totalPages }} | Total Records: {{ totalCount }}</small>
       </div>
     </div>
   </div>

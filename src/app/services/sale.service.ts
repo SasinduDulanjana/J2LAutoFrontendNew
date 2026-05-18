@@ -77,6 +77,11 @@ export class SaleService {
     return this.http.get<any>(url);
   }
 
+  findAllSalesWithoutPagination(): Observable<any> {
+    const url = `${this.baseUrl}/getAllSaleWithoutPagination`;
+    return this.http.get<any>(url);
+  }
+
   findAllDeletedSales(): Observable<any> {
     const url = `${this.baseUrl}/getAllDeletedSales`;
     return this.http.get<any>(url);

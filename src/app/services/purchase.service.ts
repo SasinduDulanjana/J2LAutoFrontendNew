@@ -59,6 +59,14 @@ export class PurchaseService {
     return this.http.get<Purchase[]>(`${this.baseUrl}/getAllPurchase`);
   }
 
+  getAllPurchasesPaginated(page: number, size: number): Observable<Purchase[]> {
+    return this.http.get<Purchase[]>(`${this.baseUrl}/getAllPurchase?page=${page}&size=${size}`);
+  }
+
+  getAllPurchasesWithoutPagination(): Observable<Purchase[]> {
+    return this.http.get<Purchase[]>(`${this.baseUrl}/getAllPurchaseWithoutPagination`);
+  }
+
   getPurchasesByDateRange(startDate: string, endDate: string): Observable<Purchase[]> {
     const url = `${this.baseUrl}/getPurchasesByDateRange?startDate=${startDate}&endDate=${endDate}`;
     return this.http.get<Purchase[]>(url);

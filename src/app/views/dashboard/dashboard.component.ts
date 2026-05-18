@@ -49,7 +49,7 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit(): void {
     this.initCharts();
-    this.fetchRecentSales();
+    // this.fetchRecentSales();
     this.fetchFinancialSummary();
     this.fetchMonthlyFigures();
   }
@@ -97,7 +97,6 @@ export class DashboardComponent implements OnInit {
     // Extract data from API response
     const months: string[] = [];
     const salesData: number[] = [];
-    const purchaseData: number[] = [];
     const profitData: number[] = [];
 
     // Handle both array and object response formats
@@ -124,7 +123,6 @@ export class DashboardComponent implements OnInit {
     sortedDataArray.forEach((item: any) => {
       months.push(item.month || item.monthName || '');
       salesData.push(item.sales || item.totalSales || 0);
-      purchaseData.push(item.purchases || item.totalPurchases || 0);
       profitData.push(item.profit || item.netProfit || 0);
     });
 
@@ -141,20 +139,6 @@ export class DashboardComponent implements OnInit {
             fill: false,
             borderWidth: 2,
             pointBackgroundColor: brandInfo,
-            pointBorderColor: '#fff',
-            pointBorderWidth: 2,
-            pointRadius: 4,
-            pointHoverRadius: 6,
-            tension: 0.4
-          },
-          {
-            label: 'Purchases',
-            backgroundColor: 'transparent',
-            borderColor: brandWarning,
-            data: purchaseData.length > 0 ? purchaseData : this.getRandomData(12),
-            fill: false,
-            borderWidth: 2,
-            pointBackgroundColor: brandWarning,
             pointBorderColor: '#fff',
             pointBorderWidth: 2,
             pointRadius: 4,
@@ -245,47 +229,47 @@ export class DashboardComponent implements OnInit {
     this.initCharts();
   }
 
-  fetchRecentSales(): void {
-    this.loading = true;
-    this.saleService.findAllSales().subscribe({
-      next: (sales: any[]) => {
-        // Map all fields needed for the dashboard table
-        const mappedSales = (sales || []).map(sale => ({
-          invoiceNumber: sale.invoiceNumber || sale.id,
-          user: sale.user || { username: sale.username || '-' },
-          customer: sale.customer || { name: sale.customerName || sale.custName || sale.custId || '-' },
-          lineWiseDiscountTotalAmount: sale.lineWiseDiscountTotalAmount || 0,
-          subTotal: sale.subTotal || sale.subtotal || 0,
-          billWiseDiscountTotalAmount: sale.billWiseDiscountTotalAmount || 0,
-          totalAmount: sale.totalAmount || 0,
-          saleDate: sale.saleDate || sale.createdAt || sale.date || '-',
-          outstandingBalance: sale.outstandingBalance || ((sale.totalAmount || 0) - (sale.paidAmount || 0)),
-        }));
-        // Sort by saleDate descending (latest first)
-        const parseCustomDate = (str: string) => {
-          if (!str) return 0;
-          // Expecting format 'DD-MM-YYYY HH:mm:ss' or ISO
-          if (/\d{2}-\d{2}-\d{4} \d{2}:\d{2}:\d{2}/.test(str)) {
-            const [datePart, timePart] = str.split(' ');
-            const [day, month, year] = datePart.split('-').map(Number);
-            const [hour, minute, second] = timePart.split(':').map(Number);
-            return new Date(year, month - 1, day, hour, minute, second).getTime();
-          }
-          // Fallback to Date.parse
-          return Date.parse(str);
-        };
-        const sorted = mappedSales.sort((a, b) => {
-          const dateA = parseCustomDate(a.saleDate);
-          const dateB = parseCustomDate(b.saleDate);
-          return dateB - dateA;
-        });
-        this.sales = sorted.slice(0, 8);
-        this.loading = false;
-      },
-      error: () => {
-        this.sales = [];
-        this.loading = false;
-      }
-    });
-  }
+  // fetchRecentSales(): void {
+  //   this.loading = true;
+  //   this.saleService.findAllSales().subscribe({
+  //     next: (sales: any[]) => {
+  //       // Map all fields needed for the dashboard table
+  //       const mappedSales = (sales || []).map(sale => ({
+  //         invoiceNumber: sale.invoiceNumber || sale.id,
+  //         user: sale.user || { username: sale.username || '-' },
+  //         customer: sale.customer || { name: sale.customerName || sale.custName || sale.custId || '-' },
+  //         lineWiseDiscountTotalAmount: sale.lineWiseDiscountTotalAmount || 0,
+  //         subTotal: sale.subTotal || sale.subtotal || 0,
+  //         billWiseDiscountTotalAmount: sale.billWiseDiscountTotalAmount || 0,
+  //         totalAmount: sale.totalAmount || 0,
+  //         saleDate: sale.saleDate || sale.createdAt || sale.date || '-',
+  //         outstandingBalance: sale.outstandingBalance || ((sale.totalAmount || 0) - (sale.paidAmount || 0)),
+  //       }));
+  //       // Sort by saleDate descending (latest first)
+  //       const parseCustomDate = (str: string) => {
+  //         if (!str) return 0;
+  //         // Expecting format 'DD-MM-YYYY HH:mm:ss' or ISO
+  //         if (/\d{2}-\d{2}-\d{4} \d{2}:\d{2}:\d{2}/.test(str)) {
+  //           const [datePart, timePart] = str.split(' ');
+  //           const [day, month, year] = datePart.split('-').map(Number);
+  //           const [hour, minute, second] = timePart.split(':').map(Number);
+  //           return new Date(year, month - 1, day, hour, minute, second).getTime();
+  //         }
+  //         // Fallback to Date.parse
+  //         return Date.parse(str);
+  //       };
+  //       const sorted = mappedSales.sort((a, b) => {
+  //         const dateA = parseCustomDate(a.saleDate);
+  //         const dateB = parseCustomDate(b.saleDate);
+  //         return dateB - dateA;
+  //       });
+  //       this.sales = sorted.slice(0, 8);
+  //       this.loading = false;
+  //     },
+  //     error: () => {
+  //       this.sales = [];
+  //       this.loading = false;
+  //     }
+  //   });
+  // }
 }

@@ -73,7 +73,7 @@ export class SaleReportComponent {
 
   ngOnInit(): void {
     this.loading = true;
-    this.saleService.findAllSales().subscribe({
+    this.saleService.findAllSalesWithoutPagination().subscribe({
       next: (data: any[]) => {
         this.sales = data;
         this.filteredSales = data;
