@@ -6,8 +6,6 @@
   [totalExpenses]="totalExpenses">
 </app-widgets-dropdown>
 <!-- <c-card class="mb-4">
-  <c-card-body> -->
-    <!-- <c-row> -->
       <!-- <c-col sm="5">
         <h4 class="card-title mb-0" id="traffic">Traffic</h4>
         <div class="small text-medium-emphasis">January - December 2021</div>
@@ -368,8 +366,33 @@
     </c-card>
   </c-col>
 </c-row> -->
-
+<!-- Monthly Figures Chart -->
 <c-row>
+  <c-col xs>
+    <c-card class="mb-4 border-0 shadow-sm rounded-3">
+      <c-card-header class="bg-success text-white rounded-top-3 py-2 px-3 d-flex justify-content-between align-items-center">
+        <span class="fw-bold fs-6">Monthly Financial Figures</span>
+        <small class="text-white opacity-75">Year-to-Date Summary</small>
+      </c-card-header>
+      <c-card-body class="p-3">
+        <div *ngIf="monthlyChart?.data" class="position-relative">
+          <c-chart
+            [data]="monthlyChart.data"
+            [options]="monthlyChart.options"
+            [type]="monthlyChart.type"
+            [height]="300"
+          ></c-chart>
+        </div>
+        <div *ngIf="!monthlyChart?.data" class="text-center text-muted py-5">
+          <div class="spinner-border text-primary spinner-border-sm mb-2" role="status"></div>
+          <p class="small">Loading monthly figures...</p>
+        </div>
+      </c-card-body>
+    </c-card>
+  </c-col>
+</c-row>
+
+<!-- Recent Transactions<c-row>
   <c-col xs>
     <c-card class="mb-4 border-0 shadow-sm rounded-3">
       <c-card-header class="bg-primary text-white rounded-top-3 py-2 px-3">
@@ -420,4 +443,4 @@
       </c-card-body>
     </c-card>
   </c-col>
-</c-row>
+</c-row> -->
