@@ -196,7 +196,14 @@ export class PurchaseListComponent implements OnInit {
             totalCost,
             paidAmount
           };
+        })
+        // Sort by purchaseId (latest to oldest)
+        .sort((a, b) => {
+          const idA = Number(a.purchaseId ?? a.id ?? 0);
+          const idB = Number(b.purchaseId ?? b.id ?? 0);
+          return idB - idA;
         });
+        
         this.allPurchasesData = this.filteredPurchases; // Keep all filtered data for pagination
         this.currentPage = 0;
         this.totalCount = this.filteredPurchases.length;

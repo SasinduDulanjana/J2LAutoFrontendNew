@@ -136,6 +136,23 @@ export class SaleListComponent {
             (sale.customer?.name && sale.customer.name.toLowerCase().includes(query))
           );
         });
+
+        // Sort filtered results by saleDate in descending order (latest first)
+        const parseCustomDate = (str: string) => {
+          if (!str) return 0;
+          if (/\d{2}-\d{2}-\d{4} \d{2}:\d{2}:\d{2}/.test(str)) {
+            const [datePart, timePart] = str.split(' ');
+            const [day, month, year] = datePart.split('-').map(Number);
+            const [hour, minute, second] = timePart.split(':').map(Number);
+            return new Date(year, month - 1, day, hour, minute, second).getTime();
+          }
+          return Date.parse(str);
+        };
+        filtered.sort((a: any, b: any) => {
+          const dateA = parseCustomDate(a.saleDate);
+          const dateB = parseCustomDate(b.saleDate);
+          return dateB - dateA;
+        });
         
         // Set filtered sales and reset pagination
         this.filteredSales = filtered;
