@@ -26,6 +26,7 @@ import { forkJoin, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { PurchaseService } from '../services/purchase.service';
 import { SupplierService } from '../services/supplier.service';
+import { PurchaseListStateService } from '../services/purchase-list-state.service';
 import { Purchase } from '../models/purchase.model';
 import { Supplier } from '../models/supplier.model';
 import { ViewProductsDialogComponent } from './view-products-dialog.component';
@@ -39,6 +40,17 @@ export class PurchaseListComponent implements OnInit {
   loadingProducts: boolean = false;
   loading: boolean = false;
   goToPaymentDetails(purchase: PurchaseListItem) {
+    // Save the current search state before navigating
+    this.purchaseListStateService.saveState(
+      this.searchQuery,
+      this.filteredPurchases,
+      this.currentPage,
+      this.isSearching,
+      this.allPurchasesData,
+      this.totalPages,
+      this.totalCount,
+      this.suppliers
+    );
     const id = purchase.purchaseId ?? purchase.supId ?? 0;
     this.router.navigate(['/purchase-payment-details', id]);
   }
@@ -59,11 +71,39 @@ export class PurchaseListComponent implements OnInit {
     private purchaseService: PurchaseService,
     private supplierService: SupplierService,
     private router: Router,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private purchaseListStateService: PurchaseListStateService
   ) {}
 
   ngOnInit(): void {
-    this.loadPurchases();
+    // First, fetch suppliers
+    this.supplierService.findAllSuppliers().subscribe({
+      next: (suppliers: Supplier[]) => {
+        console.log('Suppliers loaded:', suppliers);
+        this.suppliers = suppliers;
+
+        // Then check if we have a saved search state to restore
+        if (this.purchaseListStateService.hasState()) {
+          const savedState = this.purchaseListStateService.getState();
+          this.searchQuery = savedState.searchQuery;
+          this.filteredPurchases = savedState.filteredPurchases;
+          this.currentPage = savedState.currentPage;
+          this.isSearching = savedState.isSearching;
+          this.allPurchasesData = savedState.allPurchasesData;
+          this.totalPages = savedState.totalPages;
+          this.totalCount = savedState.totalCount;
+          this.loading = false;
+          console.log('Search state restored:', this.searchQuery);
+        } else {
+          // Load purchases normally if no saved state
+          this.loadPurchases();
+        }
+      },
+      error: err => {
+        console.error('Error loading suppliers:', err);
+        this.loading = false;
+      }
+    });
   }
 
   loadPurchases(page: number = 0): void {
@@ -162,6 +202,18 @@ export class PurchaseListComponent implements OnInit {
         this.totalCount = this.filteredPurchases.length;
         this.totalPages = Math.ceil(this.totalCount / this.pageSize);
         this.loading = false;
+        
+        // Save search state after successful search
+        this.purchaseListStateService.saveState(
+          this.searchQuery,
+          this.filteredPurchases,
+          this.currentPage,
+          this.isSearching,
+          this.allPurchasesData,
+          this.totalPages,
+          this.totalCount,
+          this.suppliers
+        );
       }, error => {
         console.error('Error searching purchases:', error);
         this.loading = false;
@@ -169,6 +221,7 @@ export class PurchaseListComponent implements OnInit {
     } else {
       // Reset to paginated view
       this.isSearching = false;
+      this.purchaseListStateService.clearState();
       this.loadPurchases(0);
     }
   }
@@ -200,10 +253,23 @@ export class PurchaseListComponent implements OnInit {
   }
 
   navigateToCreatePurchase() {
+    // Clear state when creating a new purchase
+    this.purchaseListStateService.clearState();
     this.router.navigate(['/create-purchase']);
   }
 
   viewProducts(purchase: PurchaseListItem) {
+    // Save the current search state before opening dialog
+    this.purchaseListStateService.saveState(
+      this.searchQuery,
+      this.filteredPurchases,
+      this.currentPage,
+      this.isSearching,
+      this.allPurchasesData,
+      this.totalPages,
+      this.totalCount,
+      this.suppliers
+    );
     this.loadingProducts = true;
     const id = purchase.purchaseId ?? purchase.supId ?? 0;
     this.purchaseService.getPurchaseById(id).subscribe({

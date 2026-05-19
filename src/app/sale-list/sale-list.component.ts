@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { SaleService } from '../services/sale.service';
+import { SaleListStateService } from '../services/sale-list-state.service';
 import { Sale } from '../models/sale.model';
 import { ProductListPopupComponent } from '../product-list-popup/product-list-popup.component';
 import { SaleProduct } from '../models/sale-product.model';
@@ -16,6 +17,16 @@ import { CustomerService } from '../services/customer.service';
 export class SaleListComponent {
   productLoadingIndex: number|null = null;
   goToPaymentDetails(sale: any): void {
+    // Save the current search state before navigating
+    this.saleListStateService.saveState(
+      this.searchQuery,
+      this.filteredSales,
+      this.currentPage,
+      this.isSearching,
+      this.allSalesData,
+      this.totalPages,
+      this.totalCount
+    );
     const invoiceNumber = sale.invoiceNumber;
     this.router.navigate(['/payment-history', invoiceNumber]);
   }
@@ -41,11 +52,27 @@ export class SaleListComponent {
     private router: Router,
     private dialog: MatDialog,
     private userService: UserService,
-    private customerService: CustomerService
+    private customerService: CustomerService,
+    private saleListStateService: SaleListStateService
   ) { }
 
   ngOnInit(): void {
-    this.loadSales();
+    // Check if we have a saved search state to restore
+    if (this.saleListStateService.hasState()) {
+      const savedState = this.saleListStateService.getState();
+      this.searchQuery = savedState.searchQuery;
+      this.filteredSales = savedState.filteredSales;
+      this.currentPage = savedState.currentPage;
+      this.isSearching = savedState.isSearching;
+      this.allSalesData = savedState.allSalesData;
+      this.totalPages = savedState.totalPages;
+      this.totalCount = savedState.totalCount;
+      this.loading = false;
+      console.log('Search state restored:', this.searchQuery);
+    } else {
+      // Load sales normally if no saved state
+      this.loadSales();
+    }
   }
 
   loadSales(page: number = 0): void {
@@ -117,6 +144,17 @@ export class SaleListComponent {
         this.totalCount = filtered.length;
         this.totalPages = Math.ceil(this.totalCount / this.pageSize);
         this.loading = false;
+        
+        // Save search state after successful search
+        this.saleListStateService.saveState(
+          this.searchQuery,
+          this.filteredSales,
+          this.currentPage,
+          this.isSearching,
+          this.allSalesData,
+          this.totalPages,
+          this.totalCount
+        );
       }, error => {
         console.error('Error searching sales:', error);
         this.loading = false;
@@ -124,6 +162,7 @@ export class SaleListComponent {
     } else {
       // Reset to paginated view
       this.isSearching = false;
+      this.saleListStateService.clearState();
       this.loadSales(0);
     }
   }
@@ -148,6 +187,8 @@ export class SaleListComponent {
     if (confirm('Are you sure you want to delete this customer?')) {
       this.saleService.deleteSale(sale).subscribe(
         () => {
+          // Clear search state since data is no longer valid
+          this.saleListStateService.clearState();
           // After deletion, reload only ACTIVE sales
           this.saleService.findAllSales().subscribe(
             (activeSales: Sale[]) => {
@@ -167,18 +208,31 @@ export class SaleListComponent {
   }
 
   navigateToDeletedSales() {
+    this.saleListStateService.clearState();
     this.router.navigate(['/deleted-sale-list']);
   }
 
   navigateToHoldSales() {
+    this.saleListStateService.clearState();
     this.router.navigate(['/hold-sale-list']);
   }
 
   navigateToUnpaidSales() {
+    this.saleListStateService.clearState();
     this.router.navigate(['/partiallyPaid-sale-list']);
   }
 
   openProductListPopupForSale(sale: any, index: number): void {
+    // Save the current search state before opening dialog
+    this.saleListStateService.saveState(
+      this.searchQuery,
+      this.filteredSales,
+      this.currentPage,
+      this.isSearching,
+      this.allSalesData,
+      this.totalPages,
+      this.totalCount
+    );
     this.productLoadingIndex = index;
     setTimeout(() => {
       const saleId = sale.saleId || sale.id;
