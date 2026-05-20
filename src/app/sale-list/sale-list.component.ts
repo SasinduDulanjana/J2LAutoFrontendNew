@@ -102,13 +102,16 @@ export class SaleListComponent {
       this.filteredSales = data; // For pagination, show this page's data
       this.allSalesData = data;
       
-      // Calculate total pages based on initial load
-      if (page === 0 && data.length > 0) {
-        // For the first page, estimate total count
-        // You may need to update backend to return totalCount
-        this.totalCount = data.length >= this.pageSize ? this.pageSize * 50 : data.length;
-        this.totalPages = Math.ceil(this.totalCount / this.pageSize);
+      // If data length is less than pageSize, we've reached the last page
+      if (data.length < this.pageSize) {
+        // No more pages after this one
+        this.totalPages = page + 1;
+      } else {
+        // There might be more pages, ensure totalPages is high enough
+        this.totalPages = Math.max(this.totalPages, page + 2);
       }
+      
+      this.totalCount = this.pageSize * page + data.length;
       this.loading = false;
     }, error => {
       this.loading = false;
@@ -318,7 +321,7 @@ export class SaleListComponent {
 
   getPageNumbers(): number[] {
     const pages = [];
-    const maxPagesToShow = 200;
+    const maxPagesToShow = 10;
     let startPage = Math.max(0, this.currentPage - Math.floor(maxPagesToShow / 2));
     let endPage = Math.min(this.totalPages - 1, startPage + maxPagesToShow - 1);
 
