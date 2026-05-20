@@ -143,11 +143,16 @@ export class PurchaseListComponent implements OnInit {
             this.filteredPurchases = [...this.purchases];
             this.allPurchasesData = [...this.purchases];
             
-            // Calculate total pages (estimate based on page size)
-            if (page === 0 && data.length > 0) {
-              this.totalCount = data.length >= this.pageSize ? this.pageSize * 10 : data.length;
-              this.totalPages = Math.ceil(this.totalCount / this.pageSize);
+            // If data length is less than pageSize, we've reached the last page
+            if (data.length < this.pageSize) {
+              // No more pages after this one
+              this.totalPages = page + 1;
+            } else {
+              // There might be more pages, ensure totalPages is high enough
+              this.totalPages = Math.max(this.totalPages, page + 2);
             }
+            
+            this.totalCount = this.pageSize * page + data.length;
             this.loading = false;
           },
           error: err => {
