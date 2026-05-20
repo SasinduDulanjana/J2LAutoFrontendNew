@@ -43,7 +43,7 @@ export class SaleListComponent {
 
   // Pagination properties
   currentPage: number = 0;
-  pageSize: number = 200;
+  pageSize: number = 5;
   totalCount: number = 0;
   totalPages: number = 0;
 
@@ -318,7 +318,7 @@ export class SaleListComponent {
 
   getPageNumbers(): number[] {
     const pages = [];
-    const maxPagesToShow = 10;
+    const maxPagesToShow = 200;
     let startPage = Math.max(0, this.currentPage - Math.floor(maxPagesToShow / 2));
     let endPage = Math.min(this.totalPages - 1, startPage + maxPagesToShow - 1);
 
