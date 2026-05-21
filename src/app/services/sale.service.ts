@@ -122,4 +122,12 @@ export class SaleService {
     // Use responseType 'text' to be tolerant of backends that return plain text responses
     return this.http.post<any>(`${this.baseUrl}/updateDiscount`, body, { responseType: 'text' as 'json' });
   }
+
+  /**
+   * Fetch sales by batch number
+   * @param batchNumber batch number
+   */
+  getSalesByBatchNumber(batchNumber: string): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/getSalesByBatchNumber/${batchNumber}`);
+  }
 }

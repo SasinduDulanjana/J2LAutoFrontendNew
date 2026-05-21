@@ -70,8 +70,11 @@
               <td>{{ purchase['paidAmount'] | number:'1.2-2' }}</td>
               <td>{{ purchase['paymentStatus'] }}</td>
               <td class="text-end">
-                <button cButton color="info" (click)="viewProducts(purchase)" style="min-width: 120px;">
+                <!-- <button cButton color="info" (click)="viewProducts(purchase)" style="min-width: 120px;" class="me-2">
                   <svg cIcon name="cil-list"></svg> View Products
+                </button> -->
+                <button cButton color="info" (click)="viewPurchaseDetails(purchase)" style="min-width: 120px;" class="me-2">
+                   <svg cIcon name="cil-list"></svg> View Products
                 </button>
               </td>
               <td>

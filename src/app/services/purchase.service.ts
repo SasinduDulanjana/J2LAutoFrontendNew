@@ -28,12 +28,16 @@ export class PurchaseService {
   /**
    * Fetch product batch details for a purchase using POST and request body
    * @param purchaseId purchase id
-   * @param batchNo batch number
    * @param productId product id
+   * @param batchNumber optional batch number
    */
-  getProductBatchDetails(purchaseId: number, productId: number): Observable<any[]> {
-    const body = { purchaseId, productId };
-    return this.http.post<any[]>(`${this.baseUrl}/getProductBatchDetails`, body);
+  getProductBatchDetails(purchaseId: number, productId: number, batchNumber?: string): Observable<any> {
+    const body: any = { purchaseId, productId };
+    if (batchNumber) {
+      body.batchNo = batchNumber;
+    }
+    console.log('Sending payload to getProductBatchDetails:', body);
+    return this.http.post<any>(`${this.baseUrl}/getProductBatchDetails`, body);
   }
 
    getPurchaseReturns(): Observable<any[]> {

@@ -1,0 +1,209 @@
+<div class="container py-4">
+  <div class="card shadow-sm">
+    <div class="card-header bg-primary text-white d-flex align-items-center justify-content-between">
+      <div class="d-flex align-items-center">
+        <svg cIcon name="cil-file-text" class="me-2"></svg>
+        <h4 class="mb-0">Purchase Details</h4>
+      </div>
+      <button class="btn btn-light btn-sm" (click)="goBack()">
+        <svg cIcon name="cil-arrow-left" class="me-1"></svg>Back
+      </button>
+    </div>
+
+    <div class="card-body">
+      <div *ngIf="isLoading" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+
+      <div *ngIf="!isLoading && purchase">
+        <!-- Purchase Header Info -->
+        <div class="row mb-4">
+          <div class="col-md-3">
+            <div class="border-bottom pb-2">
+              <small class="text-muted d-block">Invoice Number</small>
+              <strong class="fs-5">{{ purchase.invoiceNumber }}</strong>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="border-bottom pb-2">
+              <small class="text-muted d-block">Invoice Date</small>
+              <strong class="fs-5">{{ getFormattedInvoiceDate() }}</strong>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="border-bottom pb-2">
+              <small class="text-muted d-block">Supplier</small>
+              <strong class="fs-5">{{ purchase.supplierName || '-' }}</strong>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="border-bottom pb-2">
+              <small class="text-muted d-block">Batch Number</small>
+              <strong class="fs-5">{{ batchNumber || '-' }}</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cost Analysis -->
+        <div class="row mb-4">
+          <div class="col-md-3">
+            <div class="card border-primary">
+              <div class="card-body">
+                <h6 class="card-title text-muted">Total Cost Price</h6>
+                <h3 class="card-text">{{ calculateTotalPurchaseCost() | currency:'INR':'Rs. ' }}</h3>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card border-success">
+              <div class="card-body">
+                <h6 class="card-title text-muted">Total Selling Price</h6>
+                <h3 class="card-text">{{ calculateTotalSellingPrice() | currency:'INR':'Rs. ' }}</h3>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card" [ngClass]="isCostCovered() ? 'border-success' : 'border-danger'">
+              <div class="card-body">
+                <h6 class="card-title text-muted">Profit/Loss</h6>
+                <h3 class="card-text" [ngClass]="calculateProfitLoss() >= 0 ? 'text-success' : 'text-danger'">
+                  {{ calculateProfitLoss() | currency:'INR':'Rs. ' }}
+                </h3>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card" [ngClass]="isCostCovered() ? 'border-success' : 'border-warning'">
+              <div class="card-body">
+                <h6 class="card-title text-muted">Cost Status</h6>
+                <h5 class="card-text">
+                  <span *ngIf="isCostCovered()" class="badge bg-success">Cost Covered</span>
+                  <span *ngIf="!isCostCovered()" class="badge bg-warning">Not Covered</span>
+                </h5>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Products Table -->
+        <div class="mb-4">
+          <h5 class="mb-3">Product Details</h5>
+          <div class="table-responsive">
+            <table class="table table-hover align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th>#</th>
+                  <th>Invoice Number</th>
+                  <th>Product Name</th>
+                  <th>Qty Purchased</th>
+                  <th>Qty Sold</th>
+                  <th>Qty Remaining</th>
+                  <th>Cost Price</th>
+                  <th>Selling Price</th>
+                  <th>Total Cost</th>
+                  <th>Total Selling</th>
+                  <th>Profit/Loss</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <ng-container *ngFor="let product of purchase.products; let i = index">
+                  <tr>
+                    <td>{{ i + 1 }}</td>
+                    <td>{{ product.invoiceNumber || product.saleInvoiceNumber || '-' }}</td>
+                    <td>{{ product.vehicle?.make || '-' }} {{ product.vehicle?.model || '-' }} {{ product.vehicle?.year || '-' }} {{ product.productName }}</td>
+                    <td>
+                      <span class="badge bg-info">{{ product.qty || product.remainingQty || 0 }}</span>
+                    </td>
+                    <td>
+                      <span class="badge bg-success">{{ getActualSoldQuantity(product) }}</span>
+                    </td>
+                    <td>
+                      <span class="badge bg-warning text-dark">{{ getRemainingQuantity(product) }}</span>
+                    </td>
+                    <td>{{ product.cost | currency:'INR':'Rs. ' }}</td>
+                    <td>{{ product.retailPrice | currency:'INR':'Rs. ' }}</td>
+                    <td>{{ (product.cost * (product.qty || product.remainingQty || 0)) | currency:'INR':'Rs. ' }}</td>
+                    <td>{{ getProductTotalSellingPrice(product) | currency:'INR':'Rs. ' }}</td>
+                    <td [ngClass]="getProductProfitLoss(product) >= 0 ? 'text-success' : 'text-danger'">
+                      <strong>{{ getProductProfitLoss(product) | currency:'INR':'Rs. ' }}</strong>
+                    </td>
+                    <td>
+                      <button class="btn btn-sm btn-outline-primary" (click)="toggleProductDetails(product.productId)">
+                        <svg cIcon name="cil-info" class="me-1"></svg>Details
+                      </button>
+                    </td>
+                  </tr>
+                  <!-- Expanded Details Row -->
+                  <tr *ngIf="expandedProductId === product.productId" class="table-active">
+                    <td colspan="12">
+                      <div class="p-3">
+                        <div class="row">
+                          <div class="col-md-6">
+                            <h6>Product Information</h6>
+                            <dl class="row">
+                              <dt class="col-sm-5">Product Name:</dt>
+                              <dd class="col-sm-7">{{ product.productName }}</dd>
+                              <dt class="col-sm-5">SKU:</dt>
+                              <dd class="col-sm-7">{{ product.sku }}</dd>
+                              <dt class="col-sm-5">Batch Number:</dt>
+                              <dd class="col-sm-7">{{ product.batchNumber || '-' }}</dd>
+                              <dt class="col-sm-5">Vehicle:</dt>
+                              <dd class="col-sm-7">{{ product.vehicle?.make || '-' }} {{ product.vehicle?.model || '-' }} {{ product.vehicle?.year || '-' }}</dd>
+                            </dl>
+                          </div>
+                          <div class="col-md-6">
+                            <h6>Inventory Status</h6>
+                            <dl class="row">
+                              <dt class="col-sm-5">Total Purchased:</dt>
+                              <dd class="col-sm-7"><strong>{{ product.qty || product.remainingQty || 0 }} units</strong></dd>
+                              <dt class="col-sm-5">Sold:</dt>
+                              <dd class="col-sm-7"><span class="badge bg-success">{{ getActualSoldQuantity(product) }} units</span></dd>
+                              <dt class="col-sm-5">Remaining:</dt>
+                              <dd class="col-sm-7"><span class="badge bg-warning text-dark">{{ getRemainingQuantity(product) }} units</span></dd>
+                              <dt class="col-sm-5">Stock Status:</dt>
+                              <dd class="col-sm-7">
+                                <span *ngIf="getRemainingQuantity(product) === 0" class="badge bg-danger">Out of Stock</span>
+                                <span *ngIf="getRemainingQuantity(product) > 0 && getRemainingQuantity(product) <= 5" class="badge bg-warning">Low Stock</span>
+                                <span *ngIf="getRemainingQuantity(product) > 5" class="badge bg-success">In Stock</span>
+                              </dd>
+                            </dl>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                </ng-container>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="row">
+          <div class="col-md-12">
+            <div class="alert" [ngClass]="isCostCovered() ? 'alert-success' : 'alert-warning'">
+              <h6>Summary</h6>
+              <p class="mb-0">
+                <strong>Total Items Purchased:</strong> {{ calculateTotalItemsPurchased() }} units |
+                <strong>Items Sold:</strong> {{ calculateTotalItemsSold() }} units |
+                <strong>Items Remaining:</strong> {{ calculateTotalItemsRemaining() }} units
+              </p>
+              <p class="mb-0">
+                <strong>Cost Status:</strong>
+                <span *ngIf="isCostCovered()" class="badge bg-success ms-2">All costs are covered by sales</span>
+                <span *ngIf="!isCostCovered()" class="badge bg-warning ms-2">Costs not fully covered. Pending: {{ (calculateTotalPurchaseCost() - calculateTotalSellingPrice()) | currency:'INR':'Rs. ' }}</span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="!isLoading && !purchase" class="alert alert-info">
+        No purchase details found.
+      </div>
+    </div>
+  </div>
+</div>

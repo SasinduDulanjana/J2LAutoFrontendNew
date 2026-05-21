@@ -24,6 +24,7 @@ import { CategoryListComponent } from './category-list/category-list.component';
 import { EditCategoryComponent } from './edit-category/edit-category.component';
 import { CreatePurchaseComponent } from './create-purchase/create-purchase.component';
 import { PurchaseListComponent } from './purchase-list/purchase-list.component';
+import { PurchaseDetailsComponent } from './purchase-details/purchase-details.component';
 import { CreateSaleComponent } from './create-sale/create-sale.component';
 import { SaleListComponent } from './sale-list/sale-list.component';
 import { DashboardComponent } from './views/dashboard/dashboard.component';
@@ -228,6 +229,13 @@ const routes: Routes = [
         component: PurchaseListComponent,
         data: {
           title: 'Purchase List'
+        }
+      },
+      {
+        path: 'purchase-details/:id',
+        component: PurchaseDetailsComponent,
+        data: {
+          title: 'Purchase Details'
         }
       },
       {

@@ -37,6 +37,7 @@ export class CreatePurchaseComponent implements OnInit {
   chequeNumber: string = '';
   bankName: string = '';
   chequeDate: string = '';
+  purchaseBatchNumber: string = ''; // Batch number for all products in this purchase
 
   constructor(
     private purchaseService: PurchaseService,
@@ -168,6 +169,19 @@ export class CreatePurchaseComponent implements OnInit {
       return;
     }
 
+    // Generate or use provided batch number and apply to all products
+    if (!this.purchaseBatchNumber || this.purchaseBatchNumber.trim() === '') {
+      // Generate a default batch number if not provided
+      const namePart = 'PUR'; // Purchase prefix
+      const timestamp = Date.now().toString().slice(-6); // Last 6 digits of timestamp
+      this.purchaseBatchNumber = namePart + timestamp;
+    }
+
+    // Apply the batch number to all products before sending request
+    this.purchase.products.forEach(product => {
+      product.batchNo = this.purchaseBatchNumber;
+    });
+
     this.isLoadingInvoice = true; // Set loading state
     const totalCost = this.calculateTotalCost();
     const paidAmount = this.paidAmount;
@@ -241,6 +255,7 @@ export class CreatePurchaseComponent implements OnInit {
         this.chequeNumber = '';
         this.bankName = '';
         this.chequeDate = '';
+        this.purchaseBatchNumber = '';
       }, error => {
         this.dialog.open(FailureDialogComponent, {
           data: { message: 'Error creating purchase ' }
@@ -306,15 +321,8 @@ export class CreatePurchaseComponent implements OnInit {
       if (!product.sku) return;
       this.productService.getBatchNumbersForProduct(product.sku).subscribe(batches => {
         this.batchNumbers[product.sku || 0] = batches;
-        // Find existing batch
-        const found = batches.find(batch => batch.unitCost === product.cost && batch.retailPrice === product.retailPrice);
-        if (found) {
-          product.batchNo = found.batchNumber;
-        } else {
-          const namePart = (product.productName || '').replace(/[^A-Za-z]/g, '').toUpperCase().slice(0, 3);
-          const randPart = Math.floor(1000 + Math.random() * 9000); // 4-digit random number
-          product.batchNo = namePart + randPart;
-        }
+        // Don't assign batch number here - it will be assigned when purchase is created
+        // This ensures all products get the same batch number
         this.purchase.products.push(product);
         console.log('Product added. Updated products:', this.purchase.products);
       });
@@ -332,6 +340,15 @@ export class CreatePurchaseComponent implements OnInit {
 
   onBatchChange(batchNumber: string, index: number): void {
     this.purchase.products[index].batchNo = batchNumber;
+  }
+
+  // Update all products with the purchase-level batch number
+  updatePurchaseBatchNumber(newBatchNumber: string): void {
+    this.purchaseBatchNumber = newBatchNumber;
+    // Apply to all existing products
+    this.purchase.products.forEach(product => {
+      product.batchNo = newBatchNumber;
+    });
   }
 
 

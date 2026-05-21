@@ -54,6 +54,22 @@ export class PurchaseListComponent implements OnInit {
     const id = purchase.purchaseId ?? purchase.supId ?? 0;
     this.router.navigate(['/purchase-payment-details', id]);
   }
+
+  viewPurchaseDetails(purchase: PurchaseListItem) {
+    // Save the current search state before navigating
+    this.purchaseListStateService.saveState(
+      this.searchQuery,
+      this.filteredPurchases,
+      this.currentPage,
+      this.isSearching,
+      this.allPurchasesData,
+      this.totalPages,
+      this.totalCount,
+      this.suppliers
+    );
+    const id = purchase.purchaseId ?? 0;
+    this.router.navigate(['/purchase-details', id]);
+  }
   purchases: PurchaseListItem[] = [];
   filteredPurchases: PurchaseListItem[] = [];
   allPurchasesData: PurchaseListItem[] = [];
