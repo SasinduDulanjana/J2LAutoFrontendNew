@@ -8,6 +8,7 @@ import { PurchaseService } from '../../services/purchase.service';
 import { CustomerService } from '../../services/customer.service';
 import { FinancialSummaryService } from '../../services/financial-summary.service';
 import { BASE_URL } from '../../base-url';
+import { RolePermissionsService } from '../../role-permissions/role-permissions.service';
 
 @Component({
   templateUrl: 'dashboard.component.html',
@@ -37,6 +38,7 @@ export class DashboardComponent implements OnInit {
   public totalCogs: number = 0;
   public netProfit: number = 0;
   public totalExpenses: number = 0;
+  public hasDashboardPermission: boolean = false;
 
   constructor(
     private chartsData: DashboardChartsData,
@@ -44,14 +46,55 @@ export class DashboardComponent implements OnInit {
     private customerService: CustomerService,
     private purchaseService: PurchaseService,
     private financialSummaryService: FinancialSummaryService,
-    private http: HttpClient
+    private http: HttpClient,
+    private rolePermissionsService: RolePermissionsService
   ) {}
 
   ngOnInit(): void {
-    this.initCharts();
-    // this.fetchRecentSales();
-    this.fetchFinancialSummary();
-    this.fetchMonthlyFigures();
+    // Reload permissions from backend to get latest changes
+    this.rolePermissionsService.loadPermissions().subscribe({
+      next: (permissions) => {
+        // Check if user has dashboard permission
+        const userRole = this.getCurrentUserRole();
+        this.hasDashboardPermission = this.rolePermissionsService.can(userRole, 'dashboard');
+        
+        if (!this.hasDashboardPermission) {
+          this.loading = false;
+          console.warn('User does not have permission to view dashboard');
+          return;
+        }
+        
+        this.initCharts();
+        // this.fetchRecentSales();
+        this.fetchFinancialSummary();
+        this.fetchMonthlyFigures();
+      },
+      error: (err) => {
+        console.error('Error loading permissions:', err);
+        this.loading = false;
+      }
+    });
+  }
+
+  getCurrentUserRole(): string {
+    // Get the first role from user's roles
+    const token = localStorage.getItem('token');
+    if (!token) return '';
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      if (payload.roles && Array.isArray(payload.roles) && payload.roles.length > 0) {
+        return payload.roles[0];
+      }
+      if (payload.authorities && Array.isArray(payload.authorities) && payload.authorities.length > 0) {
+        return payload.authorities[0];
+      }
+      if (payload.sub && ["admin", "ADMIN", "Dulanjanaaaa"].includes(payload.sub)) {
+        return "ADMIN";
+      }
+    } catch (e) {
+      console.error('Error decoding token:', e);
+    }
+    return '';
   }
 
   fetchCustomersAndSales(): void {

@@ -1,10 +1,18 @@
-<app-widgets-dropdown 
-  [totalSales]="totalSales" 
-  [totalPurchases]="totalPurchases" 
-  [totalCogs]="totalCogs" 
-  [netProfit]="netProfit"
-  [totalExpenses]="totalExpenses">
-</app-widgets-dropdown>
+<div *ngIf="!hasDashboardPermission" class="container mt-5">
+  <div class="alert alert-warning alert-dismissible fade show" role="alert">
+    <svg cIcon name="cilWarning" class="me-2"></svg>
+    <strong>Access Denied</strong> - You do not have permission to view the dashboard. Please contact your administrator.
+  </div>
+</div>
+
+<div *ngIf="hasDashboardPermission">
+  <app-widgets-dropdown 
+    [totalSales]="totalSales" 
+    [totalPurchases]="totalPurchases" 
+    [totalCogs]="totalCogs" 
+    [netProfit]="netProfit"
+    [totalExpenses]="totalExpenses">
+  </app-widgets-dropdown>
 <!-- <c-card class="mb-4">
       <!-- <c-col sm="5">
         <h4 class="card-title mb-0" id="traffic">Traffic</h4>
@@ -444,3 +452,4 @@
     </c-card>
   </c-col>
 </c-row> -->
+</div>

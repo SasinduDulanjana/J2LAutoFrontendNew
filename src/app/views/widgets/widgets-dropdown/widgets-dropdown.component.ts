@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import { getStyle } from '@coreui/utils';
 import { ChartjsComponent } from '@coreui/angular-chartjs';
+import { RolePermissionsService } from '../../../role-permissions/role-permissions.service';
 
 @Component({
   selector: 'app-widgets-dropdown',
@@ -24,8 +25,15 @@ export class WidgetsDropdownComponent implements OnInit, AfterContentInit {
   @Input() netProfit: number = 0;
   @Input() totalExpenses: number = 0;
 
+  // Permission flags
+  showSalesWidget: boolean = true;
+  showPurchasesWidget: boolean = true;
+  showExpensesWidget: boolean = true;
+  showProfitWidget: boolean = true;
+
   constructor(
-    private changeDetectorRef: ChangeDetectorRef
+    private changeDetectorRef: ChangeDetectorRef,
+    private rolePermissionsService: RolePermissionsService
   ) {}
 
   data: any[] = [];
@@ -123,6 +131,55 @@ export class WidgetsDropdownComponent implements OnInit, AfterContentInit {
 
   ngOnInit(): void {
     this.setData();
+    this.checkWidgetPermissions();
+  }
+
+  checkWidgetPermissions(): void {
+    // Reload permissions from backend to get latest changes
+    this.rolePermissionsService.loadPermissions().subscribe({
+      next: () => {
+        // Check permissions for dashboard feature
+        const userRole = this.getCurrentUserRole();
+        const hasDashboardPermission = this.rolePermissionsService.can(userRole, 'dashboard');
+        
+        // If user has dashboard permission, show all widgets
+        // Otherwise hide all widgets
+        this.showSalesWidget = hasDashboardPermission;
+        this.showPurchasesWidget = hasDashboardPermission;
+        this.showExpensesWidget = hasDashboardPermission;
+        this.showProfitWidget = hasDashboardPermission;
+        
+        console.log('Dashboard permissions:', { 
+          role: userRole,
+          hasDashboardPermission: hasDashboardPermission,
+          widgetsVisible: hasDashboardPermission
+        });
+      },
+      error: (err) => {
+        console.error('Error loading permissions:', err);
+      }
+    });
+  }
+
+  getCurrentUserRole(): string {
+    // Get the first role from user's roles
+    const token = localStorage.getItem('token');
+    if (!token) return '';
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      if (payload.roles && Array.isArray(payload.roles) && payload.roles.length > 0) {
+        return payload.roles[0];
+      }
+      if (payload.authorities && Array.isArray(payload.authorities) && payload.authorities.length > 0) {
+        return payload.authorities[0];
+      }
+      if (payload.sub && ["admin", "ADMIN", "Dulanjanaaaa"].includes(payload.sub)) {
+        return "ADMIN";
+      }
+    } catch (e) {
+      console.error('Error decoding token:', e);
+    }
+    return '';
   }
 
   ngAfterContentInit(): void {

@@ -1,5 +1,5 @@
 <c-row>
-  <c-col sm="6" xl="3">
+  <c-col sm="6" xl="3" *ngIf="showSalesWidget">
     <c-widget-stat-a class="mb-4 transparent-widget-card sales-bg">
       <div class="transparent-widget-value">
         <div class="transparent-widget-label">Sales</div>
@@ -7,7 +7,7 @@
       </div>
     </c-widget-stat-a>
   </c-col>
-  <c-col sm="6" xl="3">
+  <c-col sm="6" xl="3" *ngIf="showPurchasesWidget">
     <c-widget-stat-a class="mb-4 transparent-widget-card discounts-bg">
       <div class="transparent-widget-value">
         <div class="transparent-widget-label">COGS</div>
@@ -15,7 +15,7 @@
       </div>
     </c-widget-stat-a>
   </c-col>
-  <c-col sm="6" xl="3">
+  <c-col sm="6" xl="3" *ngIf="showExpensesWidget">
     <c-widget-stat-a class="mb-4 transparent-widget-card expenses-bg">
       <div class="transparent-widget-value">
         <div class="transparent-widget-label">Expenses</div>
@@ -23,7 +23,7 @@
       </div>
     </c-widget-stat-a>
   </c-col>
-  <c-col sm="6" xl="3">
+  <c-col sm="6" xl="3" *ngIf="showProfitWidget">
     <c-widget-stat-a class="mb-4 transparent-widget-card profit-bg">
       <div class="transparent-widget-value">
         <div class="transparent-widget-label">Net Profit</div>

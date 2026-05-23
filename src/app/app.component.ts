@@ -4,6 +4,7 @@ import { Router, NavigationEnd } from '@angular/router';
 import { IconSetService } from '@coreui/icons-angular';
 import { iconSubset } from './icons/icon-subset';
 import { Title } from '@angular/platform-browser';
+import { RolePermissionsService } from './role-permissions/role-permissions.service';
 
 @Component({
   selector: 'app-root',
@@ -15,7 +16,8 @@ export class AppComponent implements OnInit {
   constructor(
     private router: Router,
     private titleService: Title,
-    private iconSetService: IconSetService
+    private iconSetService: IconSetService,
+    private rolePermissionsService: RolePermissionsService
   ) {
     titleService.setTitle(this.title);
     // iconSet singleton
@@ -23,6 +25,17 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    // Load role permissions from backend at app startup
+    this.rolePermissionsService.loadPermissions().subscribe(
+      (permissions) => {
+        this.rolePermissionsService.setLocalPermissions(permissions);
+        console.log('✅ Role permissions loaded successfully');
+      },
+      (error) => {
+        console.error('❌ Failed to load role permissions:', error);
+      }
+    );
+
     this.router.events.subscribe((evt) => {
       if (!(evt instanceof NavigationEnd)) {
         return;
