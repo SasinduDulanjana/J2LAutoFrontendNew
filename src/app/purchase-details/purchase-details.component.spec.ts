@@ -21,15 +21,22 @@ describe('PurchaseDetailsComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should total the assigned selling price column for all products', () => {
+  it('should use the actual sold price instead of the expected retail price for profit/loss', () => {
     component.purchase = {
       products: [
-        { productId: 1, retailPrice: 100 },
-        { productId: 2, retailPrice: 50 },
-        { productId: 3, retailPrice: 75 }
+        { productId: 1, retailPrice: 100, cost: 70 },
+        { productId: 2, retailPrice: 50, cost: 30 }
       ]
     };
 
-    expect(component.calculateTotalAssignedSellingPrice()).toBe(225);
+    component.soldProducts = [
+      { productId: 1, qty: 2, retailPrice: 90, totalAmount: 180 },
+      { productId: 1, qty: 1, retailPrice: 120, totalAmount: 120 },
+      { productId: 2, qty: 2, retailPrice: 45, totalAmount: 90 }
+    ];
+
+    expect(component.getProductTotalSellingPrice({ productId: 1, retailPrice: 100 })).toBe(300);
+    expect(component.getProductProfitLoss({ productId: 1, cost: 70 })).toBe(160);
+    expect(component.calculateTotalAssignedSellingPrice()).toBe(150);
   });
 });

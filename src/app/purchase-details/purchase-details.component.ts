@@ -192,12 +192,10 @@ export class PurchaseDetailsComponent implements OnInit {
     }, 0);
   }
 
-  // Calculate total selling price based on each product's assigned selling price
+  // Calculate total selling price based on actual sold product values
   calculateTotalSellingPrice(): number {
-    if (!this.purchase || !Array.isArray(this.purchase.products)) return 0;
-
-    return this.purchase.products.reduce((total: number, product: any) => {
-      return total + this.getProductTotalSellingPrice(product);
+    return this.getSoldProductLineEntries().reduce((total: number, item: any) => {
+      return total + (Number(item.totalAmount) || 0);
     }, 0);
   }
 
@@ -223,21 +221,18 @@ export class PurchaseDetailsComponent implements OnInit {
       .reduce((sum: number, item: any) => sum + (Number(item.qty) || 0), 0);
   }
 
-  // Get total selling price for a product using its assigned retail price × sold quantity
+  // Get total selling price for a product using the actual sold price from sales data
   getProductTotalSellingPrice(product: any): number {
     const productId = product?.productId ?? product?.id;
     if (productId === null || productId === undefined) return 0;
 
-    const actualSoldQty = this.getActualSoldQuantity(product);
-    const unitPrice = Number(product?.retailPrice ?? product?.salePrice ?? 0) || 0;
-
-    if (actualSoldQty > 0 && unitPrice > 0) {
-      return actualSoldQty * unitPrice;
-    }
-
     return this.getSoldProductLineEntries()
       .filter((item: any) => String(item.productId) === String(productId))
-      .reduce((sum: number, item: any) => sum + (Number(item.totalAmount) || 0), 0);
+      .reduce((sum: number, item: any) => {
+        const lineValue = Number(item.totalAmount) || 0;
+        const fallbackValue = (Number(item.qty) || 0) * (Number(item.retailPrice) || 0);
+        return sum + (lineValue || fallbackValue);
+      }, 0);
   }
 
   // Get sold quantity for a product
@@ -245,6 +240,23 @@ export class PurchaseDetailsComponent implements OnInit {
     const purchasedQty = product.qty || product.remainingQty || 0;
     const unsoldQty = product.unsoldQty || 0;
     return Math.max(0, purchasedQty - unsoldQty);
+  }
+
+  // Cost of the remaining unsold items only
+  getRemainingCost(product: any): number {
+    const purchasedQty = Number(product?.qty ?? product?.remainingQty ?? 0) || 0;
+    const actualSoldQty = this.getActualSoldQuantity(product);
+    const remainingQty = Math.max(0, purchasedQty - actualSoldQty);
+    const unitCost = Number(product?.cost ?? 0) || 0;
+    return remainingQty * unitCost;
+  }
+
+  calculateTotalRemainingCost(): number {
+    if (!this.purchase || !Array.isArray(this.purchase.products)) return 0;
+
+    return this.purchase.products.reduce((total: number, product: any) => {
+      return total + this.getRemainingCost(product);
+    }, 0);
   }
 
   // Get profit/loss for individual product
