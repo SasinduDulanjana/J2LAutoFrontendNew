@@ -176,6 +176,7 @@
                     </td>
                   </tr>
                 </ng-container>
+        
               </tbody>
             </table>
           </div>
@@ -190,6 +191,11 @@
                 <strong>Total Items Purchased:</strong> {{ calculateTotalItemsPurchased() }} units |
                 <strong>Items Sold:</strong> {{ calculateTotalItemsSold() }} units |
                 <strong>Items Remaining:</strong> {{ calculateTotalItemsRemaining() }} units
+              </p>
+              <p class="mb-0">
+                <strong>Total Selling Price:</strong> {{ calculateTotalAssignedSellingPrice() | currency:'INR':'Rs. ' }} |
+                <strong>Total Cost Price:</strong> {{ calculateTotalPurchaseCost() | currency:'INR':'Rs. ' }} |
+                <strong>Profit/Loss:</strong> {{ calculateProfitLoss() | currency:'INR':'Rs. ' }}
               </p>
               <p class="mb-0">
                 <strong>Cost Status:</strong>

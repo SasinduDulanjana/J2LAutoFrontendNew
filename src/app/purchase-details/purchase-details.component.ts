@@ -136,6 +136,44 @@ export class PurchaseDetailsComponent implements OnInit {
     );
   }
 
+  private getSoldProductLineEntries(): any[] {
+    if (!Array.isArray(this.soldProducts)) return [];
+
+    return this.soldProducts.flatMap((saleOrItem: any) => {
+      if (!saleOrItem) return [];
+
+      const saleEntries = Array.isArray(saleOrItem.soldProducts)
+        ? saleOrItem.soldProducts
+        : Array.isArray(saleOrItem.saleProducts)
+          ? saleOrItem.saleProducts
+          : [saleOrItem];
+
+      return saleEntries
+        .map((entry: any) => {
+          const productId = entry?.productId ?? entry?.product?.productId ?? entry?.product?.id ?? saleOrItem?.productId ?? saleOrItem?.product?.productId ?? saleOrItem?.product?.id;
+          const qty = Number(entry?.qty ?? entry?.quantity ?? entry?.soldQty ?? entry?.productQty ?? 0) || 0;
+          const unitPrice = Number(entry?.retailPrice ?? entry?.unitPrice ?? entry?.price ?? entry?.product?.retailPrice ?? entry?.product?.salePrice ?? saleOrItem?.retailPrice ?? saleOrItem?.unitPrice ?? 0) || 0;
+          const lineTotal = Number(
+            entry?.discountedTotal ??
+            entry?.lineTotal ??
+            (qty > 0 && unitPrice > 0 ? qty * unitPrice : undefined) ??
+            entry?.totalAmount ??
+            entry?.finalAmount ??
+            0
+          ) || 0;
+
+          return {
+            ...entry,
+            productId,
+            qty,
+            retailPrice: unitPrice,
+            totalAmount: lineTotal,
+          };
+        })
+        .filter((entry: any) => entry.productId !== null && entry.productId !== undefined);
+    });
+  }
+
   // Calculate total cost for all products
   calculateTotalPurchaseCost(): number {
     if (!this.purchase || !this.purchase.products) return 0;
@@ -145,12 +183,21 @@ export class PurchaseDetailsComponent implements OnInit {
     }, 0);
   }
 
-  // Calculate total selling price based on actual sold products
+  // Sum of the Selling Price column in the product table
+  calculateTotalAssignedSellingPrice(): number {
+    if (!this.purchase || !Array.isArray(this.purchase.products)) return 0;
+
+    return this.purchase.products.reduce((total: number, product: any) => {
+      return total + (Number(product?.retailPrice ?? product?.salePrice ?? 0) || 0);
+    }, 0);
+  }
+
+  // Calculate total selling price based on each product's assigned selling price
   calculateTotalSellingPrice(): number {
-    if (!this.soldProducts || this.soldProducts.length === 0) return 0;
-    
-    return this.soldProducts.reduce((total: number, sale: any) => {
-      return total + (sale.totalAmount || 0);
+    if (!this.purchase || !Array.isArray(this.purchase.products)) return 0;
+
+    return this.purchase.products.reduce((total: number, product: any) => {
+      return total + this.getProductTotalSellingPrice(product);
     }, 0);
   }
 
@@ -168,26 +215,29 @@ export class PurchaseDetailsComponent implements OnInit {
 
   // Get sold quantity for a product from soldProducts
   getActualSoldQuantity(product: any): number {
-    if (!this.soldProducts || this.soldProducts.length === 0) return 0;
-    
-    // Sum quantities from sold products for this product
-    const soldQty = this.soldProducts
-      .filter((sale: any) => sale.productId === product.productId)
-      .reduce((sum: number, sale: any) => sum + (sale.qty || 0), 0);
-    
-    return soldQty;
+    const productId = product?.productId ?? product?.id;
+    if (productId === null || productId === undefined) return 0;
+
+    return this.getSoldProductLineEntries()
+      .filter((item: any) => String(item.productId) === String(productId))
+      .reduce((sum: number, item: any) => sum + (Number(item.qty) || 0), 0);
   }
 
-  // Get total selling price for a product from soldProducts
+  // Get total selling price for a product using its assigned retail price × sold quantity
   getProductTotalSellingPrice(product: any): number {
-    if (!this.soldProducts || this.soldProducts.length === 0) return 0;
-    
-    // Sum total amounts for this product
-    const totalSold = this.soldProducts
-      .filter((sale: any) => sale.productId === product.productId)
-      .reduce((sum: number, sale: any) => sum + (sale.totalAmount || 0), 0);
-    
-    return totalSold;
+    const productId = product?.productId ?? product?.id;
+    if (productId === null || productId === undefined) return 0;
+
+    const actualSoldQty = this.getActualSoldQuantity(product);
+    const unitPrice = Number(product?.retailPrice ?? product?.salePrice ?? 0) || 0;
+
+    if (actualSoldQty > 0 && unitPrice > 0) {
+      return actualSoldQty * unitPrice;
+    }
+
+    return this.getSoldProductLineEntries()
+      .filter((item: any) => String(item.productId) === String(productId))
+      .reduce((sum: number, item: any) => sum + (Number(item.totalAmount) || 0), 0);
   }
 
   // Get sold quantity for a product
@@ -245,9 +295,8 @@ export class PurchaseDetailsComponent implements OnInit {
 
   // Calculate total items sold
   calculateTotalItemsSold(): number {
-    if (!this.soldProducts || this.soldProducts.length === 0) return 0;
-    return this.soldProducts.reduce((sum: number, sale: any) => {
-      return sum + (sale.qty || 0);
+    return this.getSoldProductLineEntries().reduce((sum: number, item: any) => {
+      return sum + (Number(item.qty) || 0);
     }, 0);
   }
 
