@@ -183,12 +183,14 @@ export class PurchaseDetailsComponent implements OnInit {
     }, 0);
   }
 
-  // Sum of the Selling Price column in the product table
+  // Sum of the expected selling value for all purchased items (price × qty)
   calculateTotalAssignedSellingPrice(): number {
     if (!this.purchase || !Array.isArray(this.purchase.products)) return 0;
 
     return this.purchase.products.reduce((total: number, product: any) => {
-      return total + (Number(product?.retailPrice ?? product?.salePrice ?? 0) || 0);
+      const qty = Number(product?.qty ?? product?.remainingQty ?? 0) || 0;
+      const unitPrice = Number(product?.retailPrice ?? product?.salePrice ?? 0) || 0;
+      return total + (qty * unitPrice);
     }, 0);
   }
 
