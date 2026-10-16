@@ -253,11 +253,28 @@ export class PurchaseDetailsComponent implements OnInit {
     return remainingQty * unitCost;
   }
 
+  // Remaining selling value of unsold items using qty × selling price
+  getRemainingSellingPrice(product: any): number {
+    const purchasedQty = Number(product?.qty ?? product?.remainingQty ?? 0) || 0;
+    const actualSoldQty = this.getActualSoldQuantity(product);
+    const remainingQty = Math.max(0, purchasedQty - actualSoldQty);
+    const unitPrice = Number(product?.retailPrice ?? product?.salePrice ?? 0) || 0;
+    return remainingQty * unitPrice;
+  }
+
   calculateTotalRemainingCost(): number {
     if (!this.purchase || !Array.isArray(this.purchase.products)) return 0;
 
     return this.purchase.products.reduce((total: number, product: any) => {
       return total + this.getRemainingCost(product);
+    }, 0);
+  }
+
+  calculateTotalRemainingSellingPrice(): number {
+    if (!this.purchase || !Array.isArray(this.purchase.products)) return 0;
+
+    return this.purchase.products.reduce((total: number, product: any) => {
+      return total + this.getRemainingSellingPrice(product);
     }, 0);
   }
 

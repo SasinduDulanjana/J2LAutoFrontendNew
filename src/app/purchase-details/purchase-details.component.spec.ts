@@ -39,4 +39,20 @@ describe('PurchaseDetailsComponent', () => {
     expect(component.getProductProfitLoss({ productId: 1, cost: 70 })).toBe(160);
     expect(component.calculateTotalAssignedSellingPrice()).toBe(150);
   });
+
+  it('should include quantity when calculating remaining selling value', () => {
+    component.purchase = {
+      products: [
+        { productId: 1, qty: 3, retailPrice: 100, cost: 70 },
+        { productId: 2, qty: 2, retailPrice: 50, cost: 30 }
+      ]
+    };
+
+    component.soldProducts = [
+      { soldProducts: [{ productId: 1, qty: 1, retailPrice: 100, totalAmount: 100 }] }
+    ];
+
+    expect(component.getRemainingSellingPrice({ productId: 1, qty: 3, retailPrice: 100 })).toBe(200);
+    expect(component.calculateTotalRemainingSellingPrice()).toBe(250);
+  });
 });

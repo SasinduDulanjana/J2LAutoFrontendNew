@@ -104,6 +104,7 @@
                   <th>Selling Price</th>
                   <th>Total Cost</th>
                   <th>Remaining Cost</th>
+                  <th>Remaining Selling Price</th>
                   <th>Total Sold</th>
                   <th>Profit/Loss</th>
                   <th>Actions</th>
@@ -128,6 +129,7 @@
                     <td>{{ product.retailPrice | currency:'INR':'Rs. ' }}</td>
                     <td>{{ (product.cost * (product.qty || product.remainingQty || 0)) | currency:'INR':'Rs. ' }}</td>
                     <td>{{ getRemainingCost(product) | currency:'INR':'Rs. ' }}</td>
+                    <td>{{ getRemainingSellingPrice(product) | currency:'INR':'Rs. ' }}</td>
                     <td>{{ getProductTotalSellingPrice(product) | currency:'INR':'Rs. ' }}</td>
                     <td [ngClass]="getProductProfitLoss(product) >= 0 ? 'text-success' : 'text-danger'">
                       <strong>{{ getProductProfitLoss(product) | currency:'INR':'Rs. ' }}</strong>
@@ -198,6 +200,7 @@
                 <strong>Expected Selling Price:</strong> {{ calculateTotalAssignedSellingPrice() | currency:'INR':'Rs. ' }} |
                 <strong>Total Cost Price:</strong> {{ calculateTotalPurchaseCost() | currency:'INR':'Rs. ' }} |
                 <strong>Remaining Cost:</strong> {{ calculateTotalRemainingCost() | currency:'INR':'Rs. ' }} |
+                <strong>Remaining Selling Price:</strong> {{ calculateTotalRemainingSellingPrice() | currency:'INR':'Rs. ' }} |
                 <strong>Profit/Loss:</strong> {{ calculateProfitLoss() | currency:'INR':'Rs. ' }}
               </p>
               <p class="mb-0">
